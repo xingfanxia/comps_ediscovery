@@ -21,10 +21,10 @@ upload_all:
 	aws s3 sync data/ s3://comps-ediscovery
 
 download_parsed:
-	aws s3 sync s3://comps-ediscovery/parsed data/
+	aws s3 sync s3://comps-ediscovery/parsed data/parsed/
 
 upload_parsed:
-	aws s3 sync data/ s3://comps-ediscovery/parsed 
+	aws s3 sync data/parsed s3://comps-ediscovery/parsed 
 	
 run:
 	jupyter notebook
