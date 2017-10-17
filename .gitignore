@@ -2,3 +2,5 @@
 data/
 *.pyc
 temp/
+*.csv
+._.DS_Store
