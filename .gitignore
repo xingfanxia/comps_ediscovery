@@ -4,3 +4,4 @@ data/
 temp/
 *.csv
 ._.DS_Store
+*.sh
