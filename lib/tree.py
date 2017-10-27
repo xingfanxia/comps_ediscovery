@@ -33,7 +33,7 @@ class Tree:
                 if node.left or node.right:
                      to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=node.id, min_feature=node.min_feature, min_break=node.min_break_point, min_gini=node.min_gini, rows=len(node.rows), left=len(node.left.rows), right=len(node.right.rows)))
                 else:
-                     to_put.append('{ID} [label="samples = {rows}\nvalues = [{left}, {right}]"];'.format(ID=node.id, rows=len(node.rows), left=node.get_proportions('R'), right=node.get_proportions('M')))
+                     to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=node.id, rows=len(node.rows), left=node.get_proportions('R'), right=node.get_proportions('M')))
                 if node.parent != None:
                     if node.side == 'l':
                         to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(node.parent, node.id))

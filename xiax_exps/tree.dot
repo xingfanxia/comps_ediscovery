@@ -1,53 +1,53 @@
 digraph Tree {
 node [shape=box];
-2974850473 [label="X[10] < 0.1734
+1627041018 [label="X[10] < 0.1734
 gini = 0.3866231853353914
 samples = 188
 distribution = [74, 114]"];
-7062461470 [label="X[3] < 0.0525
+6914585879 [label="X[3] < 0.0525
 gini = 0.1908688349366316
 samples = 74
 distribution = [59, 15]"];
-2974850473 -> 7062461470 [labeldistance=8, labelangle=30, xlabel="True"]
-1125776940 [label="X[44] < 0.2662
+1627041018 -> 6914585879 [labeldistance=8, labelangle=30, xlabel="True"]
+6397634873 [label="X[44] < 0.2662
 gini = 0.3526099198613819
 samples = 114
 distribution = [81, 33]"];
-2974850473 -> 1125776940 [labeldistance=8, labelangle=-30, xlabel="False"]
-2417634809 [label="X[0] < 0.0412
+1627041018 -> 6397634873 [labeldistance=8, labelangle=-30, xlabel="False"]
+8928110768 [label="X[0] < 0.0412
 gini = 0.06541778174249183
 samples = 59
 distribution = [57, 2]"];
-7062461470 -> 2417634809 [labeldistance=8, labelangle=30, xlabel="True"]
-1762320756 [label="X[44] < 0.1675
+6914585879 -> 8928110768 [labeldistance=8, labelangle=30, xlabel="True"]
+1903016023 [label="X[44] < 0.1675
 gini = 0.1904761904761905
 samples = 15
 distribution = [7, 8]"];
-7062461470 -> 1762320756 [labeldistance=8, labelangle=-30, xlabel="False"]
-9402639856 [label="X[35] < 0.5564
+6914585879 -> 1903016023 [labeldistance=8, labelangle=-30, xlabel="False"]
+9907503828 [label="X[35] < 0.5564
 gini = 0.35099715099715095
 samples = 81
 distribution = [65, 16]"];
-1125776940 -> 9402639856 [labeldistance=8, labelangle=30, xlabel="True"]
-5638708853 [label="samples = 33
-values = [0.0, 1.0]"];
-1125776940 -> 5638708853 [labeldistance=8, labelangle=-30, xlabel="False"]
-5869682784 [label="samples = 57
-values = [0.9649122807017544, 0.03508771929824561]"];
-2417634809 -> 5869682784 [labeldistance=8, labelangle=30, xlabel="True"]
-7730958837 [label="samples = 2
-values = [0.0, 1.0]"];
-2417634809 -> 7730958837 [labeldistance=8, labelangle=-30, xlabel="False"]
-7752762055 [label="samples = 7
-values = [0.7142857142857143, 0.2857142857142857]"];
-1762320756 -> 7752762055 [labeldistance=8, labelangle=30, xlabel="True"]
-4617040030 [label="samples = 8
-values = [0.0, 1.0]"];
-1762320756 -> 4617040030 [labeldistance=8, labelangle=-30, xlabel="False"]
-8639009637 [label="samples = 65
-values = [0.3230769230769231, 0.676923076923077]"];
-9402639856 -> 8639009637 [labeldistance=8, labelangle=30, xlabel="True"]
-1464176224 [label="samples = 16
-values = [1.0, 0.0]"];
-9402639856 -> 1464176224 [labeldistance=8, labelangle=-30, xlabel="False"]
+6397634873 -> 9907503828 [labeldistance=8, labelangle=30, xlabel="True"]
+4901246806 [label="samples = 33
+ratio = [0.0, 1.0]"];
+6397634873 -> 4901246806 [labeldistance=8, labelangle=-30, xlabel="False"]
+6581939416 [label="samples = 57
+ratio = [0.9649122807017544, 0.03508771929824561]"];
+8928110768 -> 6581939416 [labeldistance=8, labelangle=30, xlabel="True"]
+7038894081 [label="samples = 2
+ratio = [0.0, 1.0]"];
+8928110768 -> 7038894081 [labeldistance=8, labelangle=-30, xlabel="False"]
+4824427798 [label="samples = 7
+ratio = [0.7142857142857143, 0.2857142857142857]"];
+1903016023 -> 4824427798 [labeldistance=8, labelangle=30, xlabel="True"]
+7986621351 [label="samples = 8
+ratio = [0.0, 1.0]"];
+1903016023 -> 7986621351 [labeldistance=8, labelangle=-30, xlabel="False"]
+9105689603 [label="samples = 65
+ratio = [0.3230769230769231, 0.676923076923077]"];
+9907503828 -> 9105689603 [labeldistance=8, labelangle=30, xlabel="True"]
+7896827318 [label="samples = 16
+ratio = [1.0, 0.0]"];
+9907503828 -> 7896827318 [labeldistance=8, labelangle=-30, xlabel="False"]
 }
