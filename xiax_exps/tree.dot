@@ -1,53 +1,133 @@
 digraph Tree {
 node [shape=box];
-1627041018 [label="X[10] < 0.1734
+1481444012 [label="X[10] < 0.1734
 gini = 0.3866231853353914
 samples = 188
 distribution = [74, 114]"];
-6914585879 [label="X[3] < 0.0525
+9619683196 [label="X[3] < 0.0525
 gini = 0.1908688349366316
 samples = 74
 distribution = [59, 15]"];
-1627041018 -> 6914585879 [labeldistance=8, labelangle=30, xlabel="True"]
-6397634873 [label="X[44] < 0.2662
+1481444012 -> 9619683196 [labeldistance=8, labelangle=30, xlabel="True"]
+7883953841 [label="X[44] < 0.2662
 gini = 0.3526099198613819
 samples = 114
 distribution = [81, 33]"];
-1627041018 -> 6397634873 [labeldistance=8, labelangle=-30, xlabel="False"]
-8928110768 [label="X[0] < 0.0412
+1481444012 -> 7883953841 [labeldistance=8, labelangle=-30, xlabel="False"]
+6800601235 [label="X[0] < 0.0412
 gini = 0.06541778174249183
 samples = 59
 distribution = [57, 2]"];
-6914585879 -> 8928110768 [labeldistance=8, labelangle=30, xlabel="True"]
-1903016023 [label="X[44] < 0.1675
+9619683196 -> 6800601235 [labeldistance=8, labelangle=30, xlabel="True"]
+3825293012 [label="X[44] < 0.1675
 gini = 0.1904761904761905
 samples = 15
 distribution = [7, 8]"];
-6914585879 -> 1903016023 [labeldistance=8, labelangle=-30, xlabel="False"]
-9907503828 [label="X[35] < 0.5564
+9619683196 -> 3825293012 [labeldistance=8, labelangle=-30, xlabel="False"]
+5976503282 [label="X[35] < 0.5564
 gini = 0.35099715099715095
 samples = 81
 distribution = [65, 16]"];
-6397634873 -> 9907503828 [labeldistance=8, labelangle=30, xlabel="True"]
-4901246806 [label="samples = 33
+7883953841 -> 5976503282 [labeldistance=8, labelangle=30, xlabel="True"]
+1138778432 [label="samples = 33
 ratio = [0.0, 1.0]"];
-6397634873 -> 4901246806 [labeldistance=8, labelangle=-30, xlabel="False"]
-6581939416 [label="samples = 57
-ratio = [0.9649122807017544, 0.03508771929824561]"];
-8928110768 -> 6581939416 [labeldistance=8, labelangle=30, xlabel="True"]
-7038894081 [label="samples = 2
+7883953841 -> 1138778432 [labeldistance=8, labelangle=-30, xlabel="False"]
+6008376467 [label="X[2] < 0.0024
+gini = 0.03446115288220553
+samples = 57
+distribution = [1, 56]"];
+6800601235 -> 6008376467 [labeldistance=8, labelangle=30, xlabel="True"]
+7737839605 [label="samples = 2
 ratio = [0.0, 1.0]"];
-8928110768 -> 7038894081 [labeldistance=8, labelangle=-30, xlabel="False"]
-4824427798 [label="samples = 7
-ratio = [0.7142857142857143, 0.2857142857142857]"];
-1903016023 -> 4824427798 [labeldistance=8, labelangle=30, xlabel="True"]
-7986621351 [label="samples = 8
+6800601235 -> 7737839605 [labeldistance=8, labelangle=-30, xlabel="False"]
+9490674145 [label="X[8] < 0.0889
+gini = 0.0
+samples = 7
+distribution = [2, 5]"];
+3825293012 -> 9490674145 [labeldistance=8, labelangle=30, xlabel="True"]
+1216407956 [label="samples = 8
 ratio = [0.0, 1.0]"];
-1903016023 -> 7986621351 [labeldistance=8, labelangle=-30, xlabel="False"]
-9105689603 [label="samples = 65
-ratio = [0.3230769230769231, 0.676923076923077]"];
-9907503828 -> 9105689603 [labeldistance=8, labelangle=30, xlabel="True"]
-7896827318 [label="samples = 16
+3825293012 -> 1216407956 [labeldistance=8, labelangle=-30, xlabel="False"]
+9837614871 [label="X[50] < 0.0125
+gini = 0.3152658152658153
+samples = 65
+distribution = [27, 38]"];
+5976503282 -> 9837614871 [labeldistance=8, labelangle=30, xlabel="True"]
+3659008073 [label="samples = 16
 ratio = [1.0, 0.0]"];
-9907503828 -> 7896827318 [labeldistance=8, labelangle=-30, xlabel="False"]
+5976503282 -> 3659008073 [labeldistance=8, labelangle=-30, xlabel="False"]
+9861073705 [label="samples = 1
+ratio = [0.0, 1.0]"];
+6008376467 -> 9861073705 [labeldistance=8, labelangle=30, xlabel="True"]
+1643398521 [label="X[27] < 1.0
+gini = 0.0
+samples = 56
+distribution = [55, 1]"];
+6008376467 -> 1643398521 [labeldistance=8, labelangle=-30, xlabel="False"]
+5319167794 [label="samples = 2
+ratio = [0.0, 1.0]"];
+9490674145 -> 5319167794 [labeldistance=8, labelangle=30, xlabel="True"]
+6116398006 [label="samples = 5
+ratio = [1.0, 0.0]"];
+9490674145 -> 6116398006 [labeldistance=8, labelangle=-30, xlabel="False"]
+5195282807 [label="X[51] < 0.0095
+gini = 0.28001628001627993
+samples = 27
+distribution = [13, 14]"];
+9837614871 -> 5195282807 [labeldistance=8, labelangle=30, xlabel="True"]
+7339679292 [label="X[41] < 0.0866
+gini = 0.1385448916408668
+samples = 38
+distribution = [4, 34]"];
+9837614871 -> 7339679292 [labeldistance=8, labelangle=-30, xlabel="False"]
+2179720813 [label="samples = 55
+ratio = [1.0, 0.0]"];
+1643398521 -> 2179720813 [labeldistance=8, labelangle=30, xlabel="True"]
+5788380520 [label="samples = 1
+ratio = [0.0, 1.0]"];
+1643398521 -> 5788380520 [labeldistance=8, labelangle=-30, xlabel="False"]
+7794037104 [label="X[0] < 0.01
+gini = 0.0
+samples = 13
+distribution = [1, 12]"];
+5195282807 -> 7794037104 [labeldistance=8, labelangle=30, xlabel="True"]
+6849477963 [label="X[14] < 0.6479
+gini = 0.12987012987012994
+samples = 14
+distribution = [11, 3]"];
+5195282807 -> 6849477963 [labeldistance=8, labelangle=-30, xlabel="False"]
+1205466260 [label="X[0] < 0.0587
+gini = 0.0
+samples = 4
+distribution = [3, 1]"];
+7339679292 -> 1205466260 [labeldistance=8, labelangle=30, xlabel="True"]
+7698960657 [label="X[18] < 0.2745
+gini = 0.0
+samples = 34
+distribution = [2, 32]"];
+7339679292 -> 7698960657 [labeldistance=8, labelangle=-30, xlabel="False"]
+3934303407 [label="samples = 1
+ratio = [0.0, 1.0]"];
+7794037104 -> 3934303407 [labeldistance=8, labelangle=30, xlabel="True"]
+7324905588 [label="samples = 12
+ratio = [1.0, 0.0]"];
+7794037104 -> 7324905588 [labeldistance=8, labelangle=-30, xlabel="False"]
+9858139607 [label="samples = 11
+ratio = [0.09090909090909091, 0.9090909090909091]"];
+6849477963 -> 9858139607 [labeldistance=8, labelangle=30, xlabel="True"]
+5328763732 [label="samples = 3
+ratio = [1.0, 0.0]"];
+6849477963 -> 5328763732 [labeldistance=8, labelangle=-30, xlabel="False"]
+8978318241 [label="samples = 3
+ratio = [1.0, 0.0]"];
+1205466260 -> 8978318241 [labeldistance=8, labelangle=30, xlabel="True"]
+7678738007 [label="samples = 1
+ratio = [0.0, 1.0]"];
+1205466260 -> 7678738007 [labeldistance=8, labelangle=-30, xlabel="False"]
+6303898653 [label="samples = 2
+ratio = [1.0, 0.0]"];
+7698960657 -> 6303898653 [labeldistance=8, labelangle=30, xlabel="True"]
+4422090120 [label="samples = 32
+ratio = [0.0, 1.0]"];
+7698960657 -> 4422090120 [labeldistance=8, labelangle=-30, xlabel="False"]
 }

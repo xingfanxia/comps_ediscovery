@@ -1,0 +1,133 @@
+digraph Tree {
+node [shape=box];
+6024831014 [label="X[10] < 0.1734
+gini = 0.3866231853353914
+samples = 188
+distribution = [74, 114]"];
+2982352972 [label="X[3] < 0.0525
+gini = 0.1908688349366316
+samples = 74
+distribution = [59, 15]"];
+6024831014 -> 2982352972 [labeldistance=8, labelangle=30, xlabel="True"]
+4216920791 [label="X[44] < 0.2662
+gini = 0.3526099198613819
+samples = 114
+distribution = [81, 33]"];
+6024831014 -> 4216920791 [labeldistance=8, labelangle=-30, xlabel="False"]
+9869161638 [label="X[0] < 0.0412
+gini = 0.06541778174249183
+samples = 59
+distribution = [57, 2]"];
+2982352972 -> 9869161638 [labeldistance=8, labelangle=30, xlabel="True"]
+4500897446 [label="X[44] < 0.1675
+gini = 0.1904761904761905
+samples = 15
+distribution = [7, 8]"];
+2982352972 -> 4500897446 [labeldistance=8, labelangle=-30, xlabel="False"]
+5345824640 [label="X[35] < 0.5564
+gini = 0.35099715099715095
+samples = 81
+distribution = [65, 16]"];
+4216920791 -> 5345824640 [labeldistance=8, labelangle=30, xlabel="True"]
+7232568316 [label="samples = 33
+ratio = [0.0, 1.0]"];
+4216920791 -> 7232568316 [labeldistance=8, labelangle=-30, xlabel="False"]
+2547858957 [label="X[2] < 0.0024
+gini = 0.03446115288220553
+samples = 57
+distribution = [1, 56]"];
+9869161638 -> 2547858957 [labeldistance=8, labelangle=30, xlabel="True"]
+7948422874 [label="samples = 2
+ratio = [0.0, 1.0]"];
+9869161638 -> 7948422874 [labeldistance=8, labelangle=-30, xlabel="False"]
+6433874808 [label="X[8] < 0.0889
+gini = 0.0
+samples = 7
+distribution = [2, 5]"];
+4500897446 -> 6433874808 [labeldistance=8, labelangle=30, xlabel="True"]
+7833314242 [label="samples = 8
+ratio = [0.0, 1.0]"];
+4500897446 -> 7833314242 [labeldistance=8, labelangle=-30, xlabel="False"]
+6901030300 [label="X[50] < 0.0125
+gini = 0.3152658152658153
+samples = 65
+distribution = [27, 38]"];
+5345824640 -> 6901030300 [labeldistance=8, labelangle=30, xlabel="True"]
+1111524703 [label="samples = 16
+ratio = [1.0, 0.0]"];
+5345824640 -> 1111524703 [labeldistance=8, labelangle=-30, xlabel="False"]
+2022203636 [label="samples = 1
+ratio = [0.0, 1.0]"];
+2547858957 -> 2022203636 [labeldistance=8, labelangle=30, xlabel="True"]
+1439913420 [label="X[27] < 1.0
+gini = 0.0
+samples = 56
+distribution = [55, 1]"];
+2547858957 -> 1439913420 [labeldistance=8, labelangle=-30, xlabel="False"]
+6514042575 [label="samples = 2
+ratio = [0.0, 1.0]"];
+6433874808 -> 6514042575 [labeldistance=8, labelangle=30, xlabel="True"]
+9625326158 [label="samples = 5
+ratio = [1.0, 0.0]"];
+6433874808 -> 9625326158 [labeldistance=8, labelangle=-30, xlabel="False"]
+8176074814 [label="X[51] < 0.0095
+gini = 0.28001628001627993
+samples = 27
+distribution = [13, 14]"];
+6901030300 -> 8176074814 [labeldistance=8, labelangle=30, xlabel="True"]
+2025222459 [label="X[41] < 0.0866
+gini = 0.1385448916408668
+samples = 38
+distribution = [4, 34]"];
+6901030300 -> 2025222459 [labeldistance=8, labelangle=-30, xlabel="False"]
+8165799874 [label="samples = 55
+ratio = [1.0, 0.0]"];
+1439913420 -> 8165799874 [labeldistance=8, labelangle=30, xlabel="True"]
+4952626714 [label="samples = 1
+ratio = [0.0, 1.0]"];
+1439913420 -> 4952626714 [labeldistance=8, labelangle=-30, xlabel="False"]
+6034244464 [label="X[0] < 0.01
+gini = 0.0
+samples = 13
+distribution = [1, 12]"];
+8176074814 -> 6034244464 [labeldistance=8, labelangle=30, xlabel="True"]
+3673907292 [label="X[14] < 0.6479
+gini = 0.12987012987012994
+samples = 14
+distribution = [11, 3]"];
+8176074814 -> 3673907292 [labeldistance=8, labelangle=-30, xlabel="False"]
+2104729093 [label="X[0] < 0.0587
+gini = 0.0
+samples = 4
+distribution = [3, 1]"];
+2025222459 -> 2104729093 [labeldistance=8, labelangle=30, xlabel="True"]
+9624936210 [label="X[18] < 0.2745
+gini = 0.0
+samples = 34
+distribution = [2, 32]"];
+2025222459 -> 9624936210 [labeldistance=8, labelangle=-30, xlabel="False"]
+7425028897 [label="samples = 1
+ratio = [0.0, 1.0]"];
+6034244464 -> 7425028897 [labeldistance=8, labelangle=30, xlabel="True"]
+2382316865 [label="samples = 12
+ratio = [1.0, 0.0]"];
+6034244464 -> 2382316865 [labeldistance=8, labelangle=-30, xlabel="False"]
+6810712367 [label="samples = 11
+ratio = [0.09090909090909091, 0.9090909090909091]"];
+3673907292 -> 6810712367 [labeldistance=8, labelangle=30, xlabel="True"]
+7814714370 [label="samples = 3
+ratio = [1.0, 0.0]"];
+3673907292 -> 7814714370 [labeldistance=8, labelangle=-30, xlabel="False"]
+4151781008 [label="samples = 3
+ratio = [1.0, 0.0]"];
+2104729093 -> 4151781008 [labeldistance=8, labelangle=30, xlabel="True"]
+7487935945 [label="samples = 1
+ratio = [0.0, 1.0]"];
+2104729093 -> 7487935945 [labeldistance=8, labelangle=-30, xlabel="False"]
+9875473854 [label="samples = 2
+ratio = [1.0, 0.0]"];
+9624936210 -> 9875473854 [labeldistance=8, labelangle=30, xlabel="True"]
+7876318398 [label="samples = 32
+ratio = [0.0, 1.0]"];
+9624936210 -> 7876318398 [labeldistance=8, labelangle=-30, xlabel="False"]
+}

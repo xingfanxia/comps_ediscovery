@@ -1,0 +1,32 @@
+digraph Tree {
+node [shape=box];
+6024831014 [label="X[10] < 0.1734
+gini = 0.3866231853353914
+samples = 188
+distribution = [74, 114]"];
+4216920791 [label="X[44] < 0.2662
+gini = 0.3526099198613819
+samples = 114
+distribution = [81, 33]"];
+6024831014 -> 4216920791 [labeldistance=8, labelangle=-30, xlabel="False"]
+5345824640 [label="X[35] < 0.5564
+gini = 0.35099715099715095
+samples = 81
+distribution = [65, 16]"];
+4216920791 -> 5345824640 [labeldistance=8, labelangle=30, xlabel="True"]
+6901030300 [label="X[50] < 0.0125
+gini = 0.3152658152658153
+samples = 65
+distribution = [27, 38]"];
+5345824640 -> 6901030300 [labeldistance=8, labelangle=30, xlabel="True"]
+2025222459 [label="X[41] < 0.0866
+gini = 0.1385448916408668
+samples = 38
+distribution = [4, 34]"];
+6901030300 -> 2025222459 [labeldistance=8, labelangle=-30, xlabel="False"]
+2104729093 [label="X[0] < 0.0587
+gini = 0.0
+samples = 4
+distribution = [3, 1]"];
+2025222459 -> 2104729093 [labeldistance=8, labelangle=30, xlabel="True"]
+}
