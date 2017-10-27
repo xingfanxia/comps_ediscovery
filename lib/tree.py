@@ -21,6 +21,33 @@ class Tree:
         self.benchmark = benchmark
         self.head = Node(data, rows, features, 0, depth)
         self.oob_error = -1
+    
+    def visualize(self):
+        cur = self.head
+        to_put = []
+        nodes = [cur]
+        depth = 0
+        while len(nodes) > 0:
+            children = []           
+            for node in nodes:
+                if node.left or node.right:
+                     to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=node.id, min_feature=node.min_feature, min_break=node.min_break_point, min_gini=node.min_gini, rows=len(node.rows), left=len(node.left.rows), right=len(node.right.rows)))
+                else:
+                     to_put.append('{ID} [label="samples = {rows}\nvalues = [{left}, {right}]"];'.format(ID=node.id, rows=len(node.rows), left=node.get_proportions('R'), right=node.get_proportions('M')))
+                if node.parent != None:
+                    if node.side == 'l':
+                        to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(node.parent, node.id))
+                    else:
+                        to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(node.parent, node.id))
+                if node.left:
+                    children.append(node.left)
+                if node.right:
+                    children.append(node.right)
+            nodes = children
+        joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}" 
+        with open("tree.dot", "w") as f:
+            f.write(joined)
+        return joined
         
     '''
     Recursively split until geni/entropy benchmark met or max_depth reached
@@ -102,7 +129,6 @@ class Tree:
         self.__init__(temp.data, temp.depth, temp.benchmark, temp.rows, temp.features)
 #         reassign the head
         self.head = temp.head
-    
     
     '''
     String representation

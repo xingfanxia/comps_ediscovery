@@ -7,7 +7,7 @@ import numpy as np
 import pandas as pd
 class Node:
       
-    def __init__(self, data, rows, features, depth, max_depth):
+    def __init__(self, data, rows, features, depth, max_depth, parent=None, side=None):
         self.left = None
         self.right = None
         self.data = data
@@ -16,12 +16,14 @@ class Node:
         self.label_index = 60
         self.labels = ['R', 'M']
         self.spliting_feature_val = None
-        self.id = '%030x' % random.randrange(16**30)
+        self.id = random.randrange(10**9, 10**10)
         self.depth = depth
         self.max_depth = max_depth
         self.min_feature = None
         self.min_break_point = None
         self.min_gini = None
+        self.parent = parent
+        self.side = side
 
     
     def calc_shannon_entropy(self):
@@ -115,8 +117,8 @@ class Node:
             print(to_parse)
             print(self.calc_gini_index())
         #Node(self.data, , [x for x in self.features if x != feature], self.depth+1, self.max_depth)
-        self.left = Node(self.data, left_members, [x for x in self.features if x != min_feature], self.depth+1, self.max_depth)
-        self.right = Node(self.data, right_members, [x for x in self.features if x != min_feature], self.depth+1, self.max_depth)
+        self.left = Node(self.data, left_members, [x for x in self.features if x != min_feature], self.depth+1, self.max_depth, parent=self.id, side='l')
+        self.right = Node(self.data, right_members, [x for x in self.features if x != min_feature], self.depth+1, self.max_depth, parent=self.id, side='r')
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini
         try:
             if self.left is None:
@@ -211,7 +213,7 @@ class Node:
     
     def __str__(self):
 #         if self.left and self.right:
-        children = [x.id for x in (self.left, self.right)] if self.left and self.right else []
+        children = [(x.side, x.id) for x in (self.left, self.right)] if self.left and self.right else []
         return "[{ID}, {Gini}, {Size}, {Feature}, {BP}, {Children}]".format(ID=self.id, 
                                                             Gini = self.calc_gini_index(),
                                                             Size = len(self.rows),
