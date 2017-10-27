@@ -1,7 +1,7 @@
 '''
 A dummy version of tree nodes
 '''
-from .exceptions import *
+from lib.exceptions import *
 import random
 import numpy as np
 import pandas as pd

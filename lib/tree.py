@@ -1,9 +1,10 @@
 '''
 A dummy implementation of decision trees
 '''
-from .node import Node
+from lib.node import Node
 import numpy as np
 import pandas as pd
+import pickle
 class Tree:
     
     '''

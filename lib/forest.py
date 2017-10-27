@@ -1,11 +1,12 @@
 '''
 Dummy Version of Random Forest
 '''
-from .tree import Tree
-from .exceptions import *
+from lib.tree import Tree
+from lib.exceptions import *
 import numpy as np
 import pandas as pd
 import random
+import pickle
 
 class RNF: 
     '''
