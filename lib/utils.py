@@ -1,13 +1,10 @@
 # import lib.forest as forest
 import math
 import random
-import pickle
 import numpy as np
 import pandas as pd
-from .exceptions import *
-from .node import Node
-from .tree import Tree
-from .forest import RNF
+from lib.tree import Tree
+from lib.forest import RNF
 
 def cross_val_tree(df, tries):
     for i in range(tries):
