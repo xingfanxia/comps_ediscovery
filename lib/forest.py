@@ -8,7 +8,7 @@ import pandas as pd
 import random
 import pickle
 
-class RNF: 
+class RNF:
     '''
     params:
     train_data - training data to trainthe tree
@@ -27,17 +27,19 @@ class RNF:
         self.n_max_input = n_max_input
 #         self.features = [()] #list of tuples like (tree, emails, features)
         random.seed(random_seed)
-    
+
         np.random.seed(random_seed)
-    
+
+        self.oob_threshold = 0
+
     '''
-    Randomly select features and emails from the train_data 
+    Randomly select features and emails from the train_data
     '''
     def random_select(self, train_data):
         selected_rows = np.random.choice(self.train_data.shape[0], self.n_max_input)
         selected_features = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
         return (selected_rows, selected_features)
-        
+
     '''
     pass randomly selected emails and features to each tree
     '''
@@ -50,14 +52,14 @@ class RNF:
             self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1]))
         for tree in self.trees:
             tree.fit()
-    
+
     '''
     calculate a proba from output of each tree's prediction
     should ouput two arrays: probas and classfication
     '''
     def some_majority_count_metric(self, score):
         return np.mean(score, axis=0)
-    
+
     def predict(self, test_data):
         trees= [tree.predict(test_data) for tree in self.trees]
         scores = [ list() for doc in trees[0]]
@@ -67,38 +69,45 @@ class RNF:
         probas = [self.some_majority_count_metric(score) for score in scores]
         classes = ['R' if proba[0] > proba[1] else 'M'  for proba in probas]
         return probas, classes
-    
+
     '''
-    params: 
+    params:
     more_data - more training data to update the forest
-    
-    return: 
+
+    return:
     Null or we can say something like which trees are changed
     '''
-    def update(more_data):
+    def update(self, more_data):
+        # use average as placeholder function
+        thresh = 0
+        for tree in self.trees:
+            thresh += tree.calc_oob_error()
+        thresh = thresh / len(self.trees)
+        return thresh
+
         #add more_data to the end of self.train_data
-        
+
         #calc oob error for each tree
-        
+
         #calc threshold
-        
+
         #for each tree in trees:
         #if oob < thresh
             #alg 3 (trash the tree and build a new one)
         #else alg 4
         pass
-    
+
     def store_rnf(self, file_path):
         f = open('file_path', 'wb')
         pickle.dump(self, f)
         f.close()
 #         pass
-    
+
     def load_rnf(self, file_path):
         f = open('file_path', 'rb')
         temp = pickle.load(f)
         f.close()
-        
+
 #         reinitialize some variables
         self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.n_max_feature, temp.n_max_input)
 #         the part that matters: load the pre-trained then stored trees into the RNF object instance

@@ -80,6 +80,7 @@ class Tree:
         for row in complement:
             case = self.data.loc[[row]]
             prediction = self.predict(case)
+            prediction = prediction[0]
             if prediction[0] > prediction[1]:
                 num_incorrect += 1 if case[60].values[0] == 'M' else 0
             else:
