@@ -61,10 +61,29 @@ class Tree:
     return: 
     Null or we can say something like which nodes are changed
     '''
-    def update(more_data):
-        #decide whether to call alg 3 or alg 4
-        #call the relevant one
-        pass
+    def update(self, updated_data, new_rows):
+        
+        # empty the list of rows stored in each node in the tree
+        nodes = [self.head]
+        for node in nodes:
+            node.rows = []
+            nodes.remove(node)
+            if node.left:
+                nodes.append(node.left)
+            if node.right:
+                nodes.append(node.right)
+        
+        # traverse each new data point through the tree, append row to each node
+        for index, row in updated_data.loc[new_rows].iterrows():
+            cur_node = self.head
+            while (cur_node.left and cur_node.right):
+                cur_node.rows.append(row)
+                if (row[cur_node.min_feature] < cur_node.min_break_point):
+                    cur_node = cur_node.left
+                else:
+                    cur_node = cur_node.right
+            # don't forget about that one last leaf!
+            cur_node.rows.append(row)
     
     '''
     return:

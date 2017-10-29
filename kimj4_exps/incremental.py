@@ -13,14 +13,21 @@ if not os.path.isfile(file_path):
     request.urlretrieve(d_url, file_path)
 
 df = pd.read_csv(file_path, header=None)
+df = shuffle(df)
+df.reset_index()
 # depth = 3
 # benchmark = None
 # rows = list(range(1, 170))
 # rows = numpy.random.choice(list(range(1,200)), size)
 # features = list(range(3, 10))
 
-f = RNF(df, 3, 3, None, 20, 140)
+f = RNF(df.loc[:100], 3, 3, None, 40, 20)
 f.fit()
+f.predict(df[150:160])
+f.update(df[:110])
+f.predict(df[150:160])
+
+
 # for tree in f.trees:
 #     print(tree.calc_oob_error())
 

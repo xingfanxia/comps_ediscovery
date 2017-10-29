@@ -70,6 +70,20 @@ class RNF:
         classes = ['R' if proba[0] > proba[1] else 'M'  for proba in probas]
         return probas, classes
 
+    def retrain_tree(self):
+        # assume that self.data contains the new data
+        # TODO: change as necessary
+        selected = self.random_select(self.train_data)
+        tree = Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1])
+        tree.fit()
+        return tree
+    
+    def update_leaves(self, tree):
+        # assume that self.data contains the new data
+        # TODO: change as necessary
+        tree.update(self.train_data, self.random_select(self.train_data)[0])
+
+    
     '''
     params:
     more_data - more training data to update the forest
@@ -78,25 +92,24 @@ class RNF:
     Null or we can say something like which trees are changed
     '''
     def update(self, more_data):
+        self.train_data = more_data
+        # or self.train_data.append(more_data)
+        
         # use average as placeholder function
         thresh = 0
         for tree in self.trees:
             thresh += tree.calc_oob_error()
         thresh = thresh / len(self.trees)
-        return thresh
+        self.oob_threshold = thresh
+        for i in range(len(self.trees)):
+            if (trees[i].oob_error < thresh):
+                # discard and remake
+                self.trees[i] = self.retrain_tree()
+            else:
+                # update leave nodes
+                self.update_leaves(self.trees[i])
 
-        #add more_data to the end of self.train_data
-
-        #calc oob error for each tree
-
-        #calc threshold
-
-        #for each tree in trees:
-        #if oob < thresh
-            #alg 3 (trash the tree and build a new one)
-        #else alg 4
-        pass
-
+                
     def store_rnf(self, file_path):
         f = open('file_path', 'wb')
         pickle.dump(self, f)
