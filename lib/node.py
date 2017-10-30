@@ -5,6 +5,8 @@ from lib.exceptions import *
 import random
 import numpy as np
 import pandas as pd
+import math
+
 class Node:
       
     def __init__(self, data, rows, features, depth, max_depth):
@@ -36,15 +38,15 @@ class Node:
     
     def calc_gini_index(self):
         raw_val = 1
-#         string = '['
-#         for row in self.rows:
-#             string += str(row) 
-#             string += ','
-#         string += ']'
-#         print(string)
-#         print(type(self.data))
-#         print(self.data.shape)
-#         print(self.label_index)
+#        string = '['
+#        for row in self.rows:
+#            string += str(row) 
+#            string += ','
+#        string += ']'
+#        print(string)
+#        print(type(self.data))
+#        print(self.data.shape)
+#        print(self.label_index)
         members = [self.data[self.label_index][x] for x in self.rows]
         for label in self.labels:
 #             members = self.data.loc[self.data[self.label_index] == label]
@@ -140,15 +142,18 @@ class Node:
     returns:
     (min_gini, min_break_point)
     '''
+#    def find_best_breakpoint(self, values, classes, feature):
     def find_best_breakpoint(self, values, classes):
         if len(values) != len(classes):
             raise ValueError("Values and classes must be the same length.")
         best_gini = 2
         best_ind = -1
+        multiple_classes_same_value = False #deal with cases like 2/R,3/R,3/M,4/M
         #class member values
         left_members = {}
         right_members = {}
-        
+        #print('vals:{}'.format(values))
+        #print('classes:{}'.format(classes))
         #everything starts on the right
         for i in range(len(values)):
             try:
@@ -168,13 +173,22 @@ class Node:
             right_members[classes[i]] -= 1
             
             #if i and i+1 aren't the same class, consider splitting here
-            if classes[i] != classes[i+1]:
+            diff_classes = classes[i] != classes[i+1]
+            diff_vals = values[i] != values[i+1]
+            if diff_vals and (diff_classes or multiple_classes_same_value):
+                #l_g_test = Node(self.data, [x for x in self.rows if self.data[feature][x] <= values[i]], [x for x in self.features], self.depth+1, self.max_depth).calc_gini_index()
+                #r_g_test = Node(self.data, [x for x in self.rows if self.data[feature][x] > values[i]], [x for x in self.features], self.depth+1, self.max_depth).calc_gini_index()
                 left_gini = Node.calc_gini_from_props(left_members)
                 right_gini = Node.calc_gini_from_props(right_members)
+                #assert math.isclose(left_gini,l_g_test)
+                #assert math.isclose(right_gini,r_g_test)
                 curr_gini = Node.aggregate_gini(left_gini, right_gini, i+1, len(values)-(i+1))
                 if best_gini > curr_gini:
                     best_gini = curr_gini
                     best_ind = i+1 #if we're less than the breakpoint, we're put in one bucket, and geq is in the other bucket
+                multiple_classes_same_value = False
+            elif (not diff_vals) and diff_classes:
+                multiple_classes_same_value = True
         #return the best value
         return (best_gini, values[best_ind])
             
