@@ -77,12 +77,15 @@ class Tree:
         for index, row in updated_data.loc[new_rows].iterrows():
             cur_node = self.head
             while (cur_node.left and cur_node.right):
+                if len(row) == 0:
+                    raise ValueError
                 cur_node.rows.append(row)
                 if (row[cur_node.min_feature] < cur_node.min_break_point):
                     cur_node = cur_node.left
                 else:
                     cur_node = cur_node.right
             # don't forget about that one last leaf!
+            raise ValueError
             cur_node.rows.append(row)
     
     '''

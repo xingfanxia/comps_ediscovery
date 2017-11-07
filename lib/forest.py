@@ -101,8 +101,12 @@ class RNF:
             thresh += tree.calc_oob_error()
         thresh = thresh / len(self.trees)
         self.oob_threshold = thresh
+        
+        # TODO: This is temporary code for testing!!!
+        #thresh = 0
+        
         for i in range(len(self.trees)):
-            if (trees[i].oob_error < thresh):
+            if (self.trees[i].oob_error < thresh):
                 # discard and remake
                 self.trees[i] = self.retrain_tree()
             else:
