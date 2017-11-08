@@ -6,3 +6,4 @@ temp/
 ._.DS_Store
 *.sh
 __pycache__/
+*.pickle
