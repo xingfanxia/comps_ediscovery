@@ -5,6 +5,7 @@ from lib.exceptions import *
 import random
 import numpy as np
 import pandas as pd
+import sys
 class Node:
       
     def __init__(self, data, rows, features, depth, max_depth):
@@ -96,7 +97,13 @@ class Node:
             to_parse = [(self.data[feature][x],self.data[self.label_index][x]) for x in self.rows]
             to_parse = pd.DataFrame(to_parse, columns=(feature,self.label_index), index=self.rows)
 #             print(to_parse)
-            to_parse.sort_values(feature, inplace=True)
+            
+            try:
+                to_parse.sort_values(feature, inplace=True)
+            except ValueError as err:
+                print('sort error!', err)
+                print(to_parse)
+            
 #             print(to_parse)
 #             to_parse = self.data[[feature, self.label_index]]
 #             to_parse = to_parse.loc[to_parse.index.isin (self.rows)]
@@ -222,7 +229,16 @@ class Node:
 #             "[{ID}, (Children=None)]".format(ID=self.id)
     
     def get_proportions(self, target_label):
-        members = [self.data[self.label_index][x] for x in self.rows]
+        try:
+            members = [self.data[self.label_index][x] for x in self.rows]
+        except KeyError as e:
+            print('error!: ', e)
+            print(self.rows)
+            print(len(self.data))
+            print(type(self.rows[0]))
+            
+        #members = [self.data[self.label_index][x] for x in self.rows]
+        
         filtered = [x for x in members if x == target_label]
 #         members = self.data.loc[self.data[self.label_index] == target_label]
 #         filtered = [x for x in members.index.values if x in self.rows]

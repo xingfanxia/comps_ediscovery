@@ -18,6 +18,9 @@ class RNF:
     n_max_features - max num of features to pass to each tree
     n_max_input - max num of input to pass to each tree
     '''
+    
+    
+    
     def __init__(self, train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input):
         self.trees = []
         self.train_data = train_data
@@ -31,13 +34,16 @@ class RNF:
         np.random.seed(random_seed)
 
         self.oob_threshold = 0
+        
+        self.label_col_num = 60
 
     '''
     Randomly select features and emails from the train_data
     '''
     def random_select(self, train_data):
         selected_rows = np.random.choice(self.train_data.shape[0], self.n_max_input)
-        selected_features = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
+        
+        selected_features = np.random.choice(self.train_data.shape[1] - 2, self.n_max_features, replace=False)
         return (selected_rows, selected_features)
 
     '''
@@ -92,6 +98,7 @@ class RNF:
     Null or we can say something like which trees are changed
     '''
     def update(self, more_data):
+        
         self.train_data = more_data
         # or self.train_data.append(more_data)
         
@@ -107,11 +114,13 @@ class RNF:
         
         for i in range(len(self.trees)):
             if (self.trees[i].oob_error < thresh):
+                
                 # discard and remake
                 self.trees[i] = self.retrain_tree()
             else:
                 # update leave nodes
                 self.update_leaves(self.trees[i])
+                
 
                 
     def store_rnf(self, file_path):
