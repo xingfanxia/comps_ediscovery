@@ -15,8 +15,8 @@ class Node:
         self.data = data
         self.rows = rows
         self.features = features
-        self.label_index = 60
-        self.labels = ['R', 'M']
+        self.label_index = 'Label'
+        self.labels = data[self.label_index].unique()
         self.spliting_feature_val = None
         self.id = random.randrange(10**9, 10**10)
         self.depth = depth
@@ -49,11 +49,13 @@ class Node:
 #        print(type(self.data))
 #        print(self.data.shape)
 #        print(self.label_index)
-        members = [self.data[self.label_index][x] for x in self.rows]
+#        members = [self.data[self.label_index][x] for x in self.rows]
+        members = self.data.loc[self.rows][self.label_index].values
         for label in self.labels:
 #             members = self.data.loc[self.data[self.label_index] == label]
             #maybe do as a for loop?
-            filtered = [x for x in members if x == label]
+            #filtered = [x for x in members if x == label]
+            filtered = members[members == label]
 #             filtered = members
             raw_val -= (len(filtered)/len(self.rows))**2
         return raw_val
