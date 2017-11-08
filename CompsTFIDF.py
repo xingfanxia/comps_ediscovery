@@ -20,21 +20,3 @@ def build_TFIDF_Matrix(df):
     vectorizer = TfidfVectorizer(stop_words = stop_words)
     vectorized = vectorizer.fit_transform(df["Message-Contents"])
     return vectorizer, vectorized
-
-
-
-
-
-#vectorizer = TfidfVectorizer(stop_words = stop_Words)
-#vectorized = vectorizer.fit_transform(our_Corpus)
-
-#print(vectorized.shape)
-#print(vectorized)
-#print(vectorized.toarray())
-##print(vectorizer.idf_)
-#print(vectorizer.get_feature_names())
-#
-# for i in range(vectorized.shape[0] - 1):
-#     print(our_Corpus[i])
-#     for j in range(len(vectorizer.get_feature_names())):
-#         print(vectorizer.get_feature_names()[j], vectorized.toarray()[i][j])
