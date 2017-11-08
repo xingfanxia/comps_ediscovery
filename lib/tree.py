@@ -4,7 +4,7 @@ A dummy implementation of decision trees
 from lib.node import Node
 import numpy as np
 import pandas as pd
-import pickle
+import pickle, os
 class Tree:
     
     '''
@@ -21,6 +21,35 @@ class Tree:
         self.benchmark = benchmark
         self.head = Node(data, rows, features, 0, depth)
         self.oob_error = -1
+    
+    def visualize(self):
+        if not os.path.exists('vis'):
+            os.makedirs('vis')
+        cur = self.head
+        to_put = []
+        nodes = [cur]
+        depth = 0
+        while len(nodes) > 0:
+            children = []           
+            for node in nodes:
+                if node.left or node.right:
+                     to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=node.id, min_feature=node.min_feature, min_break=node.min_break_point, min_gini=node.min_gini, rows=len(node.rows), left=len(node.left.rows), right=len(node.right.rows)))
+                else:
+                     to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=node.id, rows=len(node.rows), left=node.get_proportions('R'), right=node.get_proportions('M')))
+                if node.parent != None:
+                    if node.side == 'l':
+                        to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(node.parent, node.id))
+                    else:
+                        to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(node.parent, node.id))
+                if node.left:
+                    children.append(node.left)
+                if node.right:
+                    children.append(node.right)
+            nodes = children
+        joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}" 
+        with open("vis/tree.dot", "w") as f:
+            f.write(joined)
+        return joined
         
     '''
     Recursively split until geni/entropy benchmark met or max_depth reached
@@ -41,9 +70,21 @@ class Tree:
     def predict(self, test_data):
 #         assuming input data is a dataframe right now
         confidences = []
+        if not os.path.exists('vis'):
+            os.makedirs('vis')
         for index, row in test_data.iterrows():
+            to_put = []
             cur_node = self.head
             while (cur_node.left and cur_node.right):
+                if cur_node.left or cur_node.right:
+                     to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=cur_node.id, min_feature=cur_node.min_feature, min_break=cur_node.min_break_point, min_gini=cur_node.min_gini, rows=len(cur_node.rows), left=len(cur_node.left.rows), right=len(cur_node.right.rows)))
+                else:
+                     to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=cur_node.id, rows=len(cur_node.rows), left=cur_node.get_proportions('R'), right=cur_node.get_proportions('M')))
+                if cur_node.parent != None:
+                        if cur_node.side == 'l':
+                            to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(cur_node.parent, cur_node.id))
+                        else:
+                            to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(cur_node.parent, cur_node.id))                
                 if (row[cur_node.min_feature] < cur_node.min_break_point):
                     cur_node = cur_node.left
                 else:
@@ -52,6 +93,9 @@ class Tree:
             r_confidence = cur_node.get_proportions('R')
             m_confidence = cur_node.get_proportions('M')
             confidences.append((r_confidence, m_confidence))
+            joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}" 
+            with open("vis/{}_predict_vis.dot".format(index), "w") as f:
+                f.write(joined)
         return confidences
     
     '''
@@ -102,7 +146,6 @@ class Tree:
         self.__init__(temp.data, temp.depth, temp.benchmark, temp.rows, temp.features)
 #         reassign the head
         self.head = temp.head
-    
     
     '''
     String representation
