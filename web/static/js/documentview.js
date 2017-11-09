@@ -33,15 +33,19 @@ function httpGetAsync(theUrl, callback)
 var store = {
   debug: true,
   state: {
-    item: {Content : "Please Select an Email"}
+    item: {Contents : "Please Select an Email"}
   },
   setMessageAction (newValue) {
     if (this.debug) console.log('setMessageAction triggered with', newValue)
-    this.state.message = newValue
+    this.state.item = newValue
   },
   clearMessageAction () {
     if (this.debug) console.log('clearMessageAction triggered')
-    this.state.message = ''
+    this.state.item = {Contents : "Please Select an Email"}
+  },
+  getMessageAction () {
+    if (this.debug) console.log('getMessageAction triggered with', this.state.item.Contents)
+    return this.state.item.Contents
   }
 }
 
@@ -51,7 +55,13 @@ window.onload = function () {
     el: "#document",
     delimiters: ["[[", "]]"],
     data: {
-      message: store.state.item.Content
+      message: store.state.item.Contents
+    },
+    methods: {
+      updateView: function () {
+        console.log(this);
+        documentView.message = store.getMessageAction()
+      }
     }
   })
 
@@ -61,19 +71,20 @@ window.onload = function () {
     methods: {
         alert_user: function(item) {
         // `this` inside methods points to the Vue instance
-        console.log(item)
+        store.setMessageAction(item)
+        documentView.updateView()
         // `event` is the native DOM event
         if (event) {
-          alert(event.target.tagName)
+          //alert(event.target.tagName)
         }
       }
     },
     data: {
       items: [
         { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Pizza Tonight?', Sent_Date : '1/1/17', Contents : "Yo", id : 0 },
-        { Sender: 'Bob Doe', Receiver : 'John Doe', Subject : 'Pasta Tonight?', Sent_Date : '2/1/17', Contents : "Yo", id : 1 },
-        { Sender: 'Elliot Doe', Receiver : 'Randy Doe', Subject : '\'za Tonight?', Sent_Date : '3/1/17', Contents : "Yo", id : 2 },
-        { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Yolo', Sent_Date : '4/1/17', Contents : "Yo", id : 3 }
+        { Sender: 'Bob Doe', Receiver : 'John Doe', Subject : 'Pasta Tonight?', Sent_Date : '2/1/17', Contents : "hell0", id : 1 },
+        { Sender: 'Elliot Doe', Receiver : 'Randy Doe', Subject : '\'za Tonight?', Sent_Date : '3/1/17', Contents : "whats up", id : 2 },
+        { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Yolo', Sent_Date : '4/1/17', Contents : "butts", id : 3 }
       ]
     }
   })
