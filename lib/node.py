@@ -9,12 +9,13 @@ import math
 
 class Node:
       
-    def __init__(self, data, rows, features, depth, max_depth, parent=None, side=None):
+    def __init__(self, data, rows, features, depth, max_depth, cat_features, parent=None, side=None,):
         self.left = None
         self.right = None
         self.data = data
         self.rows = rows
         self.features = features
+        self.cat_features = cat_features
         self.label_index = 'Label'
         self.labels = data[self.label_index].unique()
         self.spliting_feature_val = None
@@ -77,12 +78,44 @@ class Node:
                 breaks.append(next_row[feature].values[0]) #float precision issue, care
         return breaks
     
-        
+    
+    def split_cat(self, feature):
+        best_gini = 2
+        uniques = self.data['From'].apply(lambda x: x[0]).unique()
+        for address in uniques:
+            #'split' on that address
+            # print(feature, address)
+            this_sender_rows = self.data.loc[self.data[feature].apply(lambda x: x[0]) == address].index.values
+            other_sender_rows = self.data.loc[self.data[feature].apply(lambda x: x[0]) != address].index.values
+
+            #maybe a little sketch to not remove this feature?
+            from_this_address = Node(self.data, this_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
+            from_other_address = Node(self.data, other_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
+
+            #record gini value
+            curr_gini = Node.aggregate_gini(from_this_address.calc_gini_index(), from_other_address.calc_gini_index(),
+                                           len(from_this_address.rows), len(from_other_address.rows))
+
+            #take the best gini value
+            if curr_gini < best_gini:
+                best_gini = curr_gini
+                best_address = address
+
+        return best_gini, best_address
+
+    def split_num(self, feature):
+        to_parse = [(self.data[feature][x],self.data[self.label_index][x]) for x in self.rows]
+        to_parse = pd.DataFrame(to_parse, columns=(feature,self.label_index), index=self.rows)
+        to_parse.sort_values(feature, inplace=True)
+        break_points = self.find_break_points(to_parse, feature)
+        bp_len_sum += len(break_points)
+
+        return self.find_best_breakpoint(to_parse.values[:,0], to_parse.values[:,1])
+
     '''
     Choose the best feature to split at this point
     i.e. low gini/entropy, high infoGain
     '''
-    
     def split(self):
         #are we a leaf node?
         if len(self.rows) == 0:
@@ -97,43 +130,41 @@ class Node:
         #we are not a leaf node.
         min_gini, min_feature, min_break_point, left_members, right_members = 2, -999, -999, [], []
         bp_len_sum = 0
+        new_features = []
         for feature in self.features:
-#             print('parsing')
-            to_parse = [(self.data[feature][x],self.data[self.label_index][x]) for x in self.rows]
-            to_parse = pd.DataFrame(to_parse, columns=(feature,self.label_index), index=self.rows)
-#             print(to_parse)
-            to_parse.sort_values(feature, inplace=True)
-#             print(to_parse)
-#             to_parse = self.data[[feature, self.label_index]]
-#             to_parse = to_parse.loc[to_parse.index.isin (self.rows)]
-#             to_parse.sort_values(feature, inplace=True)
-#             print(to_parse)
-            break_points = self.find_break_points(to_parse, feature)
-#             print(break_points)
-            bp_len_sum += len(break_points)
-
-            best_gini_this_feature, best_breakpoint_this_feature = self.find_best_breakpoint(to_parse.values[:,0], to_parse.values[:,1])
-            if best_gini_this_feature < min_gini:
-                left_members = to_parse.loc[to_parse[feature] < best_breakpoint_this_feature].index.values
-                right_members = to_parse.loc[to_parse[feature] >= best_breakpoint_this_feature].index.values
-                min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
-        if bp_len_sum == 0:
-            print(to_parse)
-            print(self.calc_gini_index())
-        #Node(self.data, , [x for x in self.features if x != feature], self.depth+1, self.max_depth)
-        self.left = Node(self.data, left_members, [x for x in self.features if x != min_feature], self.depth+1, self.max_depth, parent=self.id, side='l')
-        self.right = Node(self.data, right_members, [x for x in self.features if x != min_feature], self.depth+1, self.max_depth, parent=self.id, side='r')
+            members = self.data.loc[self.rows]
+            if feature in self.cat_features:
+                best_gini_this_feature, best_breakpoint_this_feature = self.split_cat(feature)
+                if best_gini_this_feature < min_gini:
+                    left_members = members.loc[members[feature].apply(lambda x: x[0]) == best_breakpoint_this_feature].index.values
+                    right_members = members.loc[members[feature].apply(lambda x: x[0]) != best_breakpoint_this_feature].index.values
+                    min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
+                    new_features = self.features
+            else:
+                best_gini_this_feature, best_breakpoint_this_feature = self.split_num(feature)
+                if best_gini_this_feature < min_gini:
+                    left_members = members.loc[members[feature] < best_breakpoint_this_feature].index.values
+                    right_members = members.loc[members[feature] >= best_breakpoint_this_feature].index.values
+                    min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
+                    new_features = [x for x in self.features if x != min_feature]
+        
+        self.left = Node(self.data, left_members, new_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l')
+        self.right = Node(self.data, right_members, new_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r')
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini
+        if len(self.right.rows) < 1:
+            print("R",self.right.min_gini, self.right.min_break_point, self.right.min_feature)
+        elif len(self.left.rows) < 1:
+            print("L",min_feature, min_break_point, self.rows)
         try:
             if self.left is None:
                 print(self.min_feature,self.min_break_point,self.min_gini)
             self.left.split()
-        except ValueError: # probably need a customized error class
-            pass
+        except ValueError as e: # probably need a customized error class
+            print(e)
         try:
             self.right.split()
-        except ValueError:
-            pass
+        except ValueError as e:
+            print(e)
     
     '''
     A faster way to find the best breakpoint. 
@@ -240,7 +271,7 @@ class Node:
 #             "[{ID}, (Children=None)]".format(ID=self.id)
     
     def get_proportions(self, target_label):
-        members = [self.data[self.label_index][x] for x in self.rows]
+        members = self.data.loc[self.rows][self.label_index].values
         filtered = [x for x in members if x == target_label]
 #         members = self.data.loc[self.data[self.label_index] == target_label]
 #         filtered = [x for x in members.index.values if x in self.rows]

@@ -13,14 +13,15 @@ class Tree:
     depth - max recursion depth of the tree
     benchmark - benchmark for geni/entropy
     '''
-    def __init__(self, data, depth, benchmark, rows, features): #should we include data here
+    def __init__(self, data, depth, benchmark, rows, features, cat_features): #should we include data here
         self.depth = depth
         self.rows = rows
         self.features = features
         self.data = data
         self.benchmark = benchmark
-        self.head = Node(data, rows, features, 0, depth)
+        self.head = Node(data, rows, features, 0, depth, cat_features)
         self.oob_error = -1
+        self.cat_features = cat_features
     
     def visualize(self):
         if not os.path.exists('vis'):
@@ -35,7 +36,7 @@ class Tree:
                 if node.left or node.right:
                      to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=node.id, min_feature=node.min_feature, min_break=node.min_break_point, min_gini=node.min_gini, rows=len(node.rows), left=len(node.left.rows), right=len(node.right.rows)))
                 else:
-                     to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=node.id, rows=len(node.rows), left=node.get_proportions('R'), right=node.get_proportions('M')))
+                     to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=node.id, rows=len(node.rows), left=node.get_proportions('0'), right=node.get_proportions('1')))
                 if node.parent != None:
                     if node.side == 'l':
                         to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(node.parent, node.id))
@@ -79,7 +80,7 @@ class Tree:
                 if cur_node.left or cur_node.right:
                      to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=cur_node.id, min_feature=cur_node.min_feature, min_break=cur_node.min_break_point, min_gini=cur_node.min_gini, rows=len(cur_node.rows), left=len(cur_node.left.rows), right=len(cur_node.right.rows)))
                 else:
-                     to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=cur_node.id, rows=len(cur_node.rows), left=cur_node.get_proportions('R'), right=cur_node.get_proportions('M')))
+                     to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=cur_node.id, rows=len(cur_node.rows), left=cur_node.get_proportions('0'), right=cur_node.get_proportions('1')))
                 if cur_node.parent != None:
                         if cur_node.side == 'l':
                             to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(cur_node.parent, cur_node.id))
