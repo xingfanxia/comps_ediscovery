@@ -27,6 +27,9 @@ class Node:
         self.min_gini = None
         self.parent = parent
         self.side = side
+        self.cat_already_split_on = []
+
+        
 
     
     def calc_shannon_entropy(self):
@@ -82,25 +85,44 @@ class Node:
     def split_cat(self, feature):
         best_gini = 2
         uniques = self.data['From'].apply(lambda x: x[0]).unique()
+        
+        to_parse = [(self.data[feature][x],self.data[self.label_index][x]) for x in self.rows]
+        to_parse = pd.DataFrame(to_parse, columns=(feature,self.label_index), index=self.rows)
+        
+        #print(to_parse)
+        
         for address in uniques:
-            #'split' on that address
-            # print(feature, address)
-            this_sender_rows = self.data.loc[self.data[feature].apply(lambda x: x[0]) == address].index.values
-            other_sender_rows = self.data.loc[self.data[feature].apply(lambda x: x[0]) != address].index.values
+            if (feature, address) in self.cat_already_split_on:
+                # this feature, address combo has already been split on, so move on to the next address.
+                continue
+            else:
+                #'split' on that address
+                #print(feature, address)
+                this_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: x[0]) == address].index.values
+                other_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: x[0]) != address].index.values
 
-            #maybe a little sketch to not remove this feature?
-            from_this_address = Node(self.data, this_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
-            from_other_address = Node(self.data, other_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
+                #maybe a little sketch to not remove this feature?
+                from_this_address = Node(self.data, this_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
+                from_other_address = Node(self.data, other_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
 
-            #record gini value
-            curr_gini = Node.aggregate_gini(from_this_address.calc_gini_index(), from_other_address.calc_gini_index(),
-                                           len(from_this_address.rows), len(from_other_address.rows))
+                #record gini value
+                curr_gini = Node.aggregate_gini(from_this_address.calc_gini_index(), from_other_address.calc_gini_index(),
+                                               len(from_this_address.rows), len(from_other_address.rows))
 
-            #take the best gini value
-            if curr_gini < best_gini:
-                best_gini = curr_gini
-                best_address = address
-
+                #take the best gini value
+                if curr_gini < best_gini:
+                    best_gini = curr_gini
+                    best_address = address
+                    
+                    # TODO: these are for debugging, remove later:
+                    best_left_rows = this_sender_rows
+                    best_right_rows = other_sender_rows
+        
+        print('\n')
+        print('split_cat: splitting on address: ' + best_address)
+        print('split_cat: num left: ' + str(len(best_left_rows)))
+        print('split_cat: num right: ' + str(len(best_right_rows)))
+        print('\n')        
         return best_gini, best_address
 
     def split_num(self, feature):
@@ -117,6 +139,11 @@ class Node:
     i.e. low gini/entropy, high infoGain
     '''
     def split(self):
+        if self.side == 'l':
+            print("I'm left!")
+        elif self.side == 'r':
+            print("I'm right!")
+        
         #are we a leaf node?
         if len(self.rows) == 0:
             raise ValueError('The node has no document feed, no more splitting')
@@ -136,10 +163,16 @@ class Node:
             if feature in self.cat_features:
                 best_gini_this_feature, best_breakpoint_this_feature = self.split_cat(feature)
                 if best_gini_this_feature < min_gini:
+                    print('best_breakpoint_this_feature: ' + best_breakpoint_this_feature)
+
                     left_members = members.loc[members[feature].apply(lambda x: x[0]) == best_breakpoint_this_feature].index.values
                     right_members = members.loc[members[feature].apply(lambda x: x[0]) != best_breakpoint_this_feature].index.values
                     min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
                     new_features = self.features
+                    
+                    
+                    
+                    
             else:
                 best_gini_this_feature, best_breakpoint_this_feature = self.split_num(feature)
                 if best_gini_this_feature < min_gini:
@@ -148,9 +181,22 @@ class Node:
                     min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
                     new_features = [x for x in self.features if x != min_feature]
         
+        
         self.left = Node(self.data, left_members, new_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l')
         self.right = Node(self.data, right_members, new_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r')
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini
+        
+        # This is just setting the children's variable
+        # TODO: do this more elegantly
+        self.left.cat_already_split_on = self.cat_already_split_on
+        self.right.cat_already_split_on = self.cat_already_split_on
+        
+        
+        if min_feature in self.cat_features:
+            # JK: keep track of the feature/address that you/parent split on.
+            self.left.cat_already_split_on.append((min_feature, min_break_point))
+            self.right.cat_already_split_on.append((min_feature, min_break_point))
+        
         if len(self.right.rows) < 1:
             print("R",self.right.min_gini, self.right.min_break_point, self.right.min_feature)
         elif len(self.left.rows) < 1:

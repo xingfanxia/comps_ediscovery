@@ -91,9 +91,9 @@ class Tree:
                 else:
                     cur_node = cur_node.right
 #         here, cur_node should be the leaf
-            r_confidence = cur_node.get_proportions('R')
-            m_confidence = cur_node.get_proportions('M')
-            confidences.append((r_confidence, m_confidence))
+            relevant_confidence = cur_node.get_proportions('1')
+            irrelevant_confidence = cur_node.get_proportions('0')
+            confidences.append((relevant_confidence, irrelevant_confidence))
             joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}" 
             with open("vis/{}_predict_vis.dot".format(index), "w") as f:
                 f.write(joined)
@@ -148,6 +148,7 @@ class Tree:
 #         reassign the head
         self.head = temp.head
     
+   
     '''
     String representation
     '''
