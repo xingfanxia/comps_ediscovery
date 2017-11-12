@@ -146,7 +146,6 @@ class Node:
         to_parse = pd.DataFrame(to_parse, columns=(feature,self.label_index), index=self.rows)
         to_parse.sort_values(feature, inplace=True)
         break_points = self.find_break_points(to_parse, feature)
-        bp_len_sum += len(break_points)
 
         return self.find_best_breakpoint(to_parse.values[:,0], to_parse.values[:,1])
 
