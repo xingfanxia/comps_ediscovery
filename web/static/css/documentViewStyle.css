@@ -1,7 +1,9 @@
 #emailList{
   float:left;
+  width:50%
 }
 
 #document{
   float:right;
+  width:50%
 }

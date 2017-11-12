@@ -1,35 +1,5 @@
-// httpGetAsync('/fakedata', parseData)
-
-function httpGetAsync(theUrl, callback)
-{
-    var xmlHttp = new XMLHttpRequest();
-    var response = ""
-    xmlHttp.onreadystatechange = function() {
-        if (xmlHttp.readyState == 4 && xmlHttp.status == 200)
-            callback(xmlHttp.responseText);
-    }
-    xmlHttp.open("GET", theUrl, true); // true for asynchronous
-    xmlHttp.send(null);
-}
 
 
-// function parseData(response){
-//   response = JSON.parse(response)
-//   console.log(response)
-//   var emailList = document.getElementById('emailList')
-//   var node = document.createElement("UL");
-//   for (var i in response.data.emails){
-//     console.log(i)
-//     var listElement = document.createElement("LI")
-//     listElement.onclick = function(){alert(this.textContent)}
-//     var textnode = document.createTextNode(response.data.emails[i]);
-//     listElement.appendChild(textnode);
-//     node.appendChild(listElement);
-//   }
-//   emailList.appendChild(node);
-// }
-
-//https://vuejs.org/v2/guide/state-management.html#Simple-State-Management-from-Scratch
 var store = {
   debug: true,
   state: {
@@ -37,7 +7,8 @@ var store = {
   },
   setMessageAction (newValue) {
     if (this.debug) console.log('setMessageAction triggered with', newValue)
-    this.state.item = newValue
+    axios.get("/data/" + newValue)
+    .then(response => {this.state.item.Contents = response.data['Message-Contents']})
   },
   clearMessageAction () {
     if (this.debug) console.log('clearMessageAction triggered')
@@ -80,12 +51,12 @@ window.onload = function () {
       }
     },
     data: {
-      items: [
-        { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Pizza Tonight?', Sent_Date : '1/1/17', Contents : "Yo", id : 0 },
-        { Sender: 'Bob Doe', Receiver : 'John Doe', Subject : 'Pasta Tonight?', Sent_Date : '2/1/17', Contents : "hell0", id : 1 },
-        { Sender: 'Elliot Doe', Receiver : 'Randy Doe', Subject : '\'za Tonight?', Sent_Date : '3/1/17', Contents : "whats up", id : 2 },
-        { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Yolo', Sent_Date : '4/1/17', Contents : "butts", id : 3 }
-      ]
-    }
+      items: {}
+    },
+      mounted() {
+        console.log('yolo')
+        axios.get("/datakey")
+        .then(response => {this.items = response.data})
+      }
   })
 }
