@@ -84,12 +84,13 @@ class Node:
     
     def split_cat(self, feature):
         best_gini = 2
-        uniques = self.data['From'].apply(lambda x: x[0]).unique()
-        
+
+        #TODO: do we need to calculate to_parse, or can we just do self.data.loc[self.rows]?
         to_parse = [(self.data[feature][x],self.data[self.label_index][x]) for x in self.rows]
         to_parse = pd.DataFrame(to_parse, columns=(feature,self.label_index), index=self.rows)
-        
-        #print(to_parse)
+
+        #TODO: we might want to keep track of all members instead of just the firsts
+        uniques = to_parse[feature].apply(lambda x: x[0]).unique()
         
         for address in uniques:
             if (feature, address) in self.cat_already_split_on:
@@ -143,7 +144,6 @@ class Node:
             print("I'm left!")
         elif self.side == 'r':
             print("I'm right!")
-        
         #are we a leaf node?
         if len(self.rows) == 0:
             raise ValueError('The node has no document feed, no more splitting')
@@ -168,22 +168,38 @@ class Node:
                     left_members = members.loc[members[feature].apply(lambda x: x[0]) == best_breakpoint_this_feature].index.values
                     right_members = members.loc[members[feature].apply(lambda x: x[0]) != best_breakpoint_this_feature].index.values
                     min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
-                    new_features = self.features
                     
-                    
-                    
-                    
+                    #If there are no more options for this feature, remove it from consideration for a child
+                    unique_left = self.data.loc[left_members][feature].apply(lambda x: x[0]).unique()
+                    unique_right = self.data.loc[right_members][feature].apply(lambda x: x[0]).unique()
+                    left_are_options = False
+                    right_are_options = False
+
+                    for unl in unique_left:
+                        if unl not in self.cat_already_split_on and unl != best_breakpoint_this_feature:
+                            left_are_options = True
+                            break
+
+                    for unr in unique_right:
+                        if unr not in self.cat_already_split_on and unr != best_breakpoint_this_feature:
+                            right_are_options = True
+                            break
+
+                    left_features = self.features if left_are_options else [x for x in self.features if x != min_feature]
+                    right_features = self.features if right_are_options else [x for x in self.features if x != min_feature]
+                
             else:
                 best_gini_this_feature, best_breakpoint_this_feature = self.split_num(feature)
                 if best_gini_this_feature < min_gini:
                     left_members = members.loc[members[feature] < best_breakpoint_this_feature].index.values
                     right_members = members.loc[members[feature] >= best_breakpoint_this_feature].index.values
                     min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
-                    new_features = [x for x in self.features if x != min_feature]
+                    left_features = [x for x in self.features if x != min_feature]
+                    right_features = [x for x in self.features if x != min_feature]
         
         
-        self.left = Node(self.data, left_members, new_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l')
-        self.right = Node(self.data, right_members, new_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r')
+        self.left = Node(self.data, left_members, left_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l')
+        self.right = Node(self.data, right_members, right_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r')
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini
         
         # This is just setting the children's variable
@@ -201,6 +217,7 @@ class Node:
             print("R",self.right.min_gini, self.right.min_break_point, self.right.min_feature)
         elif len(self.left.rows) < 1:
             print("L",min_feature, min_break_point, self.rows)
+
         try:
             if self.left is None:
                 print(self.min_feature,self.min_break_point,self.min_gini)
