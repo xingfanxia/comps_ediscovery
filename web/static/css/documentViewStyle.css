@@ -4,6 +4,7 @@
 }
 
 #document{
+  white-space: pre-wrap;
   float:right;
   width:50%
 }

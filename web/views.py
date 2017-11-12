@@ -42,4 +42,3 @@ def poc():
 
 
 app.run(debug=True)
-adsf
