@@ -84,13 +84,16 @@ class Node:
     
     def split_cat(self, feature):
         best_gini = 2
-
+        best_address = None
+        
         #TODO: do we need to calculate to_parse, or can we just do self.data.loc[self.rows]?
         to_parse = [(self.data[feature][x],self.data[self.label_index][x]) for x in self.rows]
         to_parse = pd.DataFrame(to_parse, columns=(feature,self.label_index), index=self.rows)
 
         #TODO: we might want to keep track of all members instead of just the firsts
-        uniques = to_parse[feature].apply(lambda x: x[0]).unique()
+        #TODO:fix
+        uniques = sorted(list(set([address for email in to_parse[feature] for address in email])))
+        #uniques = to_parse[feature].apply(lambda x: x[0]).unique()
         
         for address in uniques:
             if (feature, address) in self.cat_already_split_on:
@@ -99,13 +102,20 @@ class Node:
             else:
                 #'split' on that address
                 #print(feature, address)
-                this_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: x[0]) == address].index.values
-                other_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: x[0]) != address].index.values
-
+                #TODO:fix
+                this_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: address in x)].index.values
+                #this_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: x[0]) == address].index.values
+                
+                #other_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: x[0]) != address].index.values
+                other_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: address not in x)].index.values
+                
                 #maybe a little sketch to not remove this feature?
                 from_this_address = Node(self.data, this_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
                 from_other_address = Node(self.data, other_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
 
+                if len(this_sender_rows) <= 0 or len(other_sender_rows) <= 0:
+                    continue
+                    
                 #record gini value
                 curr_gini = Node.aggregate_gini(from_this_address.calc_gini_index(), from_other_address.calc_gini_index(),
                                                len(from_this_address.rows), len(from_other_address.rows))
@@ -119,7 +129,12 @@ class Node:
                     best_left_rows = this_sender_rows
                     best_right_rows = other_sender_rows
         
+        if best_address is None:
+            print('nothing found: {}'.format(self.rows))
+            raise SingleChildSplitException("No split points found for feature {}".format(feature))
+                                                    
         print('\n')
+        print('split_cat: current feature: ' + feature)
         print('split_cat: splitting on address: ' + best_address)
         print('split_cat: num left: ' + str(len(best_left_rows)))
         print('split_cat: num right: ' + str(len(best_right_rows)))
@@ -158,46 +173,53 @@ class Node:
         min_gini, min_feature, min_break_point, left_members, right_members = 2, -999, -999, [], []
         bp_len_sum = 0
         new_features = []
-        for feature in self.features:
-            members = self.data.loc[self.rows]
-            if feature in self.cat_features:
-                best_gini_this_feature, best_breakpoint_this_feature = self.split_cat(feature)
-                if best_gini_this_feature < min_gini:
-                    print('best_breakpoint_this_feature: ' + best_breakpoint_this_feature)
+        try:
+            for feature in self.features:
+                members = self.data.loc[self.rows]
+                if feature in self.cat_features:
+                    best_gini_this_feature, best_breakpoint_this_feature = self.split_cat(feature)
+                    if best_gini_this_feature < min_gini:
+                        print('best_breakpoint_this_feature: ' + best_breakpoint_this_feature)
 
-                    left_members = members.loc[members[feature].apply(lambda x: x[0]) == best_breakpoint_this_feature].index.values
-                    right_members = members.loc[members[feature].apply(lambda x: x[0]) != best_breakpoint_this_feature].index.values
-                    min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
-                    
-                    #If there are no more options for this feature, remove it from consideration for a child
-                    unique_left = self.data.loc[left_members][feature].apply(lambda x: x[0]).unique()
-                    unique_right = self.data.loc[right_members][feature].apply(lambda x: x[0]).unique()
-                    left_are_options = False
-                    right_are_options = False
+                        left_members = members.loc[members[feature].apply(lambda x: best_breakpoint_this_feature in x)].index.values
+                        right_members = members.loc[members[feature].apply(lambda x: best_breakpoint_this_feature not in x)].index.values
+                        min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
 
-                    for unl in unique_left:
-                        if unl not in self.cat_already_split_on and unl != best_breakpoint_this_feature:
-                            left_are_options = True
-                            break
+                        #If there are no more options for this feature, remove it from consideration for a child
 
-                    for unr in unique_right:
-                        if unr not in self.cat_already_split_on and unr != best_breakpoint_this_feature:
-                            right_are_options = True
-                            break
+                        #x = list(set([address for email in test[feature] for address in email]))
+                        unique_left = list(set([address for email in self.data.loc[left_members][feature] for address in email]))
+                        #unique_left = self.data.loc[left_members][feature].apply(lambda x: x[0]).unique()
+                        unique_right = list(set([address for email in self.data.loc[right_members][feature] for address in email]))
+                        #unique_right = self.data.loc[right_members][feature].apply(lambda x: x[0]).unique()
+                        left_are_options = False
+                        right_are_options = False
 
-                    left_features = self.features if left_are_options else [x for x in self.features if x != min_feature]
-                    right_features = self.features if right_are_options else [x for x in self.features if x != min_feature]
-                
-            else:
-                best_gini_this_feature, best_breakpoint_this_feature = self.split_num(feature)
-                if best_gini_this_feature < min_gini:
-                    left_members = members.loc[members[feature] < best_breakpoint_this_feature].index.values
-                    right_members = members.loc[members[feature] >= best_breakpoint_this_feature].index.values
-                    min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
-                    left_features = [x for x in self.features if x != min_feature]
-                    right_features = [x for x in self.features if x != min_feature]
-        
-        
+                        for unl in unique_left:
+                            if unl not in self.cat_already_split_on and unl != best_breakpoint_this_feature:
+                                left_are_options = True
+                                break
+
+                        for unr in unique_right:
+                            if unr not in self.cat_already_split_on and unr != best_breakpoint_this_feature:
+                                right_are_options = True
+                                break
+
+                        left_features = self.features if left_are_options else [x for x in self.features if x != min_feature]
+                        right_features = self.features if right_are_options else [x for x in self.features if x != min_feature]
+
+                else:
+                    best_gini_this_feature, best_breakpoint_this_feature = self.split_num(feature)
+                    if best_gini_this_feature < min_gini:
+                        left_members = members.loc[members[feature] < best_breakpoint_this_feature].index.values
+                        right_members = members.loc[members[feature] >= best_breakpoint_this_feature].index.values
+                        min_gini, min_break_point, min_feature = best_gini_this_feature, best_breakpoint_this_feature, feature
+                        left_features = [x for x in self.features if x != min_feature]
+                        right_features = [x for x in self.features if x != min_feature]
+        except SingleChildSplitException:
+            raise ValueError("There are no more features to split on for this node.")
+                                          
+        print('feature we used: {}'.format(min_feature))
         self.left = Node(self.data, left_members, left_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l')
         self.right = Node(self.data, right_members, right_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r')
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini
