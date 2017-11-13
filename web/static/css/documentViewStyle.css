@@ -1,7 +1,10 @@
 #emailList{
   float:left;
+  width:50%
 }
 
 #document{
+  white-space: pre-wrap;
   float:right;
+  width:50%
 }
