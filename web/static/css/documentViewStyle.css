@@ -1,10 +1,13 @@
 #emailList{
   float:left;
-  width:50%
+  width:50%;
+  overflow: scroll;
+  height: 100vh
 }
 
 #document{
   white-space: pre-wrap;
   float:right;
-  width:50%
+  width:50%;
+  height: 100vh;
 }
