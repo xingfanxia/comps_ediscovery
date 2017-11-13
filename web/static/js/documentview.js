@@ -57,6 +57,8 @@ Vue.component('demo-grid', {
           return (a === b ? 0 : a > b ? 1 : -1) * order
         })
       }
+      console.log("data:",data)
+      data.forEach(datum => console.log(datum['Date']))
       return data
     }
   },
@@ -97,18 +99,21 @@ window.onload = function () {
     }
   })
 
-  var emailList = new Vue({
+  emailList = new Vue({
     el: '#emailList',
     delimiters: ['[[',']]'],
     data: {
       searchQuery: '',
-      gridColumns: ['Sender', 'Receiver', 'Subject', 'Sent_Date'],
-      items: {}
+      gridColumns: ['From', 'To', 'Subject', 'Date'],
+      items: []
     },
     mounted() {
       console.log('yolo')
       axios.get("/datakey")
-      .then(response => {this.items = response.data})
+      .then(response => {
+        Object.keys(response.data).forEach(key => this.items.push(response.data[key]))
+        console.log('items',this.items)
+      })
     }
   })
 

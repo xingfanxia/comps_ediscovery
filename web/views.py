@@ -8,6 +8,7 @@ data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
 
 email_key = data[['Date', 'From', 'To', 'Subject']][:500].copy()
 email_key_dict = email_key.to_dict(orient='index')
+email_key_dict = {str(k):v for k, v in email_key_dict.items()}
 
 def fake_data():
     emails = ['email1', 'email2', 'email3']
@@ -27,6 +28,7 @@ def fake_data_endpoint():
 
 @app.route("/datakey")
 def data_key_endpoint():
+    print(email_key_dict['2'])
     return flask.jsonify(email_key_dict)
 
 @app.route("/data/<int:id>")
