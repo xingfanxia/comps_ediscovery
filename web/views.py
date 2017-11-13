@@ -6,9 +6,11 @@ app = Flask(__name__)
 
 data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
 
-email_key = data[['Date', 'From', 'To', 'Subject']][:500].copy()
+email_key = data[['ID','Date', 'From', 'To', 'Subject']][:500].copy()
 email_key_dict = email_key.to_dict(orient='index')
-email_key_dict = {str(k):v for k, v in email_key_dict.items()}
+
+#If there's a fast way to remove ID from v, we should do that here as well
+email_key_dict = {v['ID']:v for k, v in email_key_dict.items()}
 
 def fake_data():
     emails = ['email1', 'email2', 'email3']
@@ -28,12 +30,13 @@ def fake_data_endpoint():
 
 @app.route("/datakey")
 def data_key_endpoint():
-    print(email_key_dict['2'])
     return flask.jsonify(email_key_dict)
 
-@app.route("/data/<int:id>")
+# @app.route("/data/<int:id>")
+@app.route("/data/<id>")
 def data_endpoint(id):
-    row = data.loc[id].to_dict()
+    # row = data.loc[id].to_dict()
+    row = data.loc[data['ID'].apply(lambda x: id in x)].iloc[0].to_dict()
     print(row)
     return flask.jsonify(row)
 

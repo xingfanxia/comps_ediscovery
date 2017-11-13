@@ -13,7 +13,7 @@
       </tr>
     </thead>
     <tbody>
-      <tr v-for="(email, index) in filteredData" :key="index" v-on:click="alert_user(index)">
+      <tr v-for="email in filteredData" v-on:click="alert_user(email['ID'])">
         <td v-for="key in columns">
           [[ email[key] ]]
         </td>

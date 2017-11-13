@@ -5,7 +5,10 @@ var store = {
   },
   setMessageAction (newValue) {
     if (this.debug) console.log('setMessageAction triggered with', newValue)
-    axios.get("/data/" + newValue)
+
+    shortID = newValue.split(".")[2]
+    console.log('short:',shortID)
+    axios.get("/data/" + shortID)
     .then(response => {this.state.item.Contents = response.data['Message-Contents']})
   },
   clearMessageAction () {
