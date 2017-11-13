@@ -66,26 +66,76 @@ window.onload = function () {
   })
 
   emailList = new Vue({
-    el: '#emailListVue',
+    el: '#emailList',
     delimiters: ["[[", "]]"],
+    data: function(){
+      console.log('data')
+      var sortOrders = {}
+      var keys = ['Sender', 'Receiver', 'Subject', 'Sent_Date']
+      keys.forEach(function (key) {
+        sortOrders[key] = 1
+      })
+      console.log('data end')
+      var toReturn = {
+        items: [
+          { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Pizza Tonight?', Sent_Date : '1/1/17', Contents : "Yo", id : 0 },
+          { Sender: 'Bob Doe', Receiver : 'John Doe', Subject : 'Pasta Tonight?', Sent_Date : '2/1/17', Contents : "hell0", id : 1 },
+          { Sender: 'Elliot Doe', Receiver : 'Randy Doe', Subject : '\'za Tonight?', Sent_Date : '3/1/17', Contents : "whats up", id : 2 },
+          { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Yolo', Sent_Date : '4/1/17', Contents : "butts", id : 3 }
+        ],
+        keys: keys,
+        sortKey: '',
+        sortOrders: sortOrders
+      }
+      console.log(toReturn)
+      return toReturn 
+    },
     methods: {
         alert_user: function(item) {
-        // `this` inside methods points to the Vue instance
-        store.setMessageAction(item)
-        documentView.updateView()
-        // `event` is the native DOM event
-        if (event) {
-          //alert(event.target.tagName)
+          // `this` inside methods points to the Vue instance
+          store.setMessageAction(item)
+          documentView.updateView()
+          // `event` is the native DOM event
+          if (event) {
+            //alert(event.target.tagName)
+          }
+        },
+        sortBy: function (key) {
+          console.log('sorting by', key);
+          this.sortKey = key
+          this.sortOrders[key] = this.sortOrders[key] * -1
         }
+    },
+    computed: {
+      filteredData: function () {
+        var sortKey = this.sortKey
+        var filterKey = this.filterKey && this.filterKey.toLowerCase()
+        var order = this.sortOrders[sortKey] || 1
+        var data = this._data.items
+        console.log('data:',data)
+        if (filterKey) {
+          console.log('filterKey')
+          data = data.filter(function (row) {
+            return Object.keys(row).some(function (key) {
+              return String(row[key]).toLowerCase().indexOf(filterKey) > -1
+            })
+          })
+        }
+        if (sortKey) {
+          console.log('sortKey')
+          data = data.slice().sort(function (a, b) {
+            a = a[sortKey]
+            b = b[sortKey]
+            return (a === b ? 0 : a > b ? 1 : -1) * order
+          })
+        }
+        return data
       }
     },
-    data: {
-      items: [
-        { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Pizza Tonight?', Sent_Date : '1/1/17', Contents : "Yo", id : 0 },
-        { Sender: 'Bob Doe', Receiver : 'John Doe', Subject : 'Pasta Tonight?', Sent_Date : '2/1/17', Contents : "hell0", id : 1 },
-        { Sender: 'Elliot Doe', Receiver : 'Randy Doe', Subject : '\'za Tonight?', Sent_Date : '3/1/17', Contents : "whats up", id : 2 },
-        { Sender: 'John Doe', Receiver : 'Jill Doe', Subject : 'Yolo', Sent_Date : '4/1/17', Contents : "butts", id : 3 }
-      ]
+    filters: {
+      capitalize: function (str) {
+        return str.charAt(0).toUpperCase() + str.slice(1)
+      }
     }
   })
 }

@@ -8,15 +8,31 @@
    <body>
      <div id='container'>
        <div id='emailList'>
-         <ul id="emailListVue">
+        <!--<ul id="emailListVue">
           <li v-for="(item, index) in items" :key="item.id" v-on:click="alert_user(item)">
             [[item.Sent_Date]], [[item.Sender]], [[item.Receiver]], [[item.Subject]]
           </li>
-        </ul>
+        </ul>-->
+        <table id='emailListVue'>
+          <thead>
+            <tr>
+              <th v-for="key in keys" v-on:click="sortBy(key)" :class="{ active: sortKey == key }">
+                [[key]]
+              </th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr v-for="email in filteredData" v-on:click="alert_user(email)">
+              <td v-for="key in keys">
+                [[ email[key] ]]
+              </td>
+            </tr>
+          </tbody>
+        </table>
        </div>
        <div id='document'>
          <p>[[message]]<p>
        </div>
-     </div?
-   </body>
+     </div>
+  </body>  
 </html>
