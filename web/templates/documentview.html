@@ -2,37 +2,46 @@
 <script src="https://unpkg.com/vue"></script>
 <script src="{{url_for('static', filename='js/documentview.js')}}"></script>
 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/documentViewStyle.css') }}">
-
+<script type="text/x-template" id="grid-template">
+  <table>
+    <thead>
+      <tr>
+        <th v-for="key in columns" v-on:click="sortBy(key)" :class="{ active: sortKey == key }">
+          [[key]]
+        </th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="email in filteredData" v-on:click="alert_user(email)">
+        <td v-for="key in columns">
+          [[ email[key] ]]
+        </td>
+      </tr>
+    </tbody>
+  </table>
+</script>
 
 <html>
    <body>
      <div id='container'>
-       <div id='emailList'>
+        <div id='emailList'>
         <!--<ul id="emailListVue">
           <li v-for="(item, index) in items" :key="item.id" v-on:click="alert_user(item)">
             [[item.Sent_Date]], [[item.Sender]], [[item.Receiver]], [[item.Subject]]
           </li>
         </ul>-->
-        <table id='emailListVue'>
-          <thead>
-            <tr>
-              <th v-for="key in keys" v-on:click="sortBy(key)" :class="{ active: sortKey == key }">
-                [[key]]
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr v-for="email in filteredData" v-on:click="alert_user(email)">
-              <td v-for="key in keys">
-                [[ email[key] ]]
-              </td>
-            </tr>
-          </tbody>
-        </table>
-       </div>
-       <div id='document'>
-         <p>[[message]]<p>
-       </div>
+          <form id="search">
+            Search <input name="query" v-model="searchQuery">
+          </form>
+          <demo-grid
+            :data="gridData"
+            :columns="gridColumns"
+            :filter-key="searchQuery">
+          </demo-grid>
+        </div>
+          <div id='document'>
+          <p>[[message]]<p>
+        </div>
      </div>
   </body>  
 </html>
