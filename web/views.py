@@ -15,16 +15,14 @@ email_key_dict = {v['ID']:v for k, v in email_key_dict.items()}
 def fake_data():
     emails = ['email1', 'email2', 'email3']
     data = {
-  'items': [
-    { 'Sender' : 'John Doe', 'Receiver' : 'Jill Doe', 'Subject' : 'Pizza Tonight?', 'Sent_Date' : '1/1/17', 'Contents' : "Yo", 'id' : 0 },
-    { 'Sender': 'Bob Doe', 'Receiver' : 'John Doe', 'Subject' : 'Pasta Tonight?', 'Sent_Date' : '2/1/17', 'Contents' : "hell0", 'id' : 1 },
-    { 'Sender': 'Elliot Doe', 'Receiver' : 'Randy Doe', 'Subject' : '\'za Tonight?', 'Sent_Date' : '3/1/17', 'Contents' : "whats up", 'id' : 2 },
-    { 'Sender': 'John Doe', 'Receiver' : 'Jill Doe', 'Subject' : 'Yolo', 'Sent_Date' : '4/1/17', 'Contents' : "butts", 'id' : 3 }
-  ]
+    1 : 'the'
+    2 : 'a'
+    3 : 'for'
+    4 : 'this'
 }
     return data
 
-@app.route("/fakedata")
+@app.route("/faketopicdata")
 def fake_data_endpoint():
     return flask.jsonify(fake_data())
 

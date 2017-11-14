@@ -1,6 +1,11 @@
-// var metadata_store = {
+//
+// var topicStore = {
 //   debug: true
 //   state: {
+//     data : {}
+//   },
+//   setTopicAction(){
+//
 //   }
 // }
 
@@ -12,14 +17,13 @@ var email_store = {
   },
   setMessageAction (newValue) {
     if (this.debug) console.log('setMessageAction triggered with', newValue)
-
     shortID = newValue.split(".")[2]
     console.log('short:',shortID)
     axios.get("/data/" + shortID)
     .then(response => {
       this.state.data = response.data
-      documentView.updateView()
       metadataView.updateView()
+      documentView.updateView()
     })
   },
   clearMessageAction () {
@@ -97,6 +101,7 @@ Vue.component('demo-grid', {
   }
 })
 
+//'main' method essentially, actually creates the views
 window.onload = function () {
   documentView = new Vue({
     el: "#document",
