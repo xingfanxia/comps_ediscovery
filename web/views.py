@@ -6,7 +6,7 @@ app = Flask(__name__)
 
 data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
 
-email_key = data[['ID','Date', 'From', 'To', 'Subject']][:500].copy()
+email_key = data[['ID','Date', 'From', 'To', 'Subject']][:5000].copy()
 email_key_dict = email_key.to_dict(orient='index')
 
 #If there's a fast way to remove ID from v, we should do that here as well

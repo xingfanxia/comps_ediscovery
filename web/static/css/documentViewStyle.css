@@ -5,9 +5,13 @@
   height: 100vh
 }
 
-#document{
-  white-space: pre-wrap;
+#document_containter{
   float:right;
   width:50%;
   height: 100vh;
+}
+
+#document{
+  white-space: pre-wrap;
+  overflow-y: scroll;
 }

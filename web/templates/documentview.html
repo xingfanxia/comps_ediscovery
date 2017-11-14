@@ -35,9 +35,29 @@
             :filter-key="searchQuery">
           </demo-grid>
         </div>
+        <div id='document_containter'>
+          <div id='metadata'>
+            <table>
+              <thead>
+                <tr>
+                  <th> Metadata
+                  </th>
+                </tr>
+              </thead>
+              <tr>
+                <td>To: [[metadata_to]]</td>
+                <td>From: [[metadata_from]]</td>
+              </tr>
+              <tr>
+                <td>Subject: [[metadata_subject]]</td>
+                <td>Date: [[metadata_date]]</td>
+              </tr>
+            </table>
+          </div>
           <div id='document'>
-          <p>[[message]]<p>
+          <p>[[message]]</p>
         </div>
+      </div>
      </div>
-  </body>  
+  </body>
 </html>
