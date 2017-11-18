@@ -219,6 +219,21 @@ class Node:
             raise ValueError("There are no more features to split on for this node.")
                                           
         print('feature we used: {}'.format(min_feature))
+        print('features we might have used: {}'.format(self.features))
+        print('rows we have: {}'.format(self.rows))
+        print('Depth: {}'.format(self.depth))
+        
+        #if all rows are identical according to these features, there's no more splitting we can do
+        if min_gini == 2:
+            identical = True
+            for feature in self.features:
+                val = self.data[feature][self.rows[0]]
+                for row in self.rows[1:]:
+                    if val != self.data[feature][row]:
+                        identical = False
+            if identical:
+                raise CannotDistinguishException("All of the rows remaining have the same values for all of the features remaining.")
+           
         self.left = Node(self.data, left_members, left_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l')
         self.right = Node(self.data, right_members, right_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r')
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini

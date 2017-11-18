@@ -2,6 +2,7 @@
 A dummy implementation of decision trees
 '''
 from lib.node import Node
+from lib.exceptions import *
 import numpy as np
 import pandas as pd
 import pickle, os
@@ -59,8 +60,8 @@ class Tree:
         #think about behavior of pure nodes more
         try:
             self.head.split()
-        except ValueError: #change this to whatever node.split() throws
-            print('Head is a pure node.')
+        except (ValueError, CannotDistinguishException) as e: #change this to whatever node.split() throws
+            print(e)
     '''
     params: 
     test_data - test data to run the prediction on

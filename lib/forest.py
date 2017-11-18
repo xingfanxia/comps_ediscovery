@@ -18,13 +18,14 @@ class RNF:
     n_max_features - max num of features to pass to each tree
     n_max_input - max num of input to pass to each tree
     '''
-    def __init__(self, train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input):
+    def __init__(self, train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features):
         self.trees = []
         self.train_data = train_data
         self.n_trees = n_trees
         self.tree_depth = tree_depth
         self.n_max_features = n_max_features
         self.n_max_input = n_max_input
+        self.cat_features = cat_features
 #         self.features = [()] #list of tuples like (tree, emails, features)
         random.seed(random_seed)
     
@@ -33,6 +34,7 @@ class RNF:
     '''
     Randomly select features and emails from the train_data 
     '''
+    #TODO: fix this so that the features selected are the actual features, not the indices of the features.
     def random_select(self, train_data):
         selected_rows = np.random.choice(self.train_data.shape[0], self.n_max_input)
         selected_features = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
@@ -47,8 +49,11 @@ class RNF:
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
 #             self, train_data, depth, benchmark, rows, features
-            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1]))
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
+        count = 0
         for tree in self.trees:
+            count += 1
+            print('fitting the {}th tree.'.format(count))
             tree.fit()
     
     '''
