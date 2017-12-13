@@ -3,7 +3,7 @@ import numpy as np
 import pandas as pd
 
 #Calculate Recall and precision statistics from built forest
-#Input: tagArray = forest.predict[1] testdata = pd.read_pickle() (our email dataset)
+#Input: tagArray = forest.predict[1], testdata = pd.read_pickle() (our email dataset)
 #Output: tuple[0] = recall, tuple[1] = precision
 def recallPrecisionRelevant(tagArray, testData):
     #Number of emails our system said were relevant (True Positive + False Positive)
@@ -13,6 +13,8 @@ def recallPrecisionRelevant(tagArray, testData):
     #Number of emails that are actually relevant (True Positive + False Negative)
     totalRelevant = 0
     for i in range(len(tagArray)):
+        if testData["Label"][i] == -1:
+            continue
         if testData["Label"][i] == 1:
             totalRelevant = totalRelevant + 1
         if tagArray[i] == 'R':
@@ -62,11 +64,11 @@ def main():
     test_predict_output = ["R","R","R","R","R","R",
                 "M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M",
                   "R","R","R","R","R","R","R","R","R","R","R","R","R","R",
-                  "M","M","M","M"]
+                  "M","M","M","M","R","R","R","R","R","M","M","M","M","M"]
     d = {"Label": [1,1,1,1,1,1,
                   0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
                   0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                  1,1,1,1]}
+                  1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]}
     test_email_data = pd.DataFrame(data = d)
     evalStats(test_predict_output, test_email_data)
 
