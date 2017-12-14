@@ -37,7 +37,8 @@ class RNF:
     #TODO: fix this so that the features selected are the actual features, not the indices of the features.
     def random_select(self, train_data):
         selected_rows = np.random.choice(self.train_data.shape[0], self.n_max_input)
-        selected_features = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
+        selected_feature_indices = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
+        selected_features = train_data.columns.values[[selected_feature_indices]]
         return (selected_rows, selected_features)
         
     '''
