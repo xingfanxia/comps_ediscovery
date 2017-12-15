@@ -86,8 +86,9 @@ class Tree:
                         if cur_node.side == 'l':
                             to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(cur_node.parent, cur_node.id))
                         else:
-                            to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(cur_node.parent, cur_node.id))                
-                if (row[cur_node.min_feature] < cur_node.min_break_point):
+                            to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(cur_node.parent, cur_node.id))
+
+                if self._should_go_left(row, cur_node):
                     cur_node = cur_node.left
                 else:
                     cur_node = cur_node.right
@@ -100,6 +101,22 @@ class Tree:
                 f.write(joined)
         return confidences
     
+    '''
+    helper function to determine which way we should traverse through the tree.
+    params:
+    row - arraylike from the test data. Should have the same length as the training data.
+    cur_node - the node that we are currently on.
+
+    return:
+    true if row's value is the same as cur_node's categorical breakpoint, or less than
+        cur_node's numerical breakpoint
+    false otherwise
+    '''
+    def _should_go_left(self, row, cur_node):
+        if cur_node.min_feature in self.cat_features:
+            return row[cur_node.min_feature] == cur_node.min_break_point
+        return row[cur_node.min_feature] < cur_node.min_break_point
+
     '''
     params: 
     more_data - more training data to update the tree

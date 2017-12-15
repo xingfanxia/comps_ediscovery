@@ -130,7 +130,7 @@ class Node:
                     best_right_rows = other_sender_rows
         
         if best_address is None:
-            print('nothing found: {}'.format(self.rows))
+            print('when splitting categorically, no best address found: {}'.format(self.rows))
             raise SingleChildSplitException("No split points found for feature {}".format(feature))
                                                     
 #        print('\n')
@@ -317,7 +317,7 @@ class Node:
                 if best_gini > curr_gini:
                     best_gini = curr_gini
                     best_ind = i+1 #if we're less than the breakpoint, we're put in one bucket, and geq is in the other bucket
-        return (best_gini, values[best_ind])
+        return (best_gini, unique_values[best_ind])
 
     '''
     Initial pass to build a structure like this:
