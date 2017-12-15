@@ -1,4 +1,5 @@
-//
+// TODO: QUERY TOPICS AT THE BEGINNING AND STORE THEM AS
+// OPPOSED TO QURYING THEM EVERY TIME
 // var topicStore = {
 //   debug: true
 //   state: {
@@ -8,6 +9,7 @@
 //
 //   }
 // }
+
 
 //Data store for document and metadata views
 var email_store = {
@@ -112,7 +114,23 @@ window.onload = function () {
     methods: {
       updateView: function () {
         console.log(this);
-        documentView.message = email_store.getMessageAction()
+        span_message = email_store.getMessageAction()
+        axios.get("/topics")
+        .then(response => {
+          for (var key in response.data) {
+            // check if the property/key is defined in the object itself, not in parent
+            if (response.data.hasOwnProperty(key)) {
+                word_list = response.data[key]
+                for (i in word_list){
+                    var word = word_list[i]
+                    var word_regex = new RegExp('\\b' + word + '\\b', 'gi')
+                    var word_span = "<span class=topic_" + key + ">" + word +"</span>"
+                    span_message = span_message.replace(word_regex, word_span)
+                }
+            }
+          }
+          documentView.message = span_message
+        })
       }
     }
   })
@@ -126,7 +144,6 @@ window.onload = function () {
       items: []
     },
     mounted() {
-      console.log('yolo')
       axios.get("/datakey")
       .then(response => {
         Object.keys(response.data).forEach(key => this.items.push(response.data[key]))
