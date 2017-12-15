@@ -26,6 +26,7 @@ class RNF:
         self.n_max_features = n_max_features
         self.n_max_input = n_max_input
         self.cat_features = cat_features
+        self.seed = random_seed
 #         self.features = [()] #list of tuples like (tree, emails, features)
         random.seed(random_seed)
     
@@ -95,17 +96,17 @@ class RNF:
         pass
     
     def store_rnf(self, file_path):
-        f = open('file_path', 'wb')
+        f = open(file_path, 'wb')
         pickle.dump(self, f)
         f.close()
 #         pass
     
     def load_rnf(self, file_path):
-        f = open('file_path', 'rb')
+        f = open(file_path, 'rb')
         temp = pickle.load(f)
         f.close()
         
 #         reinitialize some variables
-        self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.n_max_feature, temp.n_max_input)
+        self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
 #         the part that matters: load the pre-trained then stored trees into the RNF object instance
         self.trees = temp.trees
