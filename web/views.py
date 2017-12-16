@@ -13,7 +13,6 @@ email_key_dict = email_key.to_dict(orient='index')
 email_key_dict = {v['ID']:v for k, v in email_key_dict.items()}
 
 def fake_data():
-    emails = ['email1', 'email2', 'email3']
     data = {
         1 : ['the', 'but'],
         2 : ['a'],
