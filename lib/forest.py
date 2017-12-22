@@ -8,7 +8,7 @@ import pandas as pd
 import random
 import pickle
 
-class RNF: 
+class RNF:
     '''
     params:
     train_data - training data to trainthe tree
@@ -29,11 +29,15 @@ class RNF:
         self.seed = random_seed
 #         self.features = [()] #list of tuples like (tree, emails, features)
         random.seed(random_seed)
-    
+
         np.random.seed(random_seed)
-    
+
+        self.oob_threshold = 0
+        
+        self.label_col_num = 60
+
     '''
-    Randomly select features and emails from the train_data 
+    Randomly select features and emails from the train_data
     '''
     #TODO: fix this so that the features selected are the actual features, not the indices of the features.
     def random_select(self, train_data):
@@ -42,6 +46,9 @@ class RNF:
         selected_features = train_data.columns.values[[selected_feature_indices]]
         return (selected_rows, selected_features)
         
+        selected_features = np.random.choice(self.train_data.shape[1] - 2, self.n_max_features, replace=False)
+        return (selected_rows, selected_features)
+
     '''
     pass randomly selected emails and features to each tree
     '''
@@ -57,14 +64,14 @@ class RNF:
             count += 1
             print('fitting the {}th tree.'.format(count))
             tree.fit()
-    
+
     '''
     calculate a proba from output of each tree's prediction
     should ouput two arrays: probas and classfication
     '''
     def some_majority_count_metric(self, score):
         return np.mean(score, axis=0)
-    
+
     def predict(self, test_data):
         trees= [tree.predict(test_data) for tree in self.trees]
         scores = [ list() for doc in trees[0]]
@@ -72,40 +79,67 @@ class RNF:
             for tree in trees:
                 scores[doc].append(tree[doc])
         probas = [self.some_majority_count_metric(score) for score in scores]
-        classes = ['R' if proba[0] > proba[1] else 'M'  for proba in probas]
+        classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
         return probas, classes
+
+    def retrain_tree(self):
+        # assume that self.data contains the new data
+        # TODO: change as necessary
+        selected = self.random_select(self.train_data)
+        tree = Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features)
+        tree.fit()
+        return tree
+    
+    def update_leaves(self, tree):
+        # assume that self.data contains the new data
+        # TODO: change as necessary
+        tree.update(self.train_data, self.random_select(self.train_data)[0])
+
     
     '''
-    params: 
+    params:
     more_data - more training data to update the forest
-    
-    return: 
+
+    return:
     Null or we can say something like which trees are changed
     '''
-    def update(more_data):
-        #add more_data to the end of self.train_data
+    def update(self, more_data):
         
-        #calc oob error for each tree
+        self.train_data = more_data
+        # or self.train_data.append(more_data)
         
-        #calc threshold
+        # use average as placeholder function
+        thresh = 0
+        for tree in self.trees:
+            thresh += tree.calc_oob_error()
+        thresh = thresh / len(self.trees)
+        self.oob_threshold = thresh
         
-        #for each tree in trees:
-        #if oob < thresh
-            #alg 3 (trash the tree and build a new one)
-        #else alg 4
-        pass
-    
+        # TODO: This is temporary code for testing!!!
+        #thresh = 0
+        
+        for i in range(len(self.trees)):
+            if (self.trees[i].oob_error < thresh):
+                
+                # discard and remake
+                self.trees[i] = self.retrain_tree()
+            else:
+                # update leave nodes
+                self.update_leaves(self.trees[i])
+                
+
+                
     def store_rnf(self, file_path):
         f = open(file_path, 'wb')
         pickle.dump(self, f)
         f.close()
 #         pass
-    
+
     def load_rnf(self, file_path):
         f = open(file_path, 'rb')
         temp = pickle.load(f)
         f.close()
-        
+
 #         reinitialize some variables
         self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
 #         the part that matters: load the pre-trained then stored trees into the RNF object instance

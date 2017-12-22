@@ -6,7 +6,6 @@ import random
 import numpy as np
 import pandas as pd
 import math
-
 class Node:
       
     def __init__(self, data, rows, features, depth, max_depth, cat_features, parent=None, side=None,):
@@ -240,6 +239,7 @@ class Node:
            
         self.left = Node(self.data, left_members, left_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l')
         self.right = Node(self.data, right_members, right_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r')
+
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini
         
         # This is just setting the children's variable
@@ -391,6 +391,7 @@ class Node:
     
     def get_proportions(self, target_label):
         members = self.data.loc[self.rows][self.label_index].values
+
         filtered = [x for x in members if x == target_label]
 #         members = self.data.loc[self.data[self.label_index] == target_label]
 #         filtered = [x for x in members.index.values if x in self.rows]

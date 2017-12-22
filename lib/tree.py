@@ -1,6 +1,7 @@
 '''
 A dummy implementation of decision trees
 '''
+
 from lib.node import Node
 from lib.exceptions import *
 import numpy as np
@@ -124,10 +125,88 @@ class Tree:
     return: 
     Null or we can say something like which nodes are changed
     '''
-    def update(more_data):
-        #decide whether to call alg 3 or alg 4
-        #call the relevant one
-        pass
+    def update(self, updated_data, new_rows):
+        # empty the list of rows stored in each node in the tree
+        # also update their data
+        nodes = [self.head]
+        for node in nodes:
+            node.data = updated_data
+            node.rows = []
+            nodes.remove(node)
+            if node.left:
+                nodes.append(node.left)
+            if node.right:
+                nodes.append(node.right)
+        print(len(self.head.data))
+        
+        # traverse each new data point through the tree, append row to each node
+        for index, row in updated_data.loc[new_rows].iterrows():
+            # print(row.name)
+            cur_node = self.head
+            while (cur_node.left and cur_node.right):
+                cur_node.rows = np.append(cur_node.rows, row.name)
+                # Check which path to go down,but what to do if it's a catagorical?
+                
+                # if it is catagorical, traverse a little differently
+                if (cur_node.min_feature in cur_node.cat_features):
+                    # members that match go left, others go right.
+                    if (cur_node.min_break_point in row[cur_node.min_feature]):
+                        cur_node = cur_node.left
+                        # print("Tree/Update(): categorical feature navigating to left")
+                    else:
+                        cur_node = cur_node.right
+                        # print("Tree/Update(): categorical feature navigating to right")
+                    # print("Tree/Update(): feature I'm trying to traverse is {}".format(cur_node.min_feature))
+                    # print("Tree/Update(): row[cur_node.min_feature]: {}".format(row[cur_node.min_feature]))
+                    # print("Tree/Update(): cur_node.min_break_point: {}".format(cur_node.min_break_point))
+                    # return
+                else:
+                    
+                    if (row[cur_node.min_feature] < cur_node.min_break_point):
+                        cur_node = cur_node.left
+                    else:
+                        cur_node = cur_node.right
+            # don't forget about that one last leaf!
+            cur_node.rows = np.append(cur_node.rows, row.name)
+            
+        # after updating, look for empty nodes, and reshapre tree accordingly.
+        nodes_to_traverse = [self.head]
+        done = False
+        while(not done):
+            temp = nodes_to_traverse
+            nodes_to_traverse = []
+            for i in range(len(temp)):
+            # for node in temp:
+                if temp[i].left and temp[i].right:
+                    left_empty = False
+                    right_empty = False
+                    if (len(temp[i].left.rows) == 0):
+                        left_empty = True
+                    else:
+                        nodes_to_traverse.append(temp[i].left)
+                    
+                    if (len(temp[i].right.rows) == 0):
+                        left_empty = True
+                    else:
+                        nodes_to_traverse.append(temp[i].right)
+                        
+                    if left_empty and right_empty:
+                        # if both children are empty, become a leaf node
+                        temp[i].left = None
+                        temp[i].right = None
+                        
+                        print('became a leaf')
+                    elif left_empty:
+                        # if only left child is empty, make self into right child
+                        temp[i] = temp[i].right
+                        print('became right child')
+                    elif right_empty:
+                        # if only right child is empty, make self into left child
+                        temp[i] = temp[i].left
+                        print('became left child')
+            if len(nodes_to_traverse) == 0:
+                done = True
+        
     
     '''
     return:
@@ -143,11 +222,15 @@ class Tree:
         for row in complement:
             case = self.data.loc[[row]]
             prediction = self.predict(case)
+            prediction = prediction[0]
             if prediction[0] > prediction[1]:
-                num_incorrect += 1 if case[60].values[0] == 'M' else 0
+                num_incorrect += 1 if case["Label"].values[0] == '0' else 0
             else:
-                num_incorrect += 1 if case[60].values[0] == 'R' else 0
-        return num_incorrect / len(test_data)
+                num_incorrect += 1 if case["Label"].values[0] == '1' else 0
+
+                
+        self.oob_error = num_incorrect / len(test_data)
+        return self.oob_error
         #calculate incorrect / total
         
     def store_tree(self, file_path):
@@ -161,12 +244,11 @@ class Tree:
         temp = pickle.load(f)
         f.close()
         
-#         reinitialize some variables
+        # reinitialize some variables
         self.__init__(temp.data, temp.depth, temp.benchmark, temp.rows, temp.features)
-#         reassign the head
+        # reassign the head
         self.head = temp.head
-    
-   
+        
     '''
     String representation
     '''
