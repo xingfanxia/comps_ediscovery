@@ -6,8 +6,6 @@ import random
 import numpy as np
 import pandas as pd
 import math
-
-
 class Node:
       
     def __init__(self, data, rows, features, depth, max_depth, cat_features, parent=None, side=None,):
@@ -393,6 +391,7 @@ class Node:
     
     def get_proportions(self, target_label):
         members = self.data.loc[self.rows][self.label_index].values
+
         filtered = [x for x in members if x == target_label]
 #         members = self.data.loc[self.data[self.label_index] == target_label]
 #         filtered = [x for x in members.index.values if x in self.rows]

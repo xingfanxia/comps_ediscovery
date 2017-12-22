@@ -227,6 +227,7 @@ class Tree:
                 num_incorrect += 1 if case["Label"].values[0] == '0' else 0
             else:
                 num_incorrect += 1 if case["Label"].values[0] == '1' else 0
+
                 
         self.oob_error = num_incorrect / len(test_data)
         return self.oob_error
@@ -247,9 +248,7 @@ class Tree:
         self.__init__(temp.data, temp.depth, temp.benchmark, temp.rows, temp.features)
         # reassign the head
         self.head = temp.head
-    
-   
-
+        
     '''
     String representation
     '''
