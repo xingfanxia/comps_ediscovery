@@ -7,6 +7,7 @@ import numpy as np
 import pandas as pd
 import random
 import pickle
+import multiprocessing
 
 class RNF:
     '''
@@ -58,12 +59,26 @@ class RNF:
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
 #             self, train_data, depth, benchmark, rows, features
-            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
-        count = 0
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features)) 
+            
+        # handling multiprocessing logic
+
+        # count cpus
+        # cpu_count = multiprocessing.cpu_count()
+        cpu_count = len(self.trees)
+        pool = multiprocessing.Pool( cpu_count )
+        tasks = []
+        tNum = 0
+        max_t = cpu_count
+        
+        results = []
         for tree in self.trees:
-            count += 1
-            print('fitting the {}th tree.'.format(count))
-            tree.fit()
+            results.append( pool.apply_async(tree.fit) )
+        
+        r = []
+        for result in results:
+            r.append(result.get())
+        print('done!')
 
     '''
     calculate a proba from output of each tree's prediction
@@ -73,7 +88,42 @@ class RNF:
         return np.mean(score, axis=0)
 
     def predict(self, test_data):
-        trees= [tree.predict(test_data) for tree in self.trees]
+        
+        
+                
+        # count cpus
+        # cpu_count = multiprocessing.cpu_count()
+        cpu_count = len(self.trees)
+        pool = multiprocessing.Pool( cpu_count )
+        tasks = []
+        tNum = 0
+        max_t = cpu_count
+        
+        for tree in self.trees:
+            tasks.append( (test_data,) )
+        
+        results = []
+        for i in range(len(self.trees)):
+            results.append( pool.apply_async(self.trees[i].predict, tasks[i]) )
+        #for tree in self.trees:
+        #   results.append( pool.apply_async(tree.predict, tasks[0]) )
+        
+        r = []
+        for result in results:
+            r.append(result.get())
+        
+        #print (r);
+        for a in r:
+            print(a)
+        print ("len(test_data): {}".format(len(test_data)))
+        print ("len(r): {}".format(len(r)))
+        # return
+        #trees = r
+        
+        
+        trees = [tree.predict(test_data) for tree in self.trees]
+        print ("len(trees): {}".format(len(trees)))
+        print ("trees == r : {}".format(trees == r))
         scores = [ list() for doc in trees[0]]
         for doc in range(len(trees[0])):
             for tree in trees:
