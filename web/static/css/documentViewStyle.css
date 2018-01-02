@@ -13,11 +13,12 @@
   float: right;
   width: 40%;
   height: 100vh;
-  overflow-y: scroll;
 }
 
 #document{
   white-space: pre-wrap;
+  max-height: 85%;
+  overflow-y: scroll;
 }
 
 body {
