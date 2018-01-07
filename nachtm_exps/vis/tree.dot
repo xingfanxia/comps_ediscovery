@@ -1,0 +1,13 @@
+digraph Tree {
+node [shape=box];
+7602727685 [label="X[From] < david.forster@enron.com
+gini = 0.23958762886597942
+samples = 100
+distribution = [3, 97]"];
+4726025217 [label="samples = 3
+ratio = [0.0, 1.0]"];
+7602727685 -> 4726025217 [labeldistance=8, labelangle=30, xlabel="True"]
+2367977435 [label="samples = 97
+ratio = [0.8556701030927835, 0.14432989690721648]"];
+7602727685 -> 2367977435 [labeldistance=8, labelangle=-30, xlabel="False"]
+}

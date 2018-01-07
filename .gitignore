@@ -5,3 +5,5 @@ temp/
 *.csv
 ._.DS_Store
 *.sh
+__pycache__/
+*.pickle
