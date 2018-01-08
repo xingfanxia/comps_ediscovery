@@ -10,6 +10,7 @@
 //   }
 // }
 
+//Vue Stuff
 
 //Data store for document and metadata views
 var email_store = {
@@ -131,6 +132,24 @@ window.onload = function () {
           }
           documentView.message = span_message
         })
+      }
+    }
+  })
+
+  emailButtons = new Vue({
+    el: '#email_buttons',
+    delimiters: ['[[',']]'],
+    methods: {
+      feedback: function(relevant){
+        axios.post('/feedback', {
+          'ID': email_store.state.data.ID,
+          'Relevant': relevant
+        })
+        .then(function (response) {
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
       }
     }
   })
