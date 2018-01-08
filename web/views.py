@@ -1,6 +1,6 @@
 import flask
 import pandas as pd
-from flask import Flask
+from flask import Flask, request
 import json
 app = Flask(__name__)
 
@@ -41,6 +41,12 @@ def data_endpoint(id):
 def poc():
     documents = fake_data()
     return flask.render_template('documentview.html', docs = documents)
+
+@app.route('/feedback',methods=['GET','POST'])
+def feedback():
+    all_args = request.get_json()
+    print(all_args)
+    return '{"status": 200}\n'
 
 
 app.run(debug=True)
