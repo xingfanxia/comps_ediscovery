@@ -51,20 +51,25 @@
                   <td>To: [[metadata_to]]</td>
                   <td>From: [[metadata_from]]</td>
                 </tr>
-                <tr>
-                  <td>Subject: [[metadata_subject]]</td>
-                  <td>Date: [[metadata_date]]</td>
-                </tr>
-              </table>
-            </div>
-            <div id='document'>
-              <p v-html="message"></p>
-            </div>
-            <div id='email_buttons'>
-              <button type="button">Relevant</button>
-              <button type="button">Document View</button>
-              <button type="button">Not Relevant</button>
-            </div>
+              </thead>
+              <tr>
+                <td>To: [[metadata_to]]</td>
+                <td>From: [[metadata_from]]</td>
+              </tr>
+              <tr>
+                <td>Subject: [[metadata_subject]]</td>
+                <td>Date: [[metadata_date]]</td>
+              </tr>
+            </table>
+          </div>
+          <div id='document'>
+            <p v-html="message"></p>
+          </div>
+          <div id='email_buttons'>
+            <button type="button" v-on:click="feedback(1)">Relevant</button>
+            <button type="button">Document View</button>
+            <button type="button" v-on:click="feedback(0)">Not Relevant</button>
+          </div>
 
           </div>
       </div>
