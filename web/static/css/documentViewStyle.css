@@ -13,12 +13,17 @@
   float: right;
   width: 40%;
   height: 100vh;
+  flex-grow: 1;
 }
 
 #document{
   white-space: pre-wrap;
   max-height: 85%;
   overflow-y: scroll;
+}
+
+.container {
+  display:flex;
 }
 
 body {
@@ -32,10 +37,21 @@ table {
   border-spacing: 0;
   width: 100%;
 }
-th,
-td {
+
+th, td {
   padding: 6px 15px;
 }
+.basicTable thead {
+  display: table-header-group;
+}
+.basicTable th {
+  width: 300px;
+}
+
+.basicTable td {
+  width: 300px;
+}
+
 th {
   background: #42444e;
   color: #fff;
