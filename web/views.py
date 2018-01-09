@@ -1,3 +1,4 @@
+
 import flask
 import pandas as pd
 from flask import Flask, request
@@ -5,6 +6,7 @@ import json
 app = Flask(__name__)
 
 data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
+data['Relevant'] = '0'
 
 email_key = data[['ID','Date', 'From', 'To', 'Subject']][:5000].copy()
 email_key_dict = email_key.to_dict(orient='index')
@@ -43,9 +45,10 @@ def poc():
     return flask.render_template('documentview.html', docs = documents)
 
 @app.route('/feedback',methods=['GET','POST'])
-def feedback():
-    all_args = request.get_json()
-    print(all_args)
+def log_feedback():
+    feedback = request.get_json()
+    print(feedback)
+    data.loc[data['ID'] == feedback['ID'], 'Relevant'] = feedback['Relevant']
     return '{"status": 200}\n'
 
 
