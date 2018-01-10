@@ -156,11 +156,8 @@ class Node:
     i.e. low gini/entropy, high infoGain
     '''
     def split(self):
-#        if self.side == 'l':
-#            print("I'm left!")
-#        elif self.side == 'r':
-#            print("I'm right!")
-        #are we a leaf node?
+        # Checking if the current node is a leaf
+        '''
         if len(self.rows) == 0:
             raise ValueError('The node has no document feed, no more splitting')
         elif self.calc_gini_index() == 0:
@@ -169,8 +166,18 @@ class Node:
             raise ValueError('The node has reached max recursion depth, no more splitting')
         elif len(self.features) == 0:
             raise ValueError('There are no more features to split on.')
+        '''
+        
+        if len(self.rows) == 0:
+            return 1
+        elif self.calc_gini_index() == 0:
+            return 2
+        elif self.depth == self.max_depth:
+            return 3
+        elif len(self.features) == 0:
+            return 4
 
-        #we are not a leaf node.
+        # Proceed since the current node is not a leaf
         min_gini, min_feature, min_break_point, left_members, right_members = 2, -999, -999, [], []
         bp_len_sum = 0
         new_features = []
@@ -252,22 +259,24 @@ class Node:
             # JK: keep track of the feature/address that you/parent split on.
             self.left.cat_already_split_on.append((min_feature, min_break_point))
             self.right.cat_already_split_on.append((min_feature, min_break_point))
-        
-#        if len(self.right.rows) < 1:
-#            print("R",self.right.min_gini, self.right.min_break_point, self.right.min_feature)
-#        elif len(self.left.rows) < 1:
-#            print("L",min_feature, min_break_point, self.rows)
 
+        l = 0
+        r = 0
         try:
             if self.left is None:
                 print(self.min_feature,self.min_break_point,self.min_gini)
-            self.left.split()
+            l = self.left.split()
         except ValueError as e: # probably need a customized error class
-            print(e)
+            # TODO: use a separate exception class
+            #print(e)
+            pass
         try:
-            self.right.split()
+            r = self.right.split()
         except ValueError as e:
-            print(e)
+            # TODO: use a separate exception class
+            #print(e)
+            pass
+        return l + r
     '''
     A faster way to find the best breakpoint. 
     Note that we're assuming that the node we're splitting isn't pure.

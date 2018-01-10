@@ -8,6 +8,7 @@ import pandas as pd
 import random
 import pickle
 import multiprocessing
+import sys
 
 class RNF:
     '''
@@ -54,13 +55,36 @@ class RNF:
     pass randomly selected emails and features to each tree
     '''
     def fit(self):
+        '''
+        if len(self.trees) != 0:
+            raise AlreadyFitException('This forest has already been fit to the data')
+        for i in range(self.n_trees):
+            # create trees with random samples of the train set
+            selected = self.random_select(self.train_data)
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
+        
+        
+        ### non-multiprocessed fitting
+        for tree in self.trees:
+            tree.fit()
+        ### end non-multiprocessed fitting
+        ''' 
+            
+        ### start new multiprocessing
+        # following advice from here: https://stackoverflow.com/questions/25955048/parallelize-recursion-python
+        # processes = []
+        # for tree in self.trees:
+        #     proc = multiprocessing.Process(target=tree.fit)
+        #     proc.start()
+        #     processes.append(proc)
+        ### end new multiprocessing
         if len(self.trees) != 0:
             raise AlreadyFitException('This forest has already been fit to the data')
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
 #             self, train_data, depth, benchmark, rows, features
-            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features)) 
-            
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
+
         # handling multiprocessing logic
 
         # count cpus
@@ -70,14 +94,22 @@ class RNF:
         tasks = []
         tNum = 0
         max_t = cpu_count
-        
+
         results = []
         for tree in self.trees:
             results.append( pool.apply_async(tree.fit) )
+            
+        pool.close()
         
+        pool.join()
+
         r = []
         for result in results:
             r.append(result.get())
+            
+        for a in r:
+            print(a)
+
         print('done!')
 
     '''
@@ -88,9 +120,6 @@ class RNF:
         return np.mean(score, axis=0)
 
     def predict(self, test_data):
-        
-        
-                
         # count cpus
         # cpu_count = multiprocessing.cpu_count()
         cpu_count = len(self.trees)
@@ -104,7 +133,8 @@ class RNF:
         
         results = []
         for i in range(len(self.trees)):
-            results.append( pool.apply_async(self.trees[i].predict, tasks[i]) )
+            #results.append( pool.apply_async(self.trees[i].predict, tasks[i]) )
+            results.append( pool.apply_async(self.trees[i].predict, (test_data,)) )
         #for tree in self.trees:
         #   results.append( pool.apply_async(tree.predict, tasks[0]) )
         
@@ -112,16 +142,18 @@ class RNF:
         for result in results:
             r.append(result.get())
         
-        #print (r);
-        for a in r:
-            print(a)
-        print ("len(test_data): {}".format(len(test_data)))
-        print ("len(r): {}".format(len(r)))
+        print("size of r: {}".format(len(r)))
+        print("r[0] == r[1]?: {}".format(r[0] == r[1]))
+        # print("THE FOLLOWING IS r:")
+        # for a in r:
+        #    print(a)
+        #print ("len(test_data): {}".format(len(test_data)))
+        #print ("len(r): {}".format(len(r)))
         # return
-        #trees = r
+        trees = r
         
         
-        trees = [tree.predict(test_data) for tree in self.trees]
+        #trees = [tree.predict(test_data) for tree in self.trees]
         print ("len(trees): {}".format(len(trees)))
         print ("trees == r : {}".format(trees == r))
         scores = [ list() for doc in trees[0]]
@@ -168,14 +200,34 @@ class RNF:
         # TODO: This is temporary code for testing!!!
         #thresh = 0
         
+        idx_trees_to_retrain = []
+        
         for i in range(len(self.trees)):
             if (self.trees[i].oob_error < thresh):
-                
+                idx_trees_to_retrain.append(i)
                 # discard and remake
-                self.trees[i] = self.retrain_tree()
+                # self.trees[i] = self.retrain_tree()
             else:
                 # update leave nodes
                 self.update_leaves(self.trees[i])
+                
+        cpu_count = len(idx_trees_to_retrain)
+        pool = multiprocessing.Pool( cpu_count )
+        tasks = []
+        tNum = 0
+        max_t = cpu_count
+        
+        results = []
+        for idx in idx_trees_to_retrain:
+            results.append( pool.apply_async(self.retrain_tree) )
+        
+        retrained_trees = []
+        for result in results:
+            retrained_trees.append(result.get())
+            
+        for i in range(len(idx_trees_to_retrain)):
+            self.trees[idx_trees_to_retrain[i]] = retrained_trees[i]
+            
                 
 
                 
