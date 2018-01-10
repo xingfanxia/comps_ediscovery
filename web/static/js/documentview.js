@@ -20,11 +20,11 @@ var email_store = {
   },
   setMessageAction (newValue) {
     if (this.debug) console.log('setMessageAction triggered with', newValue)
-    shortID = newValue.split(".")[2]
+    shortID = newValue
     console.log('short:',shortID)
     axios.get("/data/" + shortID)
     .then(response => {
-      this.state.data = response.data
+      this.state.data = response.data[0]
       metadataView.updateView()
       documentView.updateView()
     })

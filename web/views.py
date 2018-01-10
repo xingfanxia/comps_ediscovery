@@ -4,15 +4,24 @@ import pandas as pd
 from flask import Flask, request
 import json
 app = Flask(__name__)
+import os, sys
+root_dir = os.path.dirname(os.getcwd())
+sys.path.insert(0, root_dir)
+from lib.dblib import Database
 
-data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
-data['Relevant'] = '0'
+scenario = '401'
 
-email_key = data[['ID','Date', 'From', 'To', 'Subject']][:5000].copy()
-email_key_dict = email_key.to_dict(orient='index')
+db = Database()
+email_list = db.get_scenario(scenario)
 
-#If there's a fast way to remove ID from v, we should do that here as well
-email_key_dict = {v['ID']:v for k, v in email_key_dict.items()}
+# data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
+# data['Relevant'] = '0'
+#
+# email_key = data[['ID','Date', 'From', 'To', 'Subject', 'Scenario']][:5000].copy()
+# email_key_dict = email_key.to_dict(orient='index')
+#
+# #If there's a fast way to remove ID from v, we should do that here as well
+# email_key_dict = {v['ID']:v for k, v in email_key_dict.items()}
 
 def fake_data():
     data = {
@@ -29,13 +38,13 @@ def fake_data_endpoint():
 
 @app.route("/datakey")
 def data_key_endpoint():
-    return flask.jsonify(email_key_dict)
+    return flask.jsonify(email_list)
 
 # @app.route("/data/<int:id>")
 @app.route("/data/<id>")
 def data_endpoint(id):
     # row = data.loc[id].to_dict()
-    row = data.loc[data['ID'].apply(lambda x: id in x)].iloc[0].to_dict()
+    row = db.get_email_by_id(id, scenario=scenario)
     print(row)
     return flask.jsonify(row)
 
