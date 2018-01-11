@@ -4,8 +4,10 @@ Database library for interacting with sqlite/pandas dataframes
 import pandas as pd
 import sqlalchemy
 from sqlalchemy import create_engine, MetaData, Table
-from sqlalchemy.orm import mapper, sessionmaker
+from sqlalchemy.orm import mapper, sessionmaker, Query
 from sqlalchemy.pool import StaticPool
+import ast
+import datetime
 
 class Database():
     def __init__(self):
@@ -28,7 +30,10 @@ class Database():
     database into a pd dataframe for it to read from.
     '''
     def df_from_table(self, tablename):
-        return pd.read_sql_table(tablename, self.conn)
+        df = pd.read_sql_table(tablename, self.conn)
+        df['Date'] = pd.to_datetime(df['Date'])
+        df[['To','From','X-To','X-From','Label','Scenario','Relevant']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant']].applymap(ast.literal_eval)
+        return df
 
     '''
     Returns a full email row based on its ID
@@ -41,7 +46,21 @@ class Database():
         res = res.all()
         return [r._asdict() for r in res]
 
+    '''
+    Gets all emails of a certain scenario
+    '''
     #only returning 5000 results rn
     def get_scenario(self, scenario):
         res = self.session.query(self.emails).filter_by(Scenario=str(scenario)).limit(5000).all()
         return [r._asdict() for r in res]
+
+    '''
+    Sets an emails relevancy score to either 0 or 1
+    '''
+    def set_relevancy(self, id, scenario, score):
+        stmt = self.emails.update().\
+            where(self.emails.c.ID==id).\
+            where(self.emails.c.Scenario==str(scenario)).\
+            values(Relevant=score)
+        self.session.execute(stmt)
+        self.session.commit()

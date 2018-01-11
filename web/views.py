@@ -56,8 +56,7 @@ def poc():
 @app.route('/feedback',methods=['GET','POST'])
 def log_feedback():
     feedback = request.get_json()
-    print(feedback)
-    data.loc[data['ID'] == feedback['ID'], 'Relevant'] = feedback['Relevant']
+    db.set_relevancy(feedback['ID'], scenario, feedback['Relevant'])
     return '{"status": 200}\n'
 
 
