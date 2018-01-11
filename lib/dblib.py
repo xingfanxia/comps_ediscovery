@@ -29,8 +29,10 @@ class Database():
     but never write anything, this will pull the current state of the
     database into a pd dataframe for it to read from.
     '''
-    def df_from_table(self, tablename):
+    def df_from_table(self, tablename, scenario=None):
         df = pd.read_sql_table(tablename, self.conn)
+        if scenario:
+            df = df.loc[df['Scenario'] == str(scenario)]
         df['Date'] = pd.to_datetime(df['Date'])
         df[['To','From','X-To','X-From','Label','Scenario','Relevant']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant']].applymap(ast.literal_eval)
         return df
@@ -64,3 +66,27 @@ class Database():
             values(Relevant=score)
         self.session.execute(stmt)
         self.session.commit()
+
+    '''
+    Gets the tagged emails of a scenario, either goldstandard or user tagged
+    for the ML to train off of
+    '''
+    def get_tagged(self, scenario, goldstandard=False):
+        df = self.df_from_table('emails', scenario=scenario)
+        if goldstandard:
+            df = df.loc[df['Label'] != -1]
+        else:
+            df = df.loc[df['Relevant'] != -1]
+        return df
+
+    '''
+    Gets all untagged emails, either untagged by goldstandard or untagged by user
+    of a scenario for the ML to predict off of
+    '''
+    def get_untagged(self, scenario, goldstandard=False):
+        df = self.df_from_table('emails', scenario=scenario)
+        if goldstandard:
+            df = df.loc[df['Label'] == -1]
+        else:
+            df = df.loc[df['Relevant'] == -1]
+        return df
