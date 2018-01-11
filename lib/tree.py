@@ -269,3 +269,49 @@ class Tree:
             string += level_str+"\n--------------------------------------------------\n"
             nodes = new_nodes
         return string
+
+    '''
+    Get MDI value for this tree
+    as per this paper:
+    https://papers.nips.cc/paper/4928-understanding-variable-importances-in-forests-of-randomized-trees.pdf
+    returns: {feature: MDI component for this tree}
+    '''
+    def get_mean_decrease_impurity(self):
+        return self._mdi_helper(self.head)
+
+    '''
+    helper function to recursively iterate through the tree
+    '''
+    def _mdi_helper(self, curr):
+        #return empty dict (no features to split) if leaf
+        if curr.left is None and curr.right is None:
+            return {}
+
+        #get own decrease
+        curr_prop = len(curr.rows)/len(self.rows)
+        left_prop = len(curr.left.rows)/len(self.rows)
+        right_prop = len(curr.right.rows)/len(self.rows)
+
+        delta = curr.calc_gini_index() - (left_prop * curr.left.calc_gini_index()) - (right_prop * curr.right.calc_gini_index())
+
+        #get dicts for left and right
+        left_decreases = self._mdi_helper(curr.left)
+        right_decreases = self._mdi_helper(curr.right)
+
+        #build joined dict
+        curr_decrease = {str(curr.min_feature): delta}
+
+        return Tree._join_mdi_dicts(Tree._join_mdi_dicts(curr_decrease, left_decreases), right_decreases)
+
+    '''
+    returns a copy of all the elements of d1 and d2
+    where d1 and d2 share keys, the values are summed
+    '''
+    def _join_mdi_dicts(d1, d2):
+        ans = d1.copy()
+        for key in d2.keys():
+            try:
+                ans[key] += d2[key]
+            except KeyError:
+                ans[key] = d2[key]
+        return ans

@@ -144,3 +144,14 @@ class RNF:
         self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
 #         the part that matters: load the pre-trained then stored trees into the RNF object instance
         self.trees = temp.trees
+
+    def get_feature_importances(self):
+        total = {}
+        for tree in self.trees:
+            curr_importances = tree.get_mean_decrease_impurity()
+            for feature in curr_importances.keys():
+                try:
+                    total[feature] += curr_importances[feature]
+                except:
+                    total[feature] = curr_importances[feature]
+        return total
