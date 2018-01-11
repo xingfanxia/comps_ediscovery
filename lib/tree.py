@@ -60,12 +60,14 @@ class Tree:
     def fit(self):
         #think about behavior of pure nodes more
         try:
-            return self.head.split()
+            self.head = self.head.split()
         except (ValueError, CannotDistinguishException) as e: #change this to whatever node.split() throws
             # TODO: fix error handling for no-more-split cases more better
             # print(e)
             pass
-        return 1
+        return self
+    
+    
     '''
     params: 
     test_data - test data to run the prediction on

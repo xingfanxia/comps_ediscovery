@@ -169,13 +169,13 @@ class Node:
         '''
         
         if len(self.rows) == 0:
-            return 1
+            return self
         elif self.calc_gini_index() == 0:
-            return 2
+            return self
         elif self.depth == self.max_depth:
-            return 3
+            return self
         elif len(self.features) == 0:
-            return 4
+            return self
 
         # Proceed since the current node is not a leaf
         min_gini, min_feature, min_break_point, left_members, right_members = 2, -999, -999, [], []
@@ -260,23 +260,21 @@ class Node:
             self.left.cat_already_split_on.append((min_feature, min_break_point))
             self.right.cat_already_split_on.append((min_feature, min_break_point))
 
-        l = 0
-        r = 0
         try:
             if self.left is None:
                 print(self.min_feature,self.min_break_point,self.min_gini)
-            l = self.left.split()
+            self.left = self.left.split()
         except ValueError as e: # probably need a customized error class
             # TODO: use a separate exception class
             #print(e)
             pass
         try:
-            r = self.right.split()
+            self.right = self.right.split()
         except ValueError as e:
             # TODO: use a separate exception class
             #print(e)
             pass
-        return l + r
+        return self
     '''
     A faster way to find the best breakpoint. 
     Note that we're assuming that the node we're splitting isn't pure.

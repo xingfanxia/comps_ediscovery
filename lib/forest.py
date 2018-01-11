@@ -55,63 +55,51 @@ class RNF:
     pass randomly selected emails and features to each tree
     '''
     def fit(self):
-        '''
-        if len(self.trees) != 0:
-            raise AlreadyFitException('This forest has already been fit to the data')
-        for i in range(self.n_trees):
-            # create trees with random samples of the train set
-            selected = self.random_select(self.train_data)
-            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
-        
-        
-        ### non-multiprocessed fitting
-        for tree in self.trees:
-            tree.fit()
-        ### end non-multiprocessed fitting
-        ''' 
-            
-        ### start new multiprocessing
-        # following advice from here: https://stackoverflow.com/questions/25955048/parallelize-recursion-python
-        # processes = []
-        # for tree in self.trees:
-        #     proc = multiprocessing.Process(target=tree.fit)
-        #     proc.start()
-        #     processes.append(proc)
-        ### end new multiprocessing
         if len(self.trees) != 0:
             raise AlreadyFitException('This forest has already been fit to the data')
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
 #             self, train_data, depth, benchmark, rows, features
             self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
+        count = 0
+        for tree in self.trees:
+            count += 1
+            print('fitting the {}th tree.'.format(count))
+            tree.fit()
+        
+        
+    '''
+    A separate paralellized fit function for now
+    '''
+    def fit_parallel(self):
+        # Tree creation
+        if len(self.trees) != 0:
+            raise AlreadyFitException('This forest has already been fit to the data')
+        for i in range(self.n_trees):
+            selected = self.random_select(self.train_data)
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
+        
+        # create N new processes, where N = number of trees
+        pool = multiprocessing.Pool( len(self.trees) )
 
-        # handling multiprocessing logic
-
-        # count cpus
-        # cpu_count = multiprocessing.cpu_count()
-        cpu_count = len(self.trees)
-        pool = multiprocessing.Pool( cpu_count )
-        tasks = []
-        tNum = 0
-        max_t = cpu_count
-
+        # start the N tree.fit processes
         results = []
         for tree in self.trees:
             results.append( pool.apply_async(tree.fit) )
             
-        pool.close()
-        
+        pool.close() 
         pool.join()
 
         r = []
         for result in results:
             r.append(result.get())
-            
-        for a in r:
-            print(a)
-
-        print('done!')
-
+        
+        print(r)
+        
+        for i in range(len(self.trees)):
+            self.trees[i] = r[i]
+    
+    
     '''
     calculate a proba from output of each tree's prediction
     should ouput two arrays: probas and classfication
@@ -120,36 +108,20 @@ class RNF:
         return np.mean(score, axis=0)
 
     def predict(self, test_data):
-        # count cpus
-        # cpu_count = multiprocessing.cpu_count()
-        cpu_count = len(self.trees)
-        pool = multiprocessing.Pool( cpu_count )
+        pool = multiprocessing.Pool( len(self.trees) )
         tasks = []
-        tNum = 0
-        max_t = cpu_count
         
         for tree in self.trees:
             tasks.append( (test_data,) )
         
         results = []
         for i in range(len(self.trees)):
-            #results.append( pool.apply_async(self.trees[i].predict, tasks[i]) )
             results.append( pool.apply_async(self.trees[i].predict, (test_data,)) )
-        #for tree in self.trees:
-        #   results.append( pool.apply_async(tree.predict, tasks[0]) )
         
         r = []
         for result in results:
             r.append(result.get())
-        
-        print("size of r: {}".format(len(r)))
-        print("r[0] == r[1]?: {}".format(r[0] == r[1]))
-        # print("THE FOLLOWING IS r:")
-        # for a in r:
-        #    print(a)
-        #print ("len(test_data): {}".format(len(test_data)))
-        #print ("len(r): {}".format(len(r)))
-        # return
+  
         trees = r
         
         
