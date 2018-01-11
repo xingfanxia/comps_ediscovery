@@ -105,8 +105,8 @@ class RNF:
     '''
     def update(self, more_data):
         
-        self.train_data = more_data
-        # or self.train_data.append(more_data)
+        #self.train_data = more_data
+        self.train_data.append(more_data)
         
         # use average as placeholder function
         thresh = 0
