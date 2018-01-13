@@ -13,12 +13,19 @@
   float: right;
   width: 40%;
   height: 100vh;
+  flex-grow: 1;
+  position: fixed;
+  top: 20px;
 }
 
 #document{
   white-space: pre-wrap;
   max-height: 85%;
   overflow-y: scroll;
+}
+
+.container {
+  display: flex;
 }
 
 body {
@@ -32,10 +39,22 @@ table {
   border-spacing: 0;
   width: 100%;
 }
-th,
-td {
-  padding: 6px 15px;
+
+th, td {
+  padding: 2px 15px;
 }
+
+.emailContainer {
+  width: 400px
+}
+.basicTable thead {
+  display: table-header-group;
+}
+
+/*.basicTable td {
+  white-space: nowrap;
+}*/
+
 th {
   background: #42444e;
   color: #fff;

@@ -3,31 +3,6 @@
 <script src="{{url_for('static', filename='js/documentview.js')}}"></script>
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <link rel= "stylesheet" type= "text/css" href= "{{ url_for('static',filename='css/documentViewStyle.css') }}">
-<script type="text/x-template" id="grid-template">
-  <div>
-    <div>
-      <table class="basicTable">
-        <thead>
-          <tr>
-            <th v-for="key in columns" v-on:click="sortBy(key)" :class="{ active: sortKey == key }">
-              [[key]]
-            </th>
-          </tr>
-        </thead>
-      </table>
-    </div>
-      <div id="emailTable">
-        <tbody>
-          <tr v-for="email in filteredData" v-on:click="alert_user(email['ID'])">
-            <td v-for="key in columns">
-              [[ email[key] ]]
-            </td>
-          </tr>
-        </tbody>
-      </table>
-    </div>
-  </div>
-</script>
 
 <html>
    <body>
@@ -42,19 +17,40 @@
             :filter-key="searchQuery">
           </demo-grid>
         </div>
-        <div id='document_containter'>
-          <div id='metadata'>
-            <table class="basicTable">
-              <thead>
+        <div class="container">
+          <div class="emailContainer">
+            <script type="text/x-template" id="grid-template">
+              <table class="basicTable" id="emailTable">
+                <thead>
+                  <tr>
+                    <th v-for="key in columns" v-on:click="sortBy(key)" :class="{ active: sortKey == key }">
+                      [[key]]
+                    </th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr v-for="email in filteredData" v-on:click="alert_user(email['ID'])">
+                    <td v-for="key in columns">
+                      [[ email[key] ]]
+                    </td>
+                  </tr>
+                </tbody>
+              </table>
+            </script>
+          </div>
+          <div id='document_containter'>
+            <div id='metadata'>
+              <table class="basicTable">
+                <thead>
+                  <tr>
+                    <th>Metadata</th>
+                    <th></th>
+                  </tr>
+                </thead>
                 <tr>
-                  <th>Metadata</th>
-                  <th></th>
+                  <td>To: [[metadata_to]]</td>
+                  <td>From: [[metadata_from]]</td>
                 </tr>
-              </thead>
-              <tr>
-                <td>To: [[metadata_to]]</td>
-                <td>From: [[metadata_from]]</td>
-              </tr>
               <tr>
                 <td>Subject: [[metadata_subject]]</td>
                 <td>Date: [[metadata_date]]</td>
@@ -70,7 +66,9 @@
             <button type="button" v-on:click="feedback(0)">Not Relevant</button>
           </div>
 
+          </div>
       </div>
      </div>
+   <script src="https://code.jquery.com/jquery-3.2.1.min.js" integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4=" crossorigin="anonymous"></script>
   </body>
 </html>
