@@ -22,6 +22,7 @@ class Database():
     '''
     def df_to_table(self, df, tablename):
         df = df[df.columns[~df.columns.str.contains('Unnamed:')]]
+        df = df.astype(str)
         df.to_sql(tablename, self.conn, if_exists="replace", index=False)
 
     '''
@@ -34,7 +35,7 @@ class Database():
         if scenario:
             df = df.loc[df['Scenario'] == str(scenario)]
         df['Date'] = pd.to_datetime(df['Date'])
-        df[['To','From','X-To','X-From','Label','Scenario','Relevant']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant']].applymap(ast.literal_eval)
+        df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']].applymap(ast.literal_eval)
         return df
 
     '''
@@ -73,10 +74,17 @@ class Database():
     '''
     def get_tagged(self, scenario, goldstandard=False):
         df = self.df_from_table('emails', scenario=scenario)
+        df = df.loc[df['New_Tagg'] == 1]
         if goldstandard:
             df = df.loc[df['Label'] != -1]
         else:
             df = df.loc[df['Relevant'] != -1]
+        stmt = self.emails.update().\
+            where(self.emails.c.New_Tag=='1').\
+            values(New_Tag='0')
+        self.session.execute(stmt)
+        self.session.commit()
+
         return df
 
     '''
@@ -90,3 +98,7 @@ class Database():
         else:
             df = df.loc[df['Relevant'] == -1]
         return df
+
+db = Database()
+df = db.df_from_table('emails')
+print(df.head())
