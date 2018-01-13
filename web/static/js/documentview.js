@@ -150,6 +150,15 @@ window.onload = function () {
         .catch(function (error) {
           console.log(error);
         });
+      },
+      test: function(){
+        axios.get('/dbtest')
+        .then(function (response) {
+          console.log(response.data);
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
       }
     }
   })

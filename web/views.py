@@ -59,5 +59,14 @@ def log_feedback():
     db.set_relevancy(feedback['ID'], scenario, feedback['Relevant'])
     return '{"status": 200}\n'
 
+@app.route('/dbtest')
+def dbtest():
+    df = db.get_tagged(scenario)
+    df = df.astype(str)
+    df = df.to_dict(orient='index')
+    df = {v['ID']:v for k, v in df.items()}
+    return flask.jsonify(df)
+
+
 
 app.run(debug=True)
