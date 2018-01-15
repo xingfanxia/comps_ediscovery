@@ -3,12 +3,8 @@ import pandas as pd
 from sklearn.feature_extraction import text
 from sklearn.feature_extraction.text import TfidfVectorizer
 
-stop_Words = text.ENGLISH_STOP_WORDS
-
-emails = pd.read_pickle("data/parsed/pickles/pickled_data_test.pickle")
-
 def build_TFIDF_Matrix(df):
-    vectorizer = TfidfVectorizer(stop_words = stop_Words, min_df = .0001)
+    vectorizer = TfidfVectorizer(stop_words = stop_Words, min_df = .0005)
     vectorized = vectorizer.fit_transform(df["Message-Contents"])
 
     dumb_numbers = [s for s in vectorizer.get_feature_names()
@@ -17,6 +13,6 @@ def build_TFIDF_Matrix(df):
 
     stop_words = text.ENGLISH_STOP_WORDS.union(dumb_numbers)
 
-    vectorizer = TfidfVectorizer(stop_words = stop_words, min_df = .0001)
+    vectorizer = TfidfVectorizer(stop_words = stop_words, min_df = .0005)
     vectorized = vectorizer.fit_transform(df["Message-Contents"])
     return vectorizer, vectorized
