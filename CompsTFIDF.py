@@ -3,6 +3,10 @@ import pandas as pd
 from sklearn.feature_extraction import text
 from sklearn.feature_extraction.text import TfidfVectorizer
 
+
+#Input: Cleaned pandas dataframe of emails
+#Ouput: [0] vectorizer used to build matrix, [1] tfidf matric of data
+#Build TFIDF matrix on given pandas data frame of cleaned emails
 def build_TFIDF_Matrix(df):
     vectorizer = TfidfVectorizer(stop_words = stop_Words, min_df = .0005)
     vectorized = vectorizer.fit_transform(df["Message-Contents"])

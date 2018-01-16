@@ -3,7 +3,6 @@ import pandas as pd
 import re
 from sklearn.feature_extraction import text
 from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.decomposition import TruncatedSVD
 from sklearn.preprocessing import Normalizer
 
 
