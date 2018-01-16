@@ -1,3 +1,9 @@
+#navbar {
+	padding: 10px 16px;
+	background: #555;
+	color: #f1f1f1;
+}
+
 #emailList{
   float: left;
   width: 60%;
@@ -22,6 +28,57 @@
   white-space: pre-wrap;
   max-height: 85%;
   overflow-y: scroll;
+}
+
+/* Button classes*/
+
+.button {
+	background-color: #4CAF50; /* Green */
+	border: none;
+	-webkit-transition-duration: 0.3s; /* Safari */
+	transition-duration: 0.4s;
+	color: white;
+	border-radius: 8px;
+	padding: 10px 20px;
+	text-align: center;
+	text-decoration: none;
+	display: inline-block;
+	font-size: 14px;
+	margin: 4px 2px;
+	cursor: pointer;
+}
+
+.relevantButton {
+	background-color: white;
+    color: black;
+    border: 2px solid #4CAF50;
+}
+
+.relevantButton:hover {
+	background-color: #4CAF50;
+	color: white;
+}
+
+.testButton {
+	background-color: white;
+    color: black;
+    border: 2px solid #555555;
+}
+
+.testButton:hover {
+	background-color: #555555;
+	color: white;
+}
+
+.notRelevantButton {
+	background-color: white;
+    color: black;
+    border: 2px solid #E82821;
+}
+
+.notRelevantButton:hover {
+	background-color: #E82821;
+	color: white;
 }
 
 .container {
@@ -81,4 +138,10 @@ tr:last-child td:first-child {
 }
 tr:last-child td:last-child {
   border-bottom-right-radius: 6px;
+}
+
+@media screen and (max-width: 1024px) {
+    .document_containter {
+        display: none !important;
+    }
 }

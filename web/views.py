@@ -14,14 +14,14 @@ scenario = '401'
 db = Database()
 email_list = db.get_scenario(scenario)
 
-# data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
-# data['Relevant'] = '0'
-#
-# email_key = data[['ID','Date', 'From', 'To', 'Subject', 'Scenario']][:5000].copy()
-# email_key_dict = email_key.to_dict(orient='index')
-#
-# #If there's a fast way to remove ID from v, we should do that here as well
-# email_key_dict = {v['ID']:v for k, v in email_key_dict.items()}
+data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
+data['Relevant'] = '0'
+
+email_key = data[['ID','Date', 'From', 'To', 'Subject', 'Scenario']][:5000].copy()
+email_key_dict = email_key.to_dict(orient='index')
+
+#If there's a fast way to remove ID from v, we should do that here as well
+email_key_dict = {v['ID']:v for k, v in email_key_dict.items()}
 
 def fake_data():
     data = {
