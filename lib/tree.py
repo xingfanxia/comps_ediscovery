@@ -101,7 +101,49 @@ class Tree:
             with open("vis/{}_predict_vis.dot".format(index), "w") as f:
                 f.write(joined)
         return confidences
-    
+
+    def predict_with_feat_imp(self, test_data):
+        confidences = []
+        feature_importances = [] #dict from featurename: (rel_bias, irrel_bias)
+        for index, row in test_data.iterrows():
+            node_path = []
+            cur_feat_imp = {}
+            cur_node = self.head
+            while (cur_node.left and cur_node.right):
+                node_path.append(cur_node)
+                if self._should_go_left(row, cur_node):
+                    #update feature_importances
+                    # prop_before_split = cur_node.get_proportions('1')/len(cur_node.rows)
+                    # prop_after_split = cur_node.left.get_proportions('1')/len(cur_node.left.rows)
+                    # cur_feat_imp[cur_node.min_feature] = prop_before_split - prop_after_split
+                    cur_node = cur_node.left
+                else:
+                    #update feature_importances
+                    # prop_before_split = cur_node.get_proportions('1')/len(cur_node.rows)
+                    # prop_after_split = cur_node.right.get_proportions('1')/len(cur_node.right.rows)
+                    # cur_feat_imp[cur_node.min_feature] = prop_before_split - prop_after_split                    
+                    cur_node = cur_node.right
+#         here, cur_node should be the leaf
+            node_path.append(cur_node)
+            relevant_confidence = cur_node.get_proportions('1')
+            irrelevant_confidence = cur_node.get_proportions('0')
+            confidences.append((relevant_confidence, irrelevant_confidence))
+            feature_importances.append(self._get_feature_importance(node_path, 
+                    '1' if relevant_confidence > irrelevant_confidence else '0'))
+        # print('done predicting!')
+
+        return confidences, feature_importances
+
+    def _get_feature_importance(self, node_path, prediction):
+        features = {}
+        for before_split_ind in range(len(node_path) - 1):
+            before = node_path[before_split_ind]
+            after = node_path[before_split_ind + 1]
+            before_prop = before.get_proportions(prediction)
+            after_prop = after.get_proportions(prediction)
+            features[before.min_feature] = after_prop - before_prop
+        return features
+
     '''
     helper function to determine which way we should traverse through the tree.
     params:

@@ -82,6 +82,31 @@ class RNF:
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
         return probas, classes
 
+    def predict_with_feat_imp(self, test_data):
+        tree_results = [tree.predict_with_feat_imp(test_data) for tree in self.trees]
+        scores = [list() for doc in tree_results[0][0]]
+        for doc in range(len(tree_results[0][0])):
+            for tree in tree_results:
+                scores[doc].append(tree[0][doc])
+        probas = [self.some_majority_count_metric(score) for score in scores]
+        classes = ['1' if proba[0] > proba[1] else '0' for proba in probas]
+
+        #sum up all of the importances
+        importances = [{} for doc in tree_results[0][1]]
+        for doc in range(len(importances)):
+            for tree in tree_results:
+                for feature in tree[1][doc].keys():
+                    try:
+                        importances[doc][feature] += tree[1][doc][feature]
+                    except KeyError:
+                        importances[doc][feature] = tree[1][doc][feature]
+        #divide by num_trees
+        for importance_dict in range(len(importances)):
+            for feature in importances[importance_dict].keys():
+                multiplier = 1 if classes[importance_dict] == '1' else -1
+                importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees) * multiplier
+        return probas, classes, importances
+
     def retrain_tree(self):
         # assume that self.data contains the new data
         # TODO: change as necessary
