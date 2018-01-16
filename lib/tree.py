@@ -289,10 +289,7 @@ class Tree:
 
         #get own decrease
         curr_prop = len(curr.rows)/len(self.rows)
-        left_prop = len(curr.left.rows)/len(self.rows)
-        right_prop = len(curr.right.rows)/len(self.rows)
-
-        delta = curr.calc_gini_index() - (left_prop * curr.left.calc_gini_index()) - (right_prop * curr.right.calc_gini_index())
+        delta = curr_prop * Tree.calculate_impurity_decrease(curr)
 
         #get dicts for left and right
         left_decreases = self._mdi_helper(curr.left)
@@ -302,6 +299,15 @@ class Tree:
         curr_decrease = {str(curr.min_feature): delta}
 
         return Tree._join_mdi_dicts(Tree._join_mdi_dicts(curr_decrease, left_decreases), right_decreases)
+    '''
+    calculates the impurity decrease as per page 2 of 
+    https://papers.nips.cc/paper/4928-understanding-variable-importances-in-forests-of-randomized-trees.pdf 
+    '''
+    def calculate_impurity_decrease(node):
+        left_prop = len(node.left.rows)/len(node.rows)
+        right_prop = len(node.right.rows)/len(node.rows)
+        delta = node.calc_gini_index() - (left_prop * node.left.calc_gini_index()) - (right_prop * node.right.calc_gini_index())
+        return delta
 
     '''
     returns a copy of all the elements of d1 and d2
