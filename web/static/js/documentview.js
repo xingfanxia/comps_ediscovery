@@ -152,9 +152,12 @@ window.onload = function () {
         });
       },
       test: function(){
+        var load = document.getElementById("overlay");
+        load.style.display = 'block'
         axios.get('/dbtest')
         .then(function (response) {
           console.log(response.data);
+          load.style.display = 'none'
         })
         .catch(function (error) {
           console.log(error);

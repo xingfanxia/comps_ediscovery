@@ -8,11 +8,13 @@ import os, sys
 root_dir = os.path.dirname(os.getcwd())
 sys.path.insert(0, root_dir)
 from lib.dblib import Database
+from lib import *
 
+#Global Vars
 scenario = '401'
-
 db = Database()
 email_list = db.get_scenario(scenario)
+rnf = None
 
 # data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
 # data['Relevant'] = '0'
@@ -61,11 +63,41 @@ def log_feedback():
 
 @app.route('/dbtest')
 def dbtest():
-    df = db.get_tagged(scenario)
-    df = df.astype(str)
-    df = df.to_dict(orient='index')
-    df = {v['ID']:v for k, v in df.items()}
-    return flask.jsonify(df)
+    print("THIS IS GETTING CALLED WTF")
+    global rnf
+    lsa_np = np.load('../data/parsed/lsa_output.npy')
+    lsa_df = pd.DataFrame(lsa_np)
+
+    metadata = db.df_from_table('emails')
+    metadata = metadata.loc[metadata['Scenario'] == 401]
+    metadata = metadata.reset_index(drop=True)
+
+    df = pd.concat([metadata, lsa_df], axis=1, join_axes=[metadata.index])
+
+    cat_features = ['To','From']
+    features = list(range(100))
+    features.extend(cat_features + ['Date'])
+
+    df = df[features + ['Label'] + ['Relevant']]
+
+        if rnf == None:
+            train_df = df.loc[df['Relevant'] != -1]
+            train_df = train_df.reset_index(drop=True)
+            print (train_df.head())
+            test_df = df.loc[df['Relevant'] == -1]
+            test_df = test_df.reset_index(drop=True)
+            print (test_df.head())
+            n_trees = 64
+            tree_depth = 5
+            random_seed = 42
+            n_max_features = 11
+            n_max_input = 300
+            benchmark = None
+
+            #train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features):
+            rnf = RNF(train_df, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features)
+            rnf.fit()
+    return '{"status": 200}\n'
 
 
 

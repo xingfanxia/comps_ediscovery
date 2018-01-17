@@ -28,6 +28,21 @@
   display: flex;
 }
 
+#overlay {
+    background-image:url(http://northeasternbankservices.com/wp-content/uploads/2013/08/grey-background.png);
+    display: none;        <- Not displayed by default
+    position: absolute;   <- This and the following properties will
+    top: 0;                  make the overlay, the element will expand
+    left: 0;
+    opacity: 0.5;
+    padding:0;
+    margin:0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+}
+
 body {
   color: #666;
   font: 14px/24px "Open Sans", "HelveticaNeue-Light", "Helvetica Neue Light", "Helvetica Neue", Helvetica, Arial, "Lucida Grande", Sans-Serif;

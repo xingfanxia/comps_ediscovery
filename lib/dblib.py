@@ -43,9 +43,11 @@ class Database():
     '''
     def get_email_by_id(self, id, scenario=None):
         print(id)
+        print("here")
         res = self.session.query(self.emails).filter_by(ID=id)
         if scenario:
             res = res.filter_by(Scenario=str(scenario))
+        # print("here2")
         res = res.all()
         return [r._asdict() for r in res]
 
@@ -74,7 +76,7 @@ class Database():
     '''
     def get_tagged(self, scenario, goldstandard=False):
         df = self.df_from_table('emails', scenario=scenario)
-        df = df.loc[df['New_Tagg'] == 1]
+        df = df.loc[df['New_Tag'] == 1]
         if goldstandard:
             df = df.loc[df['Label'] != -1]
         else:
@@ -98,7 +100,3 @@ class Database():
         else:
             df = df.loc[df['Relevant'] == -1]
         return df
-
-db = Database()
-df = db.df_from_table('emails')
-print(df.head())
