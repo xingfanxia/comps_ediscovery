@@ -115,7 +115,8 @@ class RNF:
                 scores[document_idx].append(tree[document_idx][0])
         probas = [self.some_majority_count_metric(score) for score in scores]
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
-        return probas, classes
+        ids = [doc[1] for doc in trees_outputs[0]]
+        return probas, classes, ids
 
 
 
