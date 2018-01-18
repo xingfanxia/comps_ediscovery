@@ -20,6 +20,7 @@ def recallPrecisionRelevant(tagArray, testData):
         if tagArray[i] == '1':
             numTagRelevant = numTagRelevant + 1
             if testData["Label"].iloc[i] == '1':
+
                 numTagCorrect = numTagCorrect + 1
     recall = numTagCorrect / totalRelevant
     precision = numTagCorrect / numTagRelevant
