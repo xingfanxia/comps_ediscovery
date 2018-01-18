@@ -7,6 +7,8 @@ import numpy as np
 import pandas as pd
 import random
 import pickle
+import multiprocessing
+import sys
 
 class RNF:
     '''
@@ -44,10 +46,11 @@ class RNF:
         selected_rows = np.random.choice(self.train_data.shape[0], self.n_max_input)
         selected_feature_indices = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
         selected_features = train_data.columns.values[[selected_feature_indices]]
+        selected_features = np.delete(selected_features, np.where(selected_features == "Label"), axis=0)
         return (selected_rows, selected_features)
         
-        selected_features = np.random.choice(self.train_data.shape[1] - 2, self.n_max_features, replace=False)
-        return (selected_rows, selected_features)
+        #selected_features = np.random.choice(self.train_data.shape[1] - 2, self.n_max_features, replace=False)
+        #return (selected_rows, selected_features)
 
     '''
     pass randomly selected emails and features to each tree
@@ -57,14 +60,46 @@ class RNF:
             raise AlreadyFitException('This forest has already been fit to the data')
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
-#             self, train_data, depth, benchmark, rows, features
             self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
         count = 0
         for tree in self.trees:
             count += 1
             print('fitting the {}th tree.'.format(count))
-            tree.fit()
+            tree = tree.fit()
+            
+        
+        
+        
+    '''
+    A separate paralellized fit function for now
+    '''
+    def fit_parallel(self):
+        # Tree creation
+        if len(self.trees) != 0:
+            raise AlreadyFitException('This forest has already been fit to the data')
+        for i in range(self.n_trees):
+            selected = self.random_select(self.train_data)
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
+        
+        # create N new processes, where N = number of trees
+        pool = multiprocessing.Pool( len(self.trees) )
 
+        # start the N tree.fit processes
+        results = []
+        for tree in self.trees:
+            results.append( pool.apply_async(tree.fit) )
+            
+        pool.close() 
+        pool.join()
+
+        r = []
+        for result in results:
+            r.append(result.get())
+        
+        for i in range(len(self.trees)):
+            self.trees[i] = r[i]
+    
+    
     '''
     calculate a proba from output of each tree's prediction
     should ouput two arrays: probas and classfication
@@ -72,12 +107,41 @@ class RNF:
     def some_majority_count_metric(self, score):
         return np.mean(score, axis=0)
 
-    def predict(self, test_data):
-        trees= [tree.predict(test_data) for tree in self.trees]
-        scores = [ list() for doc in trees[0]]
-        for doc in range(len(trees[0])):
-            for tree in trees:
-                scores[doc].append(tree[doc])
+    def predict(self, test_data, visualize=False):
+        trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
+        scores = [ list() for i in range(len(test_data))]
+        for document_idx in range(len(test_data)):
+            for tree in trees_outputs:
+                scores[document_idx].append(tree[document_idx][0])
+        probas = [self.some_majority_count_metric(score) for score in scores]
+        classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
+        return probas, classes
+    
+    
+    
+    def predict_parallel(self, test_data, visualize=False):
+        pool = multiprocessing.Pool( len(self.trees) )
+        tasks = []
+        
+        for tree in self.trees:
+            tasks.append( (test_data, visualize) )
+        
+        results = []
+        for i in range(len(self.trees)):
+            results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize)) )
+        
+        r = []
+        for result in results:
+            r.append(result.get())
+  
+        trees_outputs = r
+        
+        
+        trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
+        scores = [ list() for i in range(len(test_data))]
+        for document_idx in range(len(test_data)):
+            for tree in trees_outputs:
+                scores[document_idx].append(tree[document_idx][0])
         probas = [self.some_majority_count_metric(score) for score in scores]
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
         return probas, classes
@@ -105,7 +169,7 @@ class RNF:
     '''
     def update(self, more_data):
         
-        #self.train_data = more_data
+        # self.train_data = more_data
         self.train_data.append(more_data)
         
         # use average as placeholder function
@@ -118,14 +182,34 @@ class RNF:
         # TODO: This is temporary code for testing!!!
         #thresh = 0
         
+        idx_trees_to_retrain = []
+        
         for i in range(len(self.trees)):
             if (self.trees[i].oob_error < thresh):
-                
+                idx_trees_to_retrain.append(i)
                 # discard and remake
-                self.trees[i] = self.retrain_tree()
+                # self.trees[i] = self.retrain_tree()
             else:
                 # update leave nodes
                 self.update_leaves(self.trees[i])
+                
+        cpu_count = len(idx_trees_to_retrain)
+        pool = multiprocessing.Pool( cpu_count )
+        tasks = []
+        tNum = 0
+        max_t = cpu_count
+        
+        results = []
+        for idx in idx_trees_to_retrain:
+            results.append( pool.apply_async(self.retrain_tree) )
+        
+        retrained_trees = []
+        for result in results:
+            retrained_trees.append(result.get())
+            
+        for i in range(len(idx_trees_to_retrain)):
+            self.trees[idx_trees_to_retrain[i]] = retrained_trees[i]
+            
                 
 
                 
