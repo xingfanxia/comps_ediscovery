@@ -114,7 +114,7 @@ def cross_val_rnf_incremental(num_trees, df, tries, num_increments, random_seed,
             
             # put this into RNF later!!!
             forest.n_max_input = last
-            predicted = forest.predict(shuffled_df[last:last + increment_size])
+            predicted = forest.predict_parallel(shuffled_df[last:last + increment_size])
             prediction_ratios = predicted[0]
             
             
@@ -145,7 +145,8 @@ def cross_val_rnf_incremental(num_trees, df, tries, num_increments, random_seed,
             
             score = 0
             labels = [row["Label"] for index, row in shuffled_df[-test_size:].iterrows()]
-            predicted_classes = forest.predict(shuffled_df[-test_size:])[1]
+            predicted_classes = forest.predict_parallel(shuffled_df[-test_size:])[1]
+            print(shuffled_df[-test_size:])
             evalStats(predicted_classes, shuffled_df[-test_size:])
             score = sum( [ 1 for i in range(len(predicted_classes)) if predicted_classes[i] == labels[i]])
             print('score at increment ' + str(j) + ': ' + str(score / test_size))
