@@ -13,13 +13,13 @@ def recallPrecisionRelevant(tagArray, testData):
     #Number of emails that are actually relevant (True Positive + False Negative)
     totalRelevant = 0
     for i in range(len(tagArray)):
-        if testData["Label"][i] == '-1':
+        if testData["Label"].iloc[i] == '-1':
             continue
-        if testData["Label"][i] == '1':
+        if testData["Label"].iloc[i] == '1':
             totalRelevant = totalRelevant + 1
         if tagArray[i] == '1':
             numTagRelevant = numTagRelevant + 1
-            if testData["Label"][i] == '1':
+            if testData["Label"].iloc[i] == '1':
                 numTagCorrect = numTagCorrect + 1
     recall = numTagCorrect / totalRelevant
     precision = numTagCorrect / numTagRelevant
