@@ -20,8 +20,9 @@ class RNF:
     n_max_features - max num of features to pass to each tree
     n_max_input - max num of input to pass to each tree
     '''
-    def __init__(self, train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features):
+    def __init__(self, train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features, user_input=False):
         self.trees = []
+        self.input_type = user_input
         self.train_data = train_data
         self.n_trees = n_trees
         self.tree_depth = tree_depth
@@ -44,9 +45,12 @@ class RNF:
     #TODO: fix this so that the features selected are the actual features, not the indices of the features.
     def random_select(self, train_data):
         selected_rows = np.random.choice(self.train_data.shape[0], self.n_max_input)
+        print(selected_rows)
         selected_feature_indices = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
         selected_features = train_data.columns.values[[selected_feature_indices]]
         selected_features = np.delete(selected_features, np.where(selected_features == "Label"), axis=0)
+        selected_features = np.delete(selected_features, np.where(selected_features == "Relevant"), axis=0)
+        selected_features = np.delete(selected_features, np.where(selected_features == "ID"), axis=0)
         return (selected_rows, selected_features)
 
         #selected_features = np.random.choice(self.train_data.shape[1] - 2, self.n_max_features, replace=False)
@@ -60,7 +64,7 @@ class RNF:
             raise AlreadyFitException('This forest has already been fit to the data')
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
-            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features, user_input=self.input_type))
         count = 0
         for tree in self.trees:
             count += 1
@@ -79,7 +83,7 @@ class RNF:
             raise AlreadyFitException('This forest has already been fit to the data')
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
-            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features, user_input=self.input_type))
 
         # create N new processes, where N = number of trees
         pool = multiprocessing.Pool( len(self.trees) )
@@ -151,7 +155,7 @@ class RNF:
         # assume that self.data contains the new data
         # TODO: change as necessary
         selected = self.random_select(self.train_data)
-        tree = Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features)
+        tree = Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features, user_input=self.input_type)
         tree.fit()
         return tree
 

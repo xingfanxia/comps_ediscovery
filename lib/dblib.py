@@ -34,8 +34,9 @@ class Database():
         df = pd.read_sql_table(tablename, self.conn)
         if scenario:
             df = df.loc[df['Scenario'] == str(scenario)]
+        df = df.astype(str)
         df['Date'] = pd.to_datetime(df['Date'])
-        df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']].applymap(ast.literal_eval)
+        # df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']].applymap(ast.literal_eval)
         return df
 
     '''

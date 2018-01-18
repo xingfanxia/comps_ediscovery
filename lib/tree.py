@@ -18,13 +18,13 @@ class Tree:
     depth - max recursion depth of the tree
     benchmark - benchmark for geni/entropy
     '''
-    def __init__(self, data, depth, benchmark, rows, features, cat_features): #should we include data here
+    def __init__(self, data, depth, benchmark, rows, features, cat_features, user_input=False): #should we include data here
         self.depth = depth
         self.rows = rows
         self.features = features
         self.data = data
         self.benchmark = benchmark
-        self.head = Node(data, rows, features, 0, depth, cat_features)
+        self.head = Node(data, rows, features, 0, depth, cat_features, user_input=user_input)
         self.oob_error = -1
         self.cat_features = cat_features
 
