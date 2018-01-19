@@ -24,3 +24,8 @@ upload_parsed:
 	
 run:
 	jupyter notebook
+
+web:
+	python3 flask_server/data_api.py
+	cd web_new
+	npm run dev
