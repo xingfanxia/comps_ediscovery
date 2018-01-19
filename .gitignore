@@ -7,3 +7,5 @@ temp/
 *.sh
 __pycache__/
 *.pickle
+.idea/
+**/node_modules/
