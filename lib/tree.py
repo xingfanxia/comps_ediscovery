@@ -230,6 +230,23 @@ class Tree:
             if len(nodes_to_traverse) == 0:
                 done = True
         
+    def traverse(self):
+        '''Traverse down the tree and return all of the nodes in a list'''
+        nodes_list = [self.head]
+        checked = []
+        done = False
+        while (not done):
+            temp_nodes_list = []
+            for node in nodes_list:
+                if node not in checked:
+                    if node.left and node.right:
+                        temp_nodes_list.append(node.left)
+                        temp_nodes_list.append(node.right)
+                checked.append(node)
+            nodes_list.extend(temp_nodes_list)
+            if len(nodes_list) == (checked):
+                done = True
+        return nodes_list
     
     '''
     return:
