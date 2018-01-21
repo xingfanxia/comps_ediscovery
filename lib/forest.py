@@ -177,6 +177,6 @@ class RNF:
             for feature in curr_importances.keys():
                 try:
                     total[feature] += curr_importances[feature]
-                except:
+                except KeyError:
                     total[feature] = curr_importances[feature]
         return total

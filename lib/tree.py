@@ -139,8 +139,8 @@ class Tree:
         for before_split_ind in range(len(node_path) - 1):
             before = node_path[before_split_ind]
             after = node_path[before_split_ind + 1]
-            before_prop = before.get_proportions(prediction)
-            after_prop = after.get_proportions(prediction)
+            before_prop = before.get_proportions('1')
+            after_prop = after.get_proportions('1')
             features[before.min_feature] = after_prop - before_prop
         return features
 
