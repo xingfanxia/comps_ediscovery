@@ -146,6 +146,43 @@ class RNF:
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
         return probas, classes
 
+    '''
+    returns:
+
+    probas - [(prob_rel, prob_irrel), ...]
+        prob_rel - probability that this document is relevant 
+        prob_irrel - probability that this document is irrelevant
+    classes - [relevance]
+        relevance - '1' if relevant, '0' if irrelevant
+    importances - [{feature:weight}]
+        feature - a row of the df we used to predict
+        weight - how important the feature was in the prediction, where positive means it nudged the prediction 
+            towards relevance and negative means it nudged the prediction towards irrelevance
+    '''
+    def predict_with_feat_imp(self, test_data):
+        tree_results = [tree.predict_with_feat_imp(test_data) for tree in self.trees]
+        scores = [list() for doc in tree_results[0][0]]
+        for doc in range(len(tree_results[0][0])):
+            for tree in tree_results:
+                scores[doc].append(tree[0][doc])
+        probas = [self.some_majority_count_metric(score) for score in scores]
+        classes = ['1' if proba[0] > proba[1] else '0' for proba in probas]
+
+        #sum up all of the importances
+        importances = [{} for doc in tree_results[0][1]]
+        for doc in range(len(importances)):
+            for tree in tree_results:
+                for feature in tree[1][doc].keys():
+                    try:
+                        importances[doc][feature] += tree[1][doc][feature]
+                    except KeyError:
+                        importances[doc][feature] = tree[1][doc][feature]
+        #divide by num_trees
+        for importance_dict in range(len(importances)):
+            for feature in importances[importance_dict].keys():
+                importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees)
+        return probas, classes, importances
+
     def retrain_tree(self):
         # assume that self.data contains the new data
         # TODO: change as necessary
@@ -228,3 +265,21 @@ class RNF:
         self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
 #         the part that matters: load the pre-trained then stored trees into the RNF object instance
         self.trees = temp.trees
+
+    '''
+    Returns a measure for which features are most important in the tree. 
+
+    returns:
+    total - {feature:importance}, where importance is a measure of how important that feature is to the overall
+        forest
+    '''
+    def get_feature_importances(self):
+        total = {}
+        for tree in self.trees:
+            curr_importances = tree.get_mean_decrease_impurity()
+            for feature in curr_importances.keys():
+                try:
+                    total[feature] += curr_importances[feature]
+                except KeyError:
+                    total[feature] = curr_importances[feature]
+        return total

@@ -125,7 +125,61 @@ class Tree:
                 with open("vis/{}_predict_vis.dot".format(index), "w") as f:
                     f.write(joined)
         return confidences
-    
+
+    '''
+    Predicts the labels of test_data, and returns some information about how the tree came to those predictions.
+
+    params:
+    test_data - a pandas df with the same columns as the train_data. Each row is considered to be one sample to predict.
+
+    returns:
+    confidences - [(relevant_confidence_doc1, irrelevant_confidence_doc1), (relevant_confidence_doc2...)...]
+        where relevant_confidence_doc1 is the confidence this tree has in the first row being a relevant document,
+        and irrelevant_confidence_doc1 is the confidence this tree has in the first row being an irrelevant document.
+    feature_importances - [{feature:prediction_weight}]
+        where feature is a column and prediction_weight is the amount that this feature shifted the relevant confidence
+        (a positive value suggests that this feature implies relevance, and a negative value suggests the opposite).
+    '''
+    def predict_with_feat_imp(self, test_data):
+        confidences = []
+        feature_importances = [] #dict from featurename: (rel_bias, irrel_bias)
+        for index, row in test_data.iterrows():
+            node_path = []
+            cur_feat_imp = {}
+            cur_node = self.head
+            while (cur_node.left and cur_node.right):
+                node_path.append(cur_node)
+                if self._should_go_left(row, cur_node):
+                    cur_node = cur_node.left
+                else:                    
+                    cur_node = cur_node.right
+#         here, cur_node should be the leaf
+            node_path.append(cur_node)
+            relevant_confidence = cur_node.get_proportions('1')
+            irrelevant_confidence = cur_node.get_proportions('0')
+            confidences.append((relevant_confidence, irrelevant_confidence))
+            feature_importances.append(self._get_feature_importance(node_path))
+
+        return confidences, feature_importances
+
+    '''
+    Given a path taken through this tree, return a dictionary labeling each feature by its prediction
+    params:
+    node_path - list of Node objects that we've traversed through
+    returns:
+    features - {feature: prediction weight}, where a large positive value suggests that this feature means 
+        the item is relevant, and a large negative value suggests the opposite.
+    '''
+    def _get_feature_importance(self, node_path):
+        features = {}
+        for before_split_ind in range(len(node_path) - 1):
+            before = node_path[before_split_ind]
+            after = node_path[before_split_ind + 1]
+            before_prop = before.get_proportions('1')
+            after_prop = after.get_proportions('1')
+            features[before.min_feature] = after_prop - before_prop
+        return features
+
     '''
     helper function to determine which way we should traverse through the tree.
     params:
@@ -309,3 +363,55 @@ class Tree:
             string += level_str+"\n--------------------------------------------------\n"
             nodes = new_nodes
         return string
+
+    '''
+    Get MDI value for this tree
+    as per this paper:
+    https://papers.nips.cc/paper/4928-understanding-variable-importances-in-forests-of-randomized-trees.pdf
+    returns: {feature: MDI component for this tree}
+    '''
+    def get_mean_decrease_impurity(self):
+        return self._mdi_helper(self.head)
+
+    '''
+    helper function to recursively iterate through the tree to calculate mean decrease impurity.
+    '''
+    def _mdi_helper(self, curr):
+        #return empty dict (no features to split) if leaf
+        if curr.left is None and curr.right is None:
+            return {}
+
+        #get own decrease
+        curr_prop = len(curr.rows)/len(self.rows)
+        delta = curr_prop * Tree.calculate_impurity_decrease(curr)
+
+        #get dicts for left and right
+        left_decreases = self._mdi_helper(curr.left)
+        right_decreases = self._mdi_helper(curr.right)
+
+        #build joined dict
+        curr_decrease = {str(curr.min_feature): delta}
+
+        return Tree._join_mdi_dicts(Tree._join_mdi_dicts(curr_decrease, left_decreases), right_decreases)
+    '''
+    calculates the impurity decrease as per page 2 of 
+    https://papers.nips.cc/paper/4928-understanding-variable-importances-in-forests-of-randomized-trees.pdf 
+    '''
+    def calculate_impurity_decrease(node):
+        left_prop = len(node.left.rows)/len(node.rows)
+        right_prop = len(node.right.rows)/len(node.rows)
+        delta = node.calc_gini_index() - (left_prop * node.left.calc_gini_index()) - (right_prop * node.right.calc_gini_index())
+        return delta
+
+    '''
+    returns a copy of all the elements of d1 and d2
+    where d1 and d2 share keys, the values are summed
+    '''
+    def _join_mdi_dicts(d1, d2):
+        ans = d1.copy()
+        for key in d2.keys():
+            try:
+                ans[key] += d2[key]
+            except KeyError:
+                ans[key] = d2[key]
+        return ans
