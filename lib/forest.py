@@ -82,6 +82,19 @@ class RNF:
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
         return probas, classes
 
+    '''
+    returns:
+
+    probas - [(prob_rel, prob_irrel), ...]
+        prob_rel - probability that this document is relevant 
+        prob_irrel - probability that this document is irrelevant
+    classes - [relevance]
+        relevance - '1' if relevant, '0' if irrelevant
+    importances - [{feature:weight}]
+        feature - a row of the df we used to predict
+        weight - how important the feature was in the prediction, where positive means it nudged the prediction 
+            towards relevance and negative means it nudged the prediction towards irrelevance
+    '''
     def predict_with_feat_imp(self, test_data):
         tree_results = [tree.predict_with_feat_imp(test_data) for tree in self.trees]
         scores = [list() for doc in tree_results[0][0]]
@@ -103,8 +116,7 @@ class RNF:
         #divide by num_trees
         for importance_dict in range(len(importances)):
             for feature in importances[importance_dict].keys():
-                multiplier = 1 if classes[importance_dict] == '1' else -1
-                importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees) * multiplier
+                importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees)
         return probas, classes, importances
 
     def retrain_tree(self):
@@ -170,6 +182,13 @@ class RNF:
 #         the part that matters: load the pre-trained then stored trees into the RNF object instance
         self.trees = temp.trees
 
+    '''
+    Returns a measure for which features are most important in the tree. 
+
+    returns:
+    total - {feature:importance}, where importance is a measure of how important that feature is to the overall
+        forest
+    '''
     def get_feature_importances(self):
         total = {}
         for tree in self.trees:
