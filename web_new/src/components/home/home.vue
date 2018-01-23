@@ -14,11 +14,11 @@
       <div class="columns">
         <div class="column is-6-desktop is-offset-3-desktop is-10-tablet is-offset-1-tablet is-10-mobile is-offset-1-mobile">
           <p>Example Queries 1</p>
-          <pre v-highlightjs><code class="bash">key term sort by :category</code></pre>
+          <pre><code class="bash">key term sort by :category</code></pre>
           <p>Example Queries 2</p>
-          <pre v-highlightjs><code class="bash">key term sort by :confidence</code></pre>
+          <pre><code class="bash">key term sort by :confidence</code></pre>
           <p>Example Queries 3</p>
-          <pre v-highlightjs><code class="bash">key term sort by :relevance</code></pre>
+          <pre><code class="bash">key term sort by :relevance</code></pre>
         </div>
       </div>
 
