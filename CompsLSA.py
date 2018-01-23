@@ -8,3 +8,8 @@ def build_LSA_Matrix(tfMatrix):
     svd = TruncatedSVD(n_components = 100, algorithm='randomized')
     lsa = svd.fit_transform(scenario_1_tfidf)
     return lsa
+
+
+#Input: LSA fit() from train data, tfidf matrix
+#Output: LSA matrix
+#LSA matrix off TFIDF matrix using svd trained already. Must be done on computer with more RAM
