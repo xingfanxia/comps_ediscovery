@@ -3,7 +3,10 @@
     <vuetable ref="vuetable"
     :api-url="apiUrl"
     :fields="fields"
+    :perPage="perPage"
     pagination-path=""
+    detail-row-component="my-detail-row"
+    @vuetable:cell-clicked="onCellClicked"
     @vuetable:pagination-data="onPaginationData"
     ></vuetable>
     <div class="vuetable-pagination ui basic segment grid">
@@ -18,16 +21,20 @@
 
 <script>
 
+import Vue from 'vue'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination'
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo'
+import DetailRow from '../detail/detailRow.vue'
+
+Vue.component('my-detail-row', DetailRow)
 
 export default {
 
   components: {
     'vuetable': Vuetable,
     'vuetable-pagination': VuetablePagination,
-    'vuetable-pagination-info': VuetablePaginationInfo
+    'vuetable-pagination-info': VuetablePaginationInfo,
   },
 
   props: {
@@ -43,6 +50,10 @@ export default {
     },
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
+    },
+    onCellClicked (data, field, event) {
+      console.log('cellClicked: ', field.name)
+      this.$refs.vuetable.toggleDetailRow(data.id)
     }
   }
 }

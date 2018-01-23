@@ -2,7 +2,10 @@
   <section id="result">
     <search-bar></search-bar>
       <div class="row" id="result-main">
-        <mytable :apiUrl="apiUrl" :fields="fields" :perPage="perPage"></mytable>
+        <mytable 
+        :apiUrl="apiUrl" 
+        :fields="fields" 
+        :perPage="perPage"></mytable>
         <div class="col-lg-4">
           <p>Email Display Here</p>
         </div>
