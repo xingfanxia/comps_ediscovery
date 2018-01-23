@@ -2,9 +2,7 @@
   <section id="result">
     <search-bar></search-bar>
       <div class="row" id="result-main">
-        <div class="col-lg-8">
-          <my-vuetable ref="vuetable" api-url="http://localhost:5000/enron" :fields="['ID','Date', 'From', 'To', 'Subject']"></my-vuetable>
-        </div>
+        <mytable :apiUrl="apiUrl" :fields="fields" :perPage="perPage"></mytable>
         <div class="col-lg-4">
           <p>Email Display Here</p>
         </div>
@@ -14,7 +12,7 @@
 
 <script>
 
-import MyVuetable from 'vuetable-2/src/components/Vuetable'
+import Table from './table.vue'
 import SearchBar from '../home/searchBar.vue'
 // import SearchFilter from './filter.vue'
 // import RetGrid from './grid.vue'
@@ -23,15 +21,25 @@ export default {
 
   components: {
     'search-bar': SearchBar,
-    'my-vuetable': MyVuetable
+    'mytable': Table
   },
 
   data () {
     return {
-      queryString: this.$route.query.input
+      apiUrl: '',
+      fields: [],
+      perPage: 0
     }
-  }
+  },
 
+  created: function () {
+    this.fields = ['ID', 'Date', 'From', 'To', 'Subject']
+    this.perPage = 50
+    let query = $.param(this.$route.query)
+    let request = 'http://localhost:5000/enron?' + query
+    console.log(request)
+    this.apiUrl = request
+  }
 }
 
 </script>

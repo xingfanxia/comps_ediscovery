@@ -25,10 +25,7 @@ dict_dump['data'] = list_dump
 # Add page turn with request parameteres
 @app.route("/enron")
 def enron():
-    if_sort = request.args.get('sort')
-    page_num = request.args.get('page')
-    page_entries = request.args.get('per_page')
-    print(if_sort, page_num, page_entries)
+    print(request.args)
     return jsonify(dict_dump)
 
 app.run(port=5000, debug=True)

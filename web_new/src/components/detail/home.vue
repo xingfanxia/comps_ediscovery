@@ -23,7 +23,6 @@
         queryString: this.$route.query.input
    		}
 		}
-
   }
 
 </script>
