@@ -9,9 +9,6 @@ import pandas as pd
 import pickle, os
 class Tree:
     
-    (.55, .45, id)
-    ((.55 , .45), id)
-    
     '''
     params:
     train_data - training data to trainthe tree
@@ -145,20 +142,23 @@ class Tree:
         feature_importances = [] #dict from featurename: (rel_bias, irrel_bias)
         for index, row in test_data.iterrows():
             node_path = []
+            lefts = [] #True if we go left, False otherwise
             cur_feat_imp = {}
             cur_node = self.head
             while (cur_node.left and cur_node.right):
                 node_path.append(cur_node)
                 if self._should_go_left(row, cur_node):
                     cur_node = cur_node.left
+                    lefts.append(True)
                 else:                    
                     cur_node = cur_node.right
+                    lefts.append(False)
 #         here, cur_node should be the leaf
             node_path.append(cur_node)
             relevant_confidence = cur_node.get_proportions('1')
             irrelevant_confidence = cur_node.get_proportions('0')
             confidences.append((relevant_confidence, irrelevant_confidence))
-            feature_importances.append(self._get_feature_importance(node_path))
+            feature_importances.append(self._get_feature_importance(node_path, lefts))
 
         return confidences, feature_importances
 
@@ -166,18 +166,24 @@ class Tree:
     Given a path taken through this tree, return a dictionary labeling each feature by its prediction
     params:
     node_path - list of Node objects that we've traversed through
+    lefts - a list of booleans representing whether we went left or right after node_path[i].
+        len(lefts) == len(node_path) - 1
+        lefts[i] iff node_path[i].left == node_path[i+1]
+        !lefts[i] iff node_path[i].right == node_path[i+1]
+
     returns:
     features - {feature: prediction weight}, where a large positive value suggests that this feature means 
         the item is relevant, and a large negative value suggests the opposite.
     '''
-    def _get_feature_importance(self, node_path):
+    def _get_feature_importance(self, node_path, lefts):
         features = {}
         for before_split_ind in range(len(node_path) - 1):
             before = node_path[before_split_ind]
             after = node_path[before_split_ind + 1]
             before_prop = before.get_proportions('1')
             after_prop = after.get_proportions('1')
-            features[before.min_feature] = after_prop - before_prop
+            high_low = "_low" if lefts[before_split_ind] else "_high"
+            features[str(before.min_feature) + high_low] = after_prop - before_prop
         return features
 
     '''
