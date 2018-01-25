@@ -3,7 +3,7 @@ Database library for interacting with sqlite/pandas dataframes
 '''
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import create_engine, MetaData, Table, and_
 from sqlalchemy.orm import mapper, sessionmaker, Query
 from sqlalchemy.pool import StaticPool
 import ast
@@ -101,3 +101,23 @@ class Database():
         else:
             df = df.loc[df['Relevant'] == -1]
         return df
+
+    '''
+    Allows user to query multiple fields and get back all relevant emails
+    '''
+    def query_helper(self, Date='%', From='%', To='%', Subject='%', Message_Contents='%', ID='%'):
+        res = self.session.query(self.emails).filter(and_(self.emails.c.Scenario.contains('401'),
+                                                            self.emails.c.Date.contains(Date),
+                                                            self.emails.c.From.contains(From),
+                                                            self.emails.c.To.contains(To),
+                                                            self.emails.c.Subject.contains(Subject),
+                                                            #Message-Contents, CHANGE NAME
+                                                            self.emails.c.ID.contains(ID))).all()
+        return [r._asdict() for r in res]
+
+    def query(self, dictionary):
+        return self.query_helper(**dictionary)
+
+db = Database()
+query = {'From':'david.allan@enron.com'}
+print(db.query(query))
