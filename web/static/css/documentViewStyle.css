@@ -13,12 +13,34 @@
   float: right;
   width: 40%;
   height: 100vh;
+  flex-grow: 1;
+  position: fixed;
+  top: 20px;
 }
 
 #document{
   white-space: pre-wrap;
   max-height: 85%;
   overflow-y: scroll;
+}
+
+.container {
+  display: flex;
+}
+
+#overlay {
+    background-image:url(http://northeasternbankservices.com/wp-content/uploads/2013/08/grey-background.png);
+    display: none;        <- Not displayed by default
+    position: absolute;   <- This and the following properties will
+    top: 0;                  make the overlay, the element will expand
+    left: 0;
+    opacity: 0.5;
+    padding:0;
+    margin:0;
+    z-index: 1;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
 }
 
 body {
@@ -32,10 +54,22 @@ table {
   border-spacing: 0;
   width: 100%;
 }
-th,
-td {
-  padding: 6px 15px;
+
+th, td {
+  padding: 2px 15px;
 }
+
+.emailContainer {
+  width: 400px
+}
+.basicTable thead {
+  display: table-header-group;
+}
+
+/*.basicTable td {
+  white-space: nowrap;
+}*/
+
 th {
   background: #42444e;
   color: #fff;

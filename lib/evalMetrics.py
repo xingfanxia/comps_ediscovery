@@ -13,13 +13,14 @@ def recallPrecisionRelevant(tagArray, testData):
     #Number of emails that are actually relevant (True Positive + False Negative)
     totalRelevant = 0
     for i in range(len(tagArray)):
-        if testData["Label"][i] == -1:
+        if testData["Label"].iloc[i] == '-1':
             continue
-        if testData["Label"][i] == 1:
+        if testData["Label"].iloc[i] == '1':
             totalRelevant = totalRelevant + 1
-        if tagArray[i] == 'R':
+        if tagArray[i] == '1':
             numTagRelevant = numTagRelevant + 1
-            if testData["Label"][i] == 1:
+            if testData["Label"].iloc[i] == '1':
+
                 numTagCorrect = numTagCorrect + 1
     recall = numTagCorrect / totalRelevant
     precision = numTagCorrect / numTagRelevant
@@ -53,24 +54,3 @@ def evalStats(predictOutput, emails):
 def evaluateSystem(randForest, emails, lsaMatrix):
     systemOut = randForest.predict(lsaMatrix)[1]
     evalStats(systemOut, emails)
-    
-
-def main():
-    #Test data stats:
-    #True Positive = 6
-    #False Positive = 14
-    #False Negative = 4
-    #True Negative = 76
-    test_predict_output = ["R","R","R","R","R","R",
-                "M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M","M",
-                  "R","R","R","R","R","R","R","R","R","R","R","R","R","R",
-                  "M","M","M","M","R","R","R","R","R","M","M","M","M","M"]
-    d = {"Label": [1,1,1,1,1,1,
-                  0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                  0,0,0,0,0,0,0,0,0,0,0,0,0,0,
-                  1,1,1,1,-1,-1,-1,-1,-1,-1,-1,-1,-1,-1]}
-    test_email_data = pd.DataFrame(data = d)
-    evalStats(test_predict_output, test_email_data)
-
-    
-main()
