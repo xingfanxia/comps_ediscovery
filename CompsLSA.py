@@ -6,7 +6,7 @@ from sklearn.decomposition import TruncatedSVD
 #Build LSA matrix off TFIDF matrix. Must be done on computer with more RAM
 def build_LSA_Matrix(tfMatrix):
     svd = TruncatedSVD(n_components = 100, algorithm='randomized')
-    lsa = svd.fit_transform(scenario_1_tfidf)
+    lsa = svd.fit_transform(tfMatrix)
     return lsa
 
 

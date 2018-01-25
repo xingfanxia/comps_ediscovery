@@ -13,7 +13,7 @@ def build_TFIDF_Matrix(df):
 
     dumb_numbers = [s for s in vectorizer.get_feature_names()
     if (("0" in s) or ("1" in s) or ("2" in s) or ("3" in s) or ("4" in s)
-    or ("5" in s) or ("6" in s) or ("7" in s) or ("8" in s) or ("9" in s) or ("_" in s))]
+    or ("5" in s) or ("6" in s) or ("7" in s) or ("8" in s) or ("9" in s) or ("_" in s) or (s == "ll"))]
 
     stop_words = text.ENGLISH_STOP_WORDS.union(dumb_numbers)
 

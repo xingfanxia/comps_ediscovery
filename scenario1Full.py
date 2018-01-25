@@ -12,8 +12,6 @@ def cleanData(datapath):
     
     email_filtered = pd.DataFrame()
     email_filtered = email_filter.full_filter_email(df)
-    #This is causing problems
-#    email_filtered.to_pickle("filtered_email.pickle")
     
     return email_filtered
 
@@ -22,7 +20,7 @@ def cleanData(datapath):
 #Ouput: list of feature names in [0] and tfidf matrix in [1]
 #Create tfidf matrix from cleaned train data. Save copy of matrix as well
 def tfidfData(emaildf):
-    scenario_1 = df[emaildf["Scenario"] == '401']
+    scenario_1 = pd.DataFrame(emaildf[0::3])
     
     scenario_1_tfidf_matrix = CompsTFIDF.build_TFIDF_Matrix(scenario_1)
     feature_names = scenario_1_tfidf_matrix[0].get_feature_names()
@@ -36,7 +34,7 @@ def tfidfData(emaildf):
 #Output: tfidf matrix of test data
 #Create tfidf matrix from cleaned test data using train tfidf vectorizer. Save copy of matrix as well
 def testTFIDF(vectorize, df):
-    scenario_1_test = df[df["Scenario"] == '401']
+    scenario_1_test = pd.DataFrame(df[0::3])
     matrix_test = CompsTFIDF.build_test_tfidf(vectorize,scenario_1_test)
     np.save('test_scenario_1_tfidf.npy', matrix_test)
     return matrix_test
