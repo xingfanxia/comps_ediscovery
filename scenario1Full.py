@@ -12,7 +12,8 @@ def cleanData(datapath):
     
     email_filtered = pd.DataFrame()
     email_filtered = email_filter.full_filter_email(df)
-    email_filtered.to_pickle("filtered_email.pickle")
+    #This is causing problems
+#    email_filtered.to_pickle("filtered_email.pickle")
     
     return email_filtered
 
