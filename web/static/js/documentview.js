@@ -10,6 +10,7 @@
 //   }
 // }
 
+//Vue Stuff
 
 //Data store for document and metadata views
 var email_store = {
@@ -19,11 +20,11 @@ var email_store = {
   },
   setMessageAction (newValue) {
     if (this.debug) console.log('setMessageAction triggered with', newValue)
-    shortID = newValue.split(".")[2]
+    shortID = newValue
     console.log('short:',shortID)
     axios.get("/data/" + shortID)
     .then(response => {
-      this.state.data = response.data
+      this.state.data = response.data[0]
       metadataView.updateView()
       documentView.updateView()
     })
@@ -131,6 +132,36 @@ window.onload = function () {
           }
           documentView.message = span_message
         })
+      }
+    }
+  })
+
+  emailButtons = new Vue({
+    el: '#email_buttons',
+    delimiters: ['[[',']]'],
+    methods: {
+      feedback: function(relevant){
+        axios.post('/feedback', {
+          'ID': email_store.state.data.ID,
+          'Relevant': relevant
+        })
+        .then(function (response) {
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
+      },
+      test: function(){
+        var load = document.getElementById("overlay");
+        load.style.display = 'block'
+        axios.get('/dbtest')
+        .then(function (response) {
+          console.log(response.data);
+          load.style.display = 'none'
+        })
+        .catch(function (error) {
+          console.log(error);
+        });
       }
     }
   })

@@ -8,23 +8,26 @@ import numpy as np
 import pandas as pd
 import pickle, os
 class Tree:
-    
+
+    (.55, .45, id)
+    ((.55 , .45), id)
+
     '''
     params:
     train_data - training data to trainthe tree
     depth - max recursion depth of the tree
     benchmark - benchmark for geni/entropy
     '''
-    def __init__(self, data, depth, benchmark, rows, features, cat_features): #should we include data here
+    def __init__(self, data, depth, benchmark, rows, features, cat_features, user_input=False): #should we include data here
         self.depth = depth
         self.rows = rows
         self.features = features
         self.data = data
         self.benchmark = benchmark
-        self.head = Node(data, rows, features, 0, depth, cat_features)
+        self.head = Node(data, rows, features, 0, depth, cat_features, user_input=user_input)
         self.oob_error = -1
         self.cat_features = cat_features
-    
+
     def visualize(self):
         if not os.path.exists('vis'):
             os.makedirs('vis')
@@ -33,7 +36,7 @@ class Tree:
         nodes = [cur]
         depth = 0
         while len(nodes) > 0:
-            children = []           
+            children = []
             for node in nodes:
                 if node.left or node.right:
                      to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=node.id, min_feature=node.min_feature, min_break=node.min_break_point, min_gini=node.min_gini, rows=len(node.rows), left=len(node.left.rows), right=len(node.right.rows)))
@@ -49,59 +52,80 @@ class Tree:
                 if node.right:
                     children.append(node.right)
             nodes = children
-        joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}" 
+        joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}"
         with open("vis/tree.dot", "w") as f:
             f.write(joined)
         return joined
-        
+
     '''
     Recursively split until geni/entropy benchmark met or max_depth reached
     '''
     def fit(self):
         #think about behavior of pure nodes more
         try:
-            self.head.split()
+            self.head = self.head.split()
         except (ValueError, CannotDistinguishException) as e: #change this to whatever node.split() throws
+            # TODO: fix error handling for no-more-split cases more better
             print(e)
+            print("oops")
+            pass
+        return self
+
+
     '''
-    params: 
+    params:
     test_data - test data to run the prediction on
-    
-    return: 
+    visualize - if True, runs the parts of the code responsible for visualization
+
+    return:
     outputs confidence/probability of each category
+
+    TODO: the current toggling mechanism for visualization is super clunky. Maybe we
+          can improve on it down the line
     '''
-    def predict(self, test_data):
-#         assuming input data is a dataframe right now
+    def predict(self, test_data, visualize=False):
+        #         assuming input data is a dataframe right now
         confidences = []
-        if not os.path.exists('vis'):
-            os.makedirs('vis')
+        if visualize:
+            if not os.path.exists('vis'):
+                os.makedirs('vis')
+
         for index, row in test_data.iterrows():
-            to_put = []
+            if visualize:
+                to_put = []
+
             cur_node = self.head
             while (cur_node.left and cur_node.right):
                 if cur_node.left or cur_node.right:
-                     to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=cur_node.id, min_feature=cur_node.min_feature, min_break=cur_node.min_break_point, min_gini=cur_node.min_gini, rows=len(cur_node.rows), left=len(cur_node.left.rows), right=len(cur_node.right.rows)))
+                    if visualize:
+                        to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=cur_node.id, min_feature=cur_node.min_feature, min_break=cur_node.min_break_point, min_gini=cur_node.min_gini, rows=len(cur_node.rows), left=len(cur_node.left.rows), right=len(cur_node.right.rows)))
                 else:
-                     to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=cur_node.id, rows=len(cur_node.rows), left=cur_node.get_proportions('0'), right=cur_node.get_proportions('1')))
+                    if visualize:
+                        to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=cur_node.id, rows=len(cur_node.rows), left=cur_node.get_proportions('0'), right=cur_node.get_proportions('1')))
                 if cur_node.parent != None:
                         if cur_node.side == 'l':
-                            to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(cur_node.parent, cur_node.id))
+                            if visualize:
+                                to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(cur_node.parent, cur_node.id))
                         else:
-                            to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(cur_node.parent, cur_node.id))
+                            if visualize:
+                                to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(cur_node.parent, cur_node.id))
 
                 if self._should_go_left(row, cur_node):
                     cur_node = cur_node.left
                 else:
                     cur_node = cur_node.right
-#         here, cur_node should be the leaf
+
+
             relevant_confidence = cur_node.get_proportions('1')
             irrelevant_confidence = cur_node.get_proportions('0')
-            confidences.append((relevant_confidence, irrelevant_confidence))
-            joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}" 
-            with open("vis/{}_predict_vis.dot".format(index), "w") as f:
-                f.write(joined)
+            confidences.append( ((relevant_confidence, irrelevant_confidence), row["ID"]) )
+
+            if (visualize):
+                joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}"
+                with open("vis/{}_predict_vis.dot".format(index), "w") as f:
+                    f.write(joined)
         return confidences
-    
+
     '''
     helper function to determine which way we should traverse through the tree.
     params:
@@ -119,10 +143,10 @@ class Tree:
         return row[cur_node.min_feature] < cur_node.min_break_point
 
     '''
-    params: 
+    params:
     more_data - more training data to update the tree
-    
-    return: 
+
+    return:
     Null or we can say something like which nodes are changed
     '''
     def update(self, updated_data, new_rows):
@@ -137,8 +161,7 @@ class Tree:
                 nodes.append(node.left)
             if node.right:
                 nodes.append(node.right)
-        print(len(self.head.data))
-        
+
         # traverse each new data point through the tree, append row to each node
         for index, row in updated_data.loc[new_rows].iterrows():
             # print(row.name)
@@ -146,7 +169,7 @@ class Tree:
             while (cur_node.left and cur_node.right):
                 cur_node.rows = np.append(cur_node.rows, row.name)
                 # Check which path to go down,but what to do if it's a catagorical?
-                
+
                 # if it is catagorical, traverse a little differently
                 if (cur_node.min_feature in cur_node.cat_features):
                     # members that match go left, others go right.
@@ -161,14 +184,14 @@ class Tree:
                     # print("Tree/Update(): cur_node.min_break_point: {}".format(cur_node.min_break_point))
                     # return
                 else:
-                    
+
                     if (row[cur_node.min_feature] < cur_node.min_break_point):
                         cur_node = cur_node.left
                     else:
                         cur_node = cur_node.right
             # don't forget about that one last leaf!
             cur_node.rows = np.append(cur_node.rows, row.name)
-            
+
         # after updating, look for empty nodes, and reshapre tree accordingly.
         nodes_to_traverse = [self.head]
         done = False
@@ -184,17 +207,17 @@ class Tree:
                         left_empty = True
                     else:
                         nodes_to_traverse.append(temp[i].left)
-                    
+
                     if (len(temp[i].right.rows) == 0):
                         left_empty = True
                     else:
                         nodes_to_traverse.append(temp[i].right)
-                        
+
                     if left_empty and right_empty:
                         # if both children are empty, become a leaf node
                         temp[i].left = None
                         temp[i].right = None
-                        
+
                         print('became a leaf')
                     elif left_empty:
                         # if only left child is empty, make self into right child
@@ -206,8 +229,8 @@ class Tree:
                         print('became left child')
             if len(nodes_to_traverse) == 0:
                 done = True
-        
-    
+
+
     '''
     return:
     The number of ignored data pieces that we get incorrect (n) divided by the number of rows we ignored (l)
@@ -222,33 +245,33 @@ class Tree:
         for row in complement:
             case = self.data.loc[[row]]
             prediction = self.predict(case)
-            prediction = prediction[0]
+            prediction = prediction[0][0]
             if prediction[0] > prediction[1]:
                 num_incorrect += 1 if case["Label"].values[0] == '0' else 0
             else:
                 num_incorrect += 1 if case["Label"].values[0] == '1' else 0
 
-                
+
         self.oob_error = num_incorrect / len(test_data)
         return self.oob_error
         #calculate incorrect / total
-        
+
     def store_tree(self, file_path):
         f = open('file_path', 'wb')
         pickle.dump(self, f)
         f.close()
-        
-    
+
+
     def load_tree(self, file_path):
         f = open('file_path', 'rb')
         temp = pickle.load(f)
         f.close()
-        
+
         # reinitialize some variables
         self.__init__(temp.data, temp.depth, temp.benchmark, temp.rows, temp.features)
         # reassign the head
         self.head = temp.head
-        
+
     '''
     String representation
     '''
