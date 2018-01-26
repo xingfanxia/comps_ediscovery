@@ -37,20 +37,19 @@ export default {
     formatSearchUrl: function (inputText) {
       if (inputText.length === 0) {
         return '/result?input=' + inputText
-      } else {
-        var fields = inputText.split(' ')
-        var reFields = /(\/.*?:)/g
+      } else {        
         var dict = {}
-        console.log(fields)
-        fields.forEach(function (query) {
-          var filterCat = query.match(reFields)[0]
-          filterCat = filterCat.substr(1, filterCat.length - 2)
-          var filterVal = query.substr(filterCat.length + 2, query.length - 1)
-          console.log(filterCat, filterVal)
-          dict[filterCat] = filterVal
-        })
-        var queryString = $.param(dict)
-        return '/result?' + queryString
+        var reFields = /(\/.*?:)/g
+        var reValues = /'(.*?)'/g
+        var filters = inputText.match(reFields)
+        var values = inputText.match(reValues)
+        for (var i = 0; i < filters.length; i++) {
+          var filterTrimmed = filters[i].substr(1).slice(0, -1)
+          var valueTrimmed = values[i].substr(1).slice(0, -1)
+          dict[filterTrimmed] = valueTrimmed
+        }
+        console.log(dict)
+        return '/result?' + $.param(dict)
       }
     }
   },

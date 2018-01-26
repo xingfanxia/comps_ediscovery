@@ -4,8 +4,11 @@ import pandas as pd
 from flask import Flask, jsonify, request
 import json
 import os, sys
+import pprint
+
 app = Flask(__name__)
 CORS(app)
+
 root_dir = os.path.dirname(os.getcwd())
 sys.path.insert(0, root_dir)
 from lib.dblib import Database
@@ -31,7 +34,15 @@ dict_dump['data'] = list_dump[:dict_dump["per_page"]]
 # Add page turn with request parameteres
 @app.route("/enron")
 def enron():
-    print(request.args)
-    return(db.query(request.args))
+    payload = request.args.to_dict()
+    if_sort = payload['sort']
+    page_num = payload['page']
+    entries_per_page = payload['per_page']
+    del payload['sort']
+    del payload['page']
+    del payload['per_page']
+    pprint.pprint(payload)
+    print(jsonify(db.query(payload)))
+    return jsonify(db.query(payload))
 
 app.run(port=5000, debug=True)

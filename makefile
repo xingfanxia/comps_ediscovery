@@ -26,6 +26,9 @@ run:
 	jupyter notebook
 
 web:
-	python3 flask_server/data_api.py
 	cd web_new
 	npm run dev
+
+api:
+	cd flask_server
+	python3 data_api.py
