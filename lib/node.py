@@ -27,6 +27,7 @@ class Node:
         self.parent = parent
         self.side = side
         self.cat_already_split_on = []
+        self.proportions = {}
 
         
 
@@ -397,11 +398,15 @@ class Node:
 #             "[{ID}, (Children=None)]".format(ID=self.id)
     
     def get_proportions(self, target_label):
-        members = self.data.loc[self.rows][self.label_index].values
+        try:
+            return self.proportions[target_label]
+        except KeyError:
+            members = self.data.loc[self.rows][self.label_index].values
 
-        filtered = [x for x in members if x == target_label]
-#         members = self.data.loc[self.data[self.label_index] == target_label]
-#         filtered = [x for x in members.index.values if x in self.rows]
-        raw_val = (len(filtered)/len(self.rows))
-        return raw_val
+            filtered = [x for x in members if x == target_label]
+    #         members = self.data.loc[self.data[self.label_index] == target_label]
+    #         filtered = [x for x in members.index.values if x in self.rows]
+            raw_val = (len(filtered)/len(self.rows))
+            self.proportions[target_label] = raw_val
+            return raw_val
         

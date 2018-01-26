@@ -7,3 +7,4 @@ temp/
 *.sh
 __pycache__/
 *.pickle
+nachtm_exps/vis/
