@@ -2,7 +2,7 @@
 
   <div class="field is-grouped" id="home-searchbar">
     <select v-model="selected">
-      <option v-for="option in options" v-bind:value="option.value">
+      <option v-for="(option, index) in options" :value="option.value" :key='index'>
         {{ option.text }}
       </option>
     </select>
@@ -23,12 +23,12 @@ export default {
       inputText: '',
       selected: '',
       options: [
-        {text: 'Date', value: '/Date:'},
-        {text: 'From', value: '/From:'},
-        {text: 'To', value: '/To:'},
-        {text: 'Subject', value: '/Subject:'},
-        {text: 'Message Contents', value: '/Message_Contents:'},
-        {text: 'ID', value: '/ID:'}
+        {text: 'Date', value: '/Date:\'\''},
+        {text: 'From', value: '/From:\'\''},
+        {text: 'To', value: '/To:\'\''},
+        {text: 'Subject', value: '/Subject:\'\''},
+        {text: 'Message Contents', value: '/Message_Contents:\'\''},
+        {text: 'ID', value: '/ID:\'\''}
       ]
     }
   },
@@ -37,7 +37,7 @@ export default {
     formatSearchUrl: function (inputText) {
       if (inputText.length === 0) {
         return '/result?input=' + inputText
-      } else {        
+      } else {
         var dict = {}
         var reFields = /(\/.*?:)/g
         var reValues = /'(.*?)'/g
@@ -56,9 +56,14 @@ export default {
 
   watch: {
     selected (newValue) {
-      this.inputText = this.inputText + this.selected
+      if (this.inputText.length === 0) {
+        this.inputText = this.inputText + this.selected
+      } else {
+        this.inputText = this.inputText + ' ' + this.selected
+      }
     }
   }
+
 }
 </script>
 
