@@ -57,10 +57,10 @@ def f1Eval(recall, precision):
 def evalStats(predictOutput, emails):
     stats = recallPrecisionRelevant(predictOutput, emails)
     fOne = f1Eval(stats[0], stats[1])
-    print("Recall:" + str(stats[0] * 100) + "%")
-    print("Precision:" + str(stats[1] * 100) + "%")
-    print("Accuracy:" + str(stats[2] * 100) + "%")
-    print("F1:" + str(fOne))
+#     print("Recall:" + str(stats[0] * 100) + "%")
+#     print("Precision:" + str(stats[1] * 100) + "%")
+#     print("Accuracy:" + str(stats[2] * 100) + "%")
+#     print("F1:" + str(fOne))
     return stats[0], stats[1], stats[2], fOne
     
     

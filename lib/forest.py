@@ -130,6 +130,8 @@ class RNF:
         for i in range(len(self.trees)):
             results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize)) )
         
+        pool.close()
+        
         r = []
         for result in results:
             r.append(result.get())
