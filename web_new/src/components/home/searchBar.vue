@@ -1,6 +1,11 @@
 <template>
 
   <div class="field is-grouped" id="home-searchbar">
+    <select v-model="selected">
+      <option v-for="option in options" v-bind:value="option.value">
+        {{ option.text }}
+      </option>
+    </select>
     <p class="control is-expanded">
       <input class="input" type="text" v-model="inputText">
     </p>
@@ -15,7 +20,16 @@
 export default {
   data () {
     return {
-      inputText: ''
+      inputText: '',
+      selected: '',
+      options: [
+        {text: 'Date', value: '/Date:'},
+        {text: 'From', value: '/From:'},
+        {text: 'To', value: '/To:'},
+        {text: 'Subject', value: '/Subject:'},
+        {text: 'Message Contents', value: '/Message_Contents:'},
+        {text: 'ID', value: '/ID:'}
+      ]
     }
   },
 
@@ -38,6 +52,12 @@ export default {
         var queryString = $.param(dict)
         return '/result?' + queryString
       }
+    }
+  },
+
+  watch: {
+    selected (newValue) {
+      this.inputText = this.inputText + this.selected
     }
   }
 }

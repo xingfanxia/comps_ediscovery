@@ -34,7 +34,7 @@ export default {
   components: {
     'vuetable': Vuetable,
     'vuetable-pagination': VuetablePagination,
-    'vuetable-pagination-info': VuetablePaginationInfo,
+    'vuetable-pagination-info': VuetablePaginationInfo
   },
 
   props: {
