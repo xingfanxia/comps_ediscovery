@@ -117,7 +117,3 @@ class Database():
 
     def query(self, dictionary):
         return self.query_helper(**dictionary)
-
-db = Database()
-query = {'From':'david.allan@enron.com'}
-print(db.query(query))
