@@ -57,9 +57,17 @@ export default {
   watch: {
     selected (newValue) {
       if (this.inputText.length === 0) {
-        this.inputText = this.inputText + this.selected
+        if (this.inputText.indexOf(this.selected) === -1) {
+          this.inputText = this.inputText + this.selected
+        } else {
+          alert('this field has already added')
+        }
       } else {
-        this.inputText = this.inputText + ' ' + this.selected
+        if (this.inputText.indexOf(this.selected) === -1) {
+          this.inputText = this.inputText + ' ' + this.selected
+        } else {
+          alert('this field has already added')
+        }
       }
     }
   }

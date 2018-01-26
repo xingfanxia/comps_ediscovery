@@ -28,7 +28,6 @@ dict_dump = {
   "from": 1,
   "to": 5
 }
-dict_dump['data'] = list_dump[:dict_dump["per_page"]]
 
 # Todo:
 # Add page turn with request parameteres
@@ -42,7 +41,8 @@ def enron():
     del payload['page']
     del payload['per_page']
     pprint.pprint(payload)
-    print(jsonify(db.query(payload)))
-    return jsonify(db.query(payload))
+    data = db.query(payload)
+    dict_dump['data'] = data
+    return jsonify(dict_dump)
 
 app.run(port=5000, debug=True)
