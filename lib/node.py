@@ -44,23 +44,9 @@ class Node:
     
     def calc_gini_index(self):
         raw_val = 1
-#        string = '['
-#        for row in self.rows:
-#            string += str(row) 
-#            string += ','
-#        string += ']'
-#        print(string)
-#        print(type(self.data))
-#        print(self.data.shape)
-#        print(self.label_index)
-#        members = [self.data[self.label_index][x] for x in self.rows]
         members = self.data.loc[self.rows][self.label_index].values
         for label in self.labels:
-#             members = self.data.loc[self.data[self.label_index] == label]
-            #maybe do as a for loop?
-            #filtered = [x for x in members if x == label]
             filtered = members[members == label]
-#             filtered = members
             raw_val -= (len(filtered)/len(self.rows))**2
         return raw_val
     

@@ -95,24 +95,40 @@ class Tree:
             while (cur_node.left and cur_node.right):
                 if cur_node.left or cur_node.right:
                     if visualize: 
-                        to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=cur_node.id, min_feature=cur_node.min_feature, min_break=cur_node.min_break_point, min_gini=cur_node.min_gini, rows=len(cur_node.rows), left=len(cur_node.left.rows), right=len(cur_node.right.rows)))
+                        to_put.append('{ID} [label="X[{min_feature}] < {min_break}\n'
+                                      + 'gini = {min_gini}\nsamples = {rows}\n' 
+                                      + 'distribution = [{left}, {right}]"];'.format(ID=cur_node.id,
+                                                                                     min_feature=cur_node.min_feature,
+                                                                                     min_break=cur_node.min_break_point, 
+                                                                                     min_gini=cur_node.min_gini, 
+                                                                                     rows=len(cur_node.rows), 
+                                                                                     left=len(cur_node.left.rows), 
+                                                                                     right=len(cur_node.right.rows)))
                 else:
                     if visualize:
-                        to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=cur_node.id, rows=len(cur_node.rows), left=cur_node.get_proportions('0'), right=cur_node.get_proportions('1')))
+                        to_put.append('{ID} [idx_trees_to_retrainlabel="samples = {rows}\n'
+                                      + 'ratio = [{left}, {right}]"];'.format(ID=cur_node.id, 
+                                                                              rows=len(cur_node.rows), 
+                                                                              left=cur_node.get_proportions('0'), 
+                                                                              right=cur_node.get_proportions('1')))
+                        
                 if cur_node.parent != None:
                         if cur_node.side == 'l':
                             if visualize:
-                                to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(cur_node.parent, cur_node.id))
+                                to_put.append('{} -> {} [labeldistance=8, labelangle=30, '
+                                              + 'xlabel="True"]'.format(cur_node.parent, cur_node.id))
                         else:
                             if visualize:
-                                to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(cur_node.parent, cur_node.id))
+                                to_put.append('{} -> {} [labeldistance=8, labelangle=-30, '
+                                              + 'xlabel="False"]'.format(cur_node.parent, cur_node.id))
 
                 if self._should_go_left(row, cur_node):
                     cur_node = cur_node.left
                 else:
                     cur_node = cur_node.right
                     
-                    
+                
+                
             relevant_confidence = cur_node.get_proportions('1')
             irrelevant_confidence = cur_node.get_proportions('0')
             confidences.append( ((relevant_confidence, irrelevant_confidence), row["ID"]) )
@@ -216,6 +232,7 @@ class Tree:
         for node in nodes:
             node.data = updated_data
             node.rows = []
+            node.proportions = {}
             nodes.remove(node)
             if node.left:
                 nodes.append(node.left)
@@ -224,27 +241,18 @@ class Tree:
         
         # traverse each new data point through the tree, append row to each node
         for index, row in updated_data.loc[new_rows].iterrows():
-            # print(row.name)
             cur_node = self.head
             while (cur_node.left and cur_node.right):
                 cur_node.rows = np.append(cur_node.rows, row.name)
-                # Check which path to go down,but what to do if it's a catagorical?
-                
                 # if it is catagorical, traverse a little differently
                 if (cur_node.min_feature in cur_node.cat_features):
                     # members that match go left, others go right.
                     if (cur_node.min_break_point in row[cur_node.min_feature]):
                         cur_node = cur_node.left
-                        # print("Tree/Update(): categorical feature navigating to left")
                     else:
                         cur_node = cur_node.right
-                        # print("Tree/Update(): categorical feature navigating to right")
-                    # print("Tree/Update(): feature I'm trying to traverse is {}".format(cur_node.min_feature))
-                    # print("Tree/Update(): row[cur_node.min_feature]: {}".format(row[cur_node.min_feature]))
-                    # print("Tree/Update(): cur_node.min_break_point: {}".format(cur_node.min_break_point))
-                    # return
+                # for continuous features, just do a simple inequality
                 else:
-                    
                     if (row[cur_node.min_feature] < cur_node.min_break_point):
                         cur_node = cur_node.left
                     else:
@@ -252,14 +260,13 @@ class Tree:
             # don't forget about that one last leaf!
             cur_node.rows = np.append(cur_node.rows, row.name)
             
-        # after updating, look for empty nodes, and reshapre tree accordingly.
+        # after updating, look for empty nodes, and reshape tree accordingly.
         nodes_to_traverse = [self.head]
         done = False
         while(not done):
             temp = nodes_to_traverse
             nodes_to_traverse = []
             for i in range(len(temp)):
-            # for node in temp:
                 if temp[i].left and temp[i].right:
                     left_empty = False
                     right_empty = False
@@ -269,7 +276,7 @@ class Tree:
                         nodes_to_traverse.append(temp[i].left)
                     
                     if (len(temp[i].right.rows) == 0):
-                        left_empty = True
+                        right_empty = True
                     else:
                         nodes_to_traverse.append(temp[i].right)
                         
@@ -277,36 +284,19 @@ class Tree:
                         # if both children are empty, become a leaf node
                         temp[i].left = None
                         temp[i].right = None
-                        
-                        print('became a leaf')
                     elif left_empty:
                         # if only left child is empty, make self into right child
                         temp[i] = temp[i].right
-                        print('became right child')
                     elif right_empty:
                         # if only right child is empty, make self into left child
                         temp[i] = temp[i].left
-                        print('became left child')
             if len(nodes_to_traverse) == 0:
                 done = True
         
     def traverse(self):
         '''Traverse down the tree and return all of the nodes in a list'''
-        nodes_list = [self.head]
-        checked = []
-        done = False
-        while (not done):
-            temp_nodes_list = []
-            for node in nodes_list:
-                if node not in checked:
-                    if node.left and node.right:
-                        temp_nodes_list.append(node.left)
-                        temp_nodes_list.append(node.right)
-                checked.append(node)
-            nodes_list.extend(temp_nodes_list)
-            if len(nodes_list) == (checked):
-                done = True
-        return nodes_list
+        pass
+                
     
     '''
     return:
@@ -319,21 +309,22 @@ class Tree:
         complement = set(self.data.index.values.tolist()) - set(self.rows)
         #predict each of those (TODO: update this once we have batch training)
         num_incorrect = 0
-        for row in complement:
-            
-            case = self.data.loc[[row]]
-#             print(case)
-            prediction = self.predict(case)
-            prediction = prediction[0][0]
-            if prediction[0] > prediction[1]:
-                num_incorrect += 1 if case["Label"].values[0] == '0' else 0
-            else:
-                num_incorrect += 1 if case["Label"].values[0] == '1' else 0
-
-                
+        
+        ## batch version of calculating oob error
+        # rows in the complement:
+        cases = self.data.loc[list(complement)]
+        predictions = self.predict(cases)
+        for p in predictions:
+            # input row for this prediction
+            r = self.data.loc[self.data['ID'] == p[1]]
+            if p[0][0] > p[0][1]: # system said it was relevant
+                num_incorrect += 1 if r['Label'].values[0] == '0' else 0
+            else: # system said it was irrelevant
+                num_incorrect += 1 if r['Label'].values[0] == '1' else 0
+        
         self.oob_error = num_incorrect / len(test_data)
+#         self.oob_error = num_incorrect / len(complement)
         return self.oob_error
-        #calculate incorrect / total
         
     def store_tree(self, file_path):
         f = open('file_path', 'wb')

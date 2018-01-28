@@ -207,10 +207,7 @@ class RNF:
     Null or we can say something like which trees are changed
     '''
     def update(self, more_data):
-        
-        # self.train_data = more_data
         self.train_data.append(more_data)
-#         self.train_data = self.train_data.reset_index(drop=True)
         
         # use average as placeholder function
         thresh = 0
@@ -219,29 +216,27 @@ class RNF:
         thresh = thresh / len(self.trees)
         self.oob_threshold = thresh
         
-        # TODO: This is temporary code for testing!!!
-        #thresh = 0
-        
         idx_trees_to_retrain = []
         
         for i in range(len(self.trees)):
             if (self.trees[i].oob_error < thresh):
+#                 build of list of indices of trees to rebuilt
                 idx_trees_to_retrain.append(i)
-                # discard and remake
-                # self.trees[i] = self.retrain_tree()
+#                 pass
             else:
-                # update leave nodes
                 self.update_leaves(self.trees[i])
+#                 pass
                 
-        cpu_count = len(idx_trees_to_retrain)
-        pool = multiprocessing.Pool( cpu_count )
-        tasks = []
-        tNum = 0
-        max_t = cpu_count
-        
+        if idx_trees_to_retrain == []:
+            return
+        # Multi-processed rebuilding of trees
+        pool = multiprocessing.Pool( len(idx_trees_to_retrain) )
         results = []
+        
         for idx in idx_trees_to_retrain:
             results.append( pool.apply_async(self.retrain_tree) )
+            
+        pool.close()
         
         retrained_trees = []
         for result in results:
@@ -250,14 +245,11 @@ class RNF:
         for i in range(len(idx_trees_to_retrain)):
             self.trees[idx_trees_to_retrain[i]] = retrained_trees[i]
             
-                
-
-                
+                        
     def store_rnf(self, file_path):
         f = open(file_path, 'wb')
         pickle.dump(self, f)
         f.close()
-#         pass
 
     def load_rnf(self, file_path):
         f = open(file_path, 'rb')

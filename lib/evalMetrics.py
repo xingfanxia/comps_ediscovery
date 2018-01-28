@@ -44,7 +44,10 @@ def recallPrecisionRelevant(tagArray, testData):
 def f1Eval(recall, precision):
     numer = recall * precision
     denomer = precision + recall
-    f1 = 2 * (numer / denomer)
+    if denomer > 0:
+        f1 = 2 * (numer / denomer)
+    else:
+        f1 = None
     return f1
 
 
