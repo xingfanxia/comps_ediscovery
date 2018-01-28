@@ -317,10 +317,6 @@ class Tree:
         #complement of rows
         test_data = self.data.loc[~self.data.index.isin(self.rows)]
         complement = set(self.data.index.values.tolist()) - set(self.rows)
-        print('=== test data ===')
-        print(test_data)
-        print('=== complement ===')
-        print(complement)
         #predict each of those (TODO: update this once we have batch training)
         num_incorrect = 0
         for row in complement:
