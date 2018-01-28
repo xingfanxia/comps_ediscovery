@@ -316,11 +316,17 @@ class Tree:
     def calc_oob_error(self):
         #complement of rows
         test_data = self.data.loc[~self.data.index.isin(self.rows)]
-        complement = set(range(self.data.shape[1])) - set(self.rows)
+        complement = set(self.data.index.values.tolist()) - set(self.rows)
+        print('=== test data ===')
+        print(test_data)
+        print('=== complement ===')
+        print(complement)
         #predict each of those (TODO: update this once we have batch training)
         num_incorrect = 0
         for row in complement:
+            
             case = self.data.loc[[row]]
+#             print(case)
             prediction = self.predict(case)
             prediction = prediction[0][0]
             if prediction[0] > prediction[1]:

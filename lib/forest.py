@@ -210,6 +210,7 @@ class RNF:
         
         # self.train_data = more_data
         self.train_data.append(more_data)
+#         self.train_data = self.train_data.reset_index(drop=True)
         
         # use average as placeholder function
         thresh = 0
