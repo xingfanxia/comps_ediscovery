@@ -48,7 +48,7 @@ class Database():
         res = self.session.query(self.emails).filter_by(ID=id)
         if scenario:
             res = res.filter_by(Scenario=str(scenario))
-        # print("here2")
+        print("here2")
         res = res.all()
         return [r._asdict() for r in res]
 
@@ -106,6 +106,7 @@ class Database():
     Allows user to query multiple fields and get back all relevant emails
     '''
     def query_helper(self, Date='%', From='%', To='%', Subject='%', Message_Contents='%', ID='%'):
+        print('here')
         res = self.session.query(self.emails).filter(and_(self.emails.c.Scenario.contains('401'),
                                                             self.emails.c.Date.contains(Date),
                                                             self.emails.c.From.contains(From),
