@@ -1,16 +1,15 @@
+// DetailRow.vue
 <template>
   <div @click="onClick">
     <div class="inline field">
-      <label>Email Content: </label>
-      <span>{{rowData.Date}}</span>
+      <label>email</label>
+      <span>{{rowData['Message-Contents']}}</span>
     </div>
   </div>
 </template>
 
 <script>
-
 export default {
-
   props: {
     rowData: {
       type: Object,
@@ -20,12 +19,10 @@ export default {
       type: Number
     }
   },
-
   methods: {
     onClick (event) {
       console.log('my-detail-row: on-click', event.target)
     }
   }
 }
-
 </script>

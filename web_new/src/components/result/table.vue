@@ -1,11 +1,12 @@
 <template>
-  <div class="col-lg-8">
+  <div>
     <vuetable ref="vuetable"
     :api-url="apiUrl"
     :fields="fields"
     :perPage="perPage"
     pagination-path=""
     detail-row-component="my-detail-row"
+    track-by="ID"
     @vuetable:cell-clicked="onCellClicked"
     @vuetable:pagination-data="onPaginationData"
     ></vuetable>
@@ -25,7 +26,7 @@ import Vue from 'vue'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 import VuetablePagination from 'vuetable-2/src/components/VuetablePagination'
 import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo'
-import DetailRow from '../detail/detailRow.vue'
+import DetailRow from './DetailRow.vue'
 
 Vue.component('my-detail-row', DetailRow)
 
@@ -53,7 +54,7 @@ export default {
     },
     onCellClicked (data, field, event) {
       console.log('cellClicked: ', field.name)
-      this.$refs.vuetable.toggleDetailRow(data.id)
+      this.$refs.vuetable.toggleDetailRow(data.ID)
     }
   }
 }

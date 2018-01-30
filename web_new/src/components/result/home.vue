@@ -3,9 +3,6 @@
     <search-bar></search-bar>
       <div class="row" id="result-main">
         <mytable :apiUrl="apiUrl" :fields="fields" :perPage="perPage"></mytable>
-        <div class="col-lg-4">
-          <p>Email Display Here</p>
-        </div>
       </div>
   </section>
 </template>
@@ -47,7 +44,7 @@ export default {
 <style scoped>
 
 section#result {
-  margin: 2rem 4rem 2rem 2rem;
+  margin: 2rem 2rem 2rem 2rem;
 }
 
 div#result-main {

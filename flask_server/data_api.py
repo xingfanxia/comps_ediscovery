@@ -16,21 +16,23 @@ from lib import *
 data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
 db = Database()
 
-
+email_key = data[['ID','Date', 'From', 'To', 'Subject']][:15].copy()
+list_dump = email_key.to_dict(orient='records')
+dict_dump = {
+  "total": len(list_dump),
+  "per_page": 5,
+  "current_page": 1,
+  "last_page": 14,
+  "next_page_url": "http://localhost:5000/enron",
+  # "prev_page_url": None,
+  "from": 1,
+  "to": 5
+}
 
 # Todo:
 # Add page turn with request parameteres
 @app.route("/enron")
 def enron():
-    dict_dump = {
-      "per_page": 5,
-      "current_page": 1,
-      "last_page": 14,
-      "next_page_url": "http://localhost:5000/enron",
-      # "prev_page_url": None,
-      "from": 1,
-      "to": 5
-    }
     payload = request.args.to_dict()
     if_sort = payload['sort']
     page_num = payload['page']
@@ -41,7 +43,6 @@ def enron():
     pprint.pprint(payload)
     data = db.query(payload)
     dict_dump['data'] = data
-    dict_dump['total'] = len(data)
     return jsonify(dict_dump)
 
 app.run(port=5000, debug=True)
