@@ -27,6 +27,9 @@ def setup_dataframe(lsa_output_datapath, email_clean):
     return full_df
 
 
+#Input: full_dataframe =  output from setup_dataframe()
+#Output: None
+#Use full dataframe to train tree and save it.
 def train_tree(full_dataframe):
     n_trees = 64
     tree_depth = 10
@@ -37,4 +40,20 @@ def train_tree(full_dataframe):
     rows = range(df.shape[0])
     
     forest = RNF(train_df, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features)
+    
     forest.fit()
+    forest.store_rnf('scenario_1_full_train.pickle')
+    
+    return
+
+
+#Input: tree_datapath = trained tree, test_dataframe = output from setup_dataframe with test data
+#Output: None
+#Evaluate tree on test data.
+def test_tree(tree_datapath, test_dataframe):
+    test_forest = RNF(None, None, None, None, None, None, None)
+    test_forest.load_rnf('scenario_1_full_train.pickle') 
+    test_forest.predict(test_dataframe)
+    return
+    
+    
