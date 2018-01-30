@@ -49,15 +49,14 @@ def lsaData(tfMatrix):
 
 
 
-def discoverEnron1():
+def discoverEnron():
     #Train data cleaned and TFIDF Run
     email_clean_train = cleanData("./data/parsed/training.csv")
     print("Train Emails Cleaned")
-    email_tfidf_train_vectorizer, email_tfidf_train_matrix = tfidfData(email_clean_train)
-    tfidf_train_matrix = email_tfidf_train_matrix.toarray()
+    tfidf_train_vectorizer, tfidf_train_matrix = tfidfData(email_clean_train)
     print("Train TFIDF Matrix Done")
 
-    tfidf_df_db = CompsTFIDF.tfidf_to_df(tfidf_train_matrix, email_tfidf_train_vectorizer.get_feature_names(), email_clean_train["ID"])
+    tfidf_df_db = CompsTFIDF.tfidf_to_df(tfidf_train_matrix, tfidf_train_vectorizer, email_clean_train["ID"])
     print(tfidf_df_db.head())
 
     #Test Data cleaned and TFIDF build
@@ -69,4 +68,4 @@ def discoverEnron1():
     # email_lsa_train = lsaData(email_tfidf_train_matrix)
     # print("Train LSA Matrix Done")
 
-discoverEnron1()
+discoverEnron()

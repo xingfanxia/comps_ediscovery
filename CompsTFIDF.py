@@ -34,6 +34,6 @@ def build_test_tfidf(vectorize, df):
 #Ouput: pandas dataframe with columns being ID and all the feature names and then rows being the tfidf values
 #Dataframe for intelligent searching
 def tfidf_to_df(tf_matrix, tf_vectorizer, email_id):
-    newDF = pd.DataFrame(tf_matrix,columns = tf_vectorizer.get_feature_names())
+    newDF = pd.DataFrame(tf_matrix, columns = tf_vectorizer.get_feature_names())
     newDF["ID"] = pd.Series(email_id)
     return newDF
