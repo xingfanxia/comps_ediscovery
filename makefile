@@ -29,6 +29,10 @@ web:
 	cd web_new
 	npm run dev
 
+web_dep:
+	cd web_new
+	npm install
+	
 api:
 	cd flask_server
 	python3 data_api.py
