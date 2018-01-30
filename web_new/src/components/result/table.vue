@@ -32,6 +32,12 @@ Vue.component('my-detail-row', DetailRow)
 
 export default {
 
+  data () {
+    return {
+      lastCell: ''
+    }
+  },
+
   components: {
     'vuetable': Vuetable,
     'vuetable-pagination': VuetablePagination,
@@ -55,6 +61,10 @@ export default {
     onCellClicked (data, field, event) {
       console.log('cellClicked: ', field.name)
       this.$refs.vuetable.toggleDetailRow(data.ID)
+      if (this.lastCell !== '') {
+        this.$refs.vuetable.toggleDetailRow(this.lastCell)
+      }
+      this.lastCell = data.ID
     }
   }
 }
