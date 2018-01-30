@@ -28,3 +28,41 @@ def build_TFIDF_Matrix(df):
 def build_test_tfidf(vectorize, df):
     test_matrix = vectorize.transform(df)
     return test_matrix
+
+
+#Input: tf_matrix = tfidf matrix, tf_vectorizer = TFIDF vectorizer, email_id = id's of all emails
+#Ouput: pandas dataframe with columns being ID and all the feature names and then rows being the tfidf values
+#Dataframe for intelligent searching
+def tfidf_to_db(tf_matrix, tf_vectorizer, email_id):
+    newDF = pd.DataFrame(tf_matrix,columns = tf_vectorizer.get_feature_names())
+    newDF["ID"] = pd.Series(email_id)
+    return newDF
+    
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
