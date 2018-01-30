@@ -9,10 +9,10 @@ import pandas as pd
 #Input data will be filterd for TFIDF and LSA. A pickled version of the  data  will be saved
 def cleanData(datapath):
     df = pd.read_csv(datapath, dtype=str)
-    
+
     email_filtered = pd.DataFrame()
     email_filtered = email_filter.full_filter_email(df)
-    
+
     return email_filtered
 
 
@@ -21,12 +21,12 @@ def cleanData(datapath):
 #Create tfidf matrix from cleaned train data. Save copy of matrix as well
 def tfidfData(emaildf):
     scenario_1 = pd.DataFrame(emaildf[0::3])
-    
+
     scenario_1_tfidf_matrix = CompsTFIDF.build_TFIDF_Matrix(scenario_1)
-    feature_names = scenario_1_tfidf_matrix[0].get_feature_names()
+    vectorizer = scenario_1_tfidf_matrix[0]
     scenario_1_tfidf = scenario_1_tfidf_matrix[1].toarray()
     np.save('scenario_1_tfidf.npy', scenario_1_tfidf)
-    
+
     return vectorizer, scenario_1_tfidf
 
 
@@ -53,17 +53,20 @@ def discoverEnron1():
     #Train data cleaned and TFIDF Run
     email_clean_train = cleanData("./data/parsed/training.csv")
     print("Train Emails Cleaned")
-    email_tfidf_train_vectorizer, email_tfidf_train_matrix = tfidfData(email_clean)
+    email_tfidf_train_vectorizer, email_tfidf_train_matrix = tfidfData(email_clean_train)
+    tfidf_train_matrix = email_tfidf_train_matrix.toarray()
     print("Train TFIDF Matrix Done")
-    
+
+    tfidf_df_db = CompsTFIDF.tfidf_to_df(tfidf_train_matrix, email_tfidf_train_vectorizer.get_feature_names(), email_clean_train["ID"])
+    print(tfidf_df_db.head())
+
     #Test Data cleaned and TFIDF build
-    email_clean_test = cleanData("./data/parsed/test.csv")
-    print("Test Emails Cleaned")
-    email_tfidf_test = testTFIDF(email_tfidf_train_vectorizer,email_clean_test)
-    
+    # email_clean_test = cleanData("./data/parsed/test.csv")
+    # print("Test Emails Cleaned")
+    # email_tfidf_test = testTFIDF(email_tfidf_train_vectorizer,email_clean_test)
+
     #LSA build for train emails
-    email_lsa_train = lsaData(email_tfidf_train_matrix)
-    print("Train LSA Matrix Done")
-    
-    
-    
+    # email_lsa_train = lsaData(email_tfidf_train_matrix)
+    # print("Train LSA Matrix Done")
+
+discoverEnron1()
