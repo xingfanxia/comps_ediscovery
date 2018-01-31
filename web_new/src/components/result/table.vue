@@ -31,11 +31,13 @@ import DetailRow from './DetailRow.vue'
 Vue.component('my-detail-row', DetailRow)
 
 export default {
+
   data () {
     return {
       lastCell: ''
     }
   },
+
   components: {
     'vuetable': Vuetable,
     'vuetable-pagination': VuetablePagination,
