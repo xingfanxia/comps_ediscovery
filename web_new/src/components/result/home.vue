@@ -31,7 +31,7 @@ export default {
 
   created: function () {
     this.fields = ['ID', 'Date', 'From', 'To', 'Subject']
-    this.perPage = 50
+    this.perPage = 5
     let query = $.param(this.$route.query)
     let request = 'http://localhost:5000/enron?' + query
     console.log(request)
