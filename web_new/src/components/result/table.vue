@@ -7,7 +7,7 @@
     pagination-path=""
     detail-row-component="my-detail-row"
     track-by="ID"
-    detail-row-transition="show"
+    detail-row-transition="animate"
     @vuetable:cell-clicked="onCellClicked"
     @vuetable:pagination-data="onPaginationData"
     ></vuetable>
@@ -74,14 +74,26 @@ export default {
 
 <style>
 
-.show-enter-active {
-  transition: all 0.5s ease;
+.animate-enter-active,
+.animate-leave-active {
+  -moz-transition: -moz-transform .8s;
+  -o-transition: -o-transform .8s;
+  -webkit-transition: -webkit-transform .8s;
+   -moz-transform-origin: top;
+  -ms-transform-origin: top;
+  -o-transform-origin: top;
+  -webkit-transform-origin: top;
+  transform-origin: top;
+  transition: transform .8s;
 }
 
-.show-enter,
-.show-leave-active {
-  height: 0;
-  opacity: 0.3;
+.animate-enter ,
+.animate-leave-active {
+  -moz-transform: scaleY(0);
+  -ms-transform: scaleY(0);
+  -o-transform: scaleY(0);
+  -webkit-transform: scaleY(0);
+  transform: scaleY(0);
 }
 
 </style>
