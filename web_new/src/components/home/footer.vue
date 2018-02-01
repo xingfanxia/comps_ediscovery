@@ -4,7 +4,7 @@
       <div class="content has-text-centered">
         <br>
         <p>
-          <strong>COPYRIGHT &copy; 2017 Xingfan Xia</strong>
+          <strong>COPYRIGHT &copy; 2017 E-discovery Comps Group</strong>
           <br>
           <a href="https://github.com"><strong>About this Proj</strong></a>
           或
