@@ -1,6 +1,6 @@
 <template>
   <div @click="onClick" id="overCon">
-    <div class="inline field" id="msgCon">
+    <div class="inline field target updown" id="msgCon">
       <label>Email Content:</label>
       <hr>
       <pre>{{rowData['Message-Contents']}}</pre>

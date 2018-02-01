@@ -7,6 +7,7 @@
     pagination-path=""
     detail-row-component="my-detail-row"
     track-by="ID"
+    detail-row-transition="show"
     @vuetable:cell-clicked="onCellClicked"
     @vuetable:pagination-data="onPaginationData"
     ></vuetable>
@@ -43,11 +44,13 @@ export default {
     'vuetable-pagination': VuetablePagination,
     'vuetable-pagination-info': VuetablePaginationInfo
   },
+
   props: {
     'apiUrl': String,
     'fields': Array,
     'perPage': Number
   },
+
   methods: {
     onPaginationData (paginationData) {
       this.$refs.pagination.setPaginationData(paginationData)
@@ -68,3 +71,17 @@ export default {
 }
 
 </script>
+
+<style>
+
+.show-enter-active {
+  transition: all 0.5s ease;
+}
+
+.show-enter,
+.show-leave-active {
+  height: 0;
+  opacity: 0.3;
+}
+
+</style>
