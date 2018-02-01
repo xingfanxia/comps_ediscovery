@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="col-lg-12">
     <vuetable ref="vuetable"
     :api-url="apiUrl"
     :fields="fields"
