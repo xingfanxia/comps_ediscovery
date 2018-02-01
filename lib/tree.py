@@ -287,15 +287,47 @@ class Tree:
                     elif left_empty:
                         # if only left child is empty, make self into right child
                         temp[i] = temp[i].right
+                        nodes_to_traverse.append(temp[i])
+                        
                     elif right_empty:
                         # if only right child is empty, make self into left child
                         temp[i] = temp[i].left
+                        nodes_to_traverse.append(temp[i])
+                elif temp[i].left:
+                    # this is to cover the case where a collapsed node needs to collapse again
+                    if len(temp[i].left.rows) == 0:
+                        temp[i] = temp[i].left
+                        nodes_to_traverse.append(temp[i])
+                elif temp[i].right:
+                    # same but with the right side
+                    if len(temp[i].right.rows) == 0:
+                        temp[i] = temp[i].left
+                        nodes_to_traverse.append(temp[i])
+                else:
+                    # this node is a leaf, no need to look
+                    pass
+                        
             if len(nodes_to_traverse) == 0:
                 done = True
         
     def traverse(self):
         '''Traverse down the tree and return all of the nodes in a list'''
-        pass
+        nodes_list = [self.head]
+        while True:
+            initial_size = len(nodes_list)
+            for n in nodes_list:
+                if n.left:
+                    if n.left not in nodes_list:
+                        nodes_list.append(n.left)
+                        break
+                if n.right:
+                    if n.right not in nodes_list:
+                        nodes_list.append(n.right)
+                        break
+            if len(nodes_list) == initial_size:
+                break
+        return nodes_list
+            
                 
     
     '''

@@ -10,6 +10,9 @@ import pickle
 import multiprocessing
 import sys
 
+
+NUM_CORES = 10
+
 class RNF:
     '''
     params:
@@ -82,7 +85,7 @@ class RNF:
             self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features))
         
         # create N new processes, where N = number of trees
-        pool = multiprocessing.Pool( len(self.trees) )
+        pool = multiprocessing.Pool( NUM_CORES )
 
         # start the N tree.fit processes
         results = []
@@ -98,6 +101,9 @@ class RNF:
         
         for i in range(len(self.trees)):
             self.trees[i] = r[i]
+    
+   
+            
     
     
     '''
@@ -120,7 +126,7 @@ class RNF:
     
     
     def predict_parallel(self, test_data, visualize=False):
-        pool = multiprocessing.Pool( len(self.trees) )
+        pool = multiprocessing.Pool( NUM_CORES )
         tasks = []
         
         for tree in self.trees:
@@ -230,7 +236,7 @@ class RNF:
         if idx_trees_to_retrain == []:
             return
         # Multi-processed rebuilding of trees
-        pool = multiprocessing.Pool( len(idx_trees_to_retrain) )
+        pool = multiprocessing.Pool( NUM_CORES )
         results = []
         
         for idx in idx_trees_to_retrain:
