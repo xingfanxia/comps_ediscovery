@@ -56,13 +56,16 @@ def discoverEnron():
     tfidf_train_vectorizer, tfidf_train_matrix = tfidfData(email_clean_train)
     print("Train TFIDF Matrix Done")
 
-    tfidf_df_db = CompsTFIDF.tfidf_to_df(tfidf_train_matrix, tfidf_train_vectorizer, email_clean_train["ID"])
-    print(tfidf_df_db.head())
+    # tfidf_df_db = CompsTFIDF.tfidf_to_df(tfidf_train_matrix, tfidf_train_vectorizer, email_clean_train["ID"])
+
 
     #Test Data cleaned and TFIDF build
-    # email_clean_test = cleanData("./data/parsed/test.csv")
-    # print("Test Emails Cleaned")
-    # email_tfidf_test = testTFIDF(email_tfidf_train_vectorizer,email_clean_test)
+    email_clean_test = cleanData("./data/parsed/test.csv")
+    print("Test Emails Cleaned")
+    print(email_clean_test.shape)
+    email_tfidf_test = testTFIDF(tfidf_train_vectorizer, email_clean_test)
+    print("Test TFIDF Matrix Done")
+    print(email_tfidf_test.toarray().shape)
 
     #LSA build for train emails
     # email_lsa_train = lsaData(email_tfidf_train_matrix)

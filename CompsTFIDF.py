@@ -26,7 +26,7 @@ def build_TFIDF_Matrix(df):
 #Ouput: tfidf matrix of data
 #Build TFIDF matrix on given pandas data frame of cleaned emails with inputted tfidf vectorizer
 def build_test_tfidf(vectorize, df):
-    test_matrix = vectorize.transform(df)
+    test_matrix = vectorize.transform(df["Message-Contents"])
     return test_matrix
 
 
