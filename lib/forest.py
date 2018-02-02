@@ -215,6 +215,8 @@ class RNF:
     def update(self, more_data):
         self.train_data.append(more_data)
         
+        self.n_max_input = self.train_data.shape[0]
+        
         # use average as placeholder function
         thresh = 0
         for tree in self.trees:
@@ -222,7 +224,10 @@ class RNF:
         thresh = thresh / len(self.trees)
         self.oob_threshold = thresh
         
+        thresh = 99999999999999999999999999999999
+        
         idx_trees_to_retrain = []
+        
         
         for i in range(len(self.trees)):
             if (self.trees[i].oob_error < thresh):
@@ -235,6 +240,8 @@ class RNF:
                 
         if idx_trees_to_retrain == []:
             return
+        
+        print(len(idx_trees_to_retrain))
         # Multi-processed rebuilding of trees
         pool = multiprocessing.Pool( NUM_CORES )
         results = []
