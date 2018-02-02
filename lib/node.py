@@ -8,7 +8,7 @@ import pandas as pd
 import math
 class Node:
       
-    def __init__(self, data, rows, features, depth, max_depth, cat_features, parent=None, side=None,):
+    def __init__(self, data, rows, features, depth, max_depth, cat_features, parent_node, parent_id=None, side=None):
         self.left = None
         self.right = None
         self.data = data
@@ -24,10 +24,11 @@ class Node:
         self.min_feature = None
         self.min_break_point = None
         self.min_gini = None
-        self.parent = parent
+        self.parent_id = parent_id
         self.side = side
         self.cat_already_split_on = []
         self.proportions = {}
+        self.parent_node = parent_node
 
         
 
@@ -96,8 +97,8 @@ class Node:
                 other_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: address not in x)].index.values
                 
                 #maybe a little sketch to not remove this feature?
-                from_this_address = Node(self.data, this_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
-                from_other_address = Node(self.data, other_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features)
+                from_this_address = Node(self.data, this_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features, self)
+                from_other_address = Node(self.data, other_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features, self)
 
                 if len(this_sender_rows) <= 0 or len(other_sender_rows) <= 0:
                     continue
@@ -231,8 +232,8 @@ class Node:
             if identical:
                 raise CannotDistinguishException("All of the rows remaining have the same values for all of the features remaining.")
            
-        self.left = Node(self.data, left_members, left_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l')
-        self.right = Node(self.data, right_members, right_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r')
+        self.left = Node(self.data, left_members, left_features, self.depth+1, self.max_depth, self.cat_features, self, parent_id=self.id, side='l')
+        self.right = Node(self.data, right_members, right_features, self.depth+1, self.max_depth, self.cat_features, self, parent_id=self.id, side='r')
 
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini
         
@@ -387,6 +388,7 @@ class Node:
         try:
             return self.proportions[target_label]
         except KeyError:
+#             print('I\'m a node and I have {} rows'.format(len(self.rows)))
             members = self.data.loc[self.rows][self.label_index].values
 
             filtered = [x for x in members if x == target_label]

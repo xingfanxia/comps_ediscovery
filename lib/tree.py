@@ -21,7 +21,7 @@ class Tree:
         self.features = features
         self.data = data
         self.benchmark = benchmark
-        self.head = Node(data, rows, features, 0, depth, cat_features)
+        self.head = Node(data, rows, features, 0, depth, cat_features, None)
         self.oob_error = -1
         self.cat_features = cat_features
     
@@ -39,11 +39,11 @@ class Tree:
                      to_put.append('{ID} [label="X[{min_feature}] < {min_break}\ngini = {min_gini}\nsamples = {rows}\ndistribution = [{left}, {right}]"];'.format(ID=node.id, min_feature=node.min_feature, min_break=node.min_break_point, min_gini=node.min_gini, rows=len(node.rows), left=len(node.left.rows), right=len(node.right.rows)))
                 else:
                      to_put.append('{ID} [label="samples = {rows}\nratio = [{left}, {right}]"];'.format(ID=node.id, rows=len(node.rows), left=node.get_proportions('0'), right=node.get_proportions('1')))
-                if node.parent != None:
+                if node.parent_id != None:
                     if node.side == 'l':
-                        to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(node.parent, node.id))
+                        to_put.append('{} -> {} [labeldistance=8, labelangle=30, xlabel="True"]'.format(node.parent_id, node.id))
                     else:
-                        to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(node.parent, node.id))
+                        to_put.append('{} -> {} [labeldistance=8, labelangle=-30, xlabel="False"]'.format(node.parent_id, node.id))
                 if node.left:
                     children.append(node.left)
                 if node.right:
@@ -112,15 +112,15 @@ class Tree:
                                                                               left=cur_node.get_proportions('0'), 
                                                                               right=cur_node.get_proportions('1')))
                         
-                if cur_node.parent != None:
+                if cur_node.parent_id != None:
                         if cur_node.side == 'l':
                             if visualize:
                                 to_put.append('{} -> {} [labeldistance=8, labelangle=30, '
-                                              + 'xlabel="True"]'.format(cur_node.parent, cur_node.id))
+                                              + 'xlabel="True"]'.format(cur_node.parent_id, cur_node.id))
                         else:
                             if visualize:
                                 to_put.append('{} -> {} [labeldistance=8, labelangle=-30, '
-                                              + 'xlabel="False"]'.format(cur_node.parent, cur_node.id))
+                                              + 'xlabel="False"]'.format(cur_node.parent_id, cur_node.id))
 
                 if self._should_go_left(row, cur_node):
                     cur_node = cur_node.left
@@ -230,7 +230,7 @@ class Tree:
         # also update their data
         nodes = [self.head]
         for node in nodes:
-            node.data = updated_data
+            nodecdata = updated_data
             node.rows = []
             node.proportions = {}
             nodes.remove(node)
@@ -260,6 +260,12 @@ class Tree:
             # don't forget about that one last leaf!
             cur_node.rows = np.append(cur_node.rows, row.name)
             
+            
+        t = self.traverse()
+        num_rows = [len(r.rows) for r in t]
+        if 0 in num_rows:
+            print('before restructuring: there is a 0-row node')
+            
         # after updating, look for empty nodes, and reshape tree accordingly.
         nodes_to_traverse = [self.head]
         done = False
@@ -282,23 +288,37 @@ class Tree:
                         
                     if left_empty and right_empty:
                         # if both children are empty, become a leaf node
+                        print('both children are empty: this really shouldn\'t have happened')
                         temp[i].left = None
                         temp[i].right = None
                     elif left_empty:
                         # if only left child is empty, make self into right child
-                        temp[i] = temp[i].right
-                        nodes_to_traverse.append(temp[i])
+                        if temp[i] == self.head:
+                            self.head = temp[i].right
+                        elif temp[i].parent_node.left == temp[i]:
+                            temp[i].parent_node.left = temp[i].right
+                        else:
+                            temp[i].parent_node.right = temp[i].right
+                        nodes_to_traverse.append(temp[i].right)
+                        
                         
                     elif right_empty:
                         # if only right child is empty, make self into left child
-                        temp[i] = temp[i].left
-                        nodes_to_traverse.append(temp[i])
+                        if temp[i] == self.head:
+                            self.head = temp[i].left
+                        elif temp[i].parent_node.left == temp[i]:
+                            temp[i].parent_node.left = temp[i].left
+                        else:
+                            temp[i].parent_node.right = temp[i].left
+                        nodes_to_traverse.append(temp[i].left)
                 elif temp[i].left:
+                    print('node has left child but no right')
                     # this is to cover the case where a collapsed node needs to collapse again
                     if len(temp[i].left.rows) == 0:
                         temp[i] = temp[i].left
                         nodes_to_traverse.append(temp[i])
                 elif temp[i].right:
+                    print('node has right child but no left')
                     # same but with the right side
                     if len(temp[i].right.rows) == 0:
                         temp[i] = temp[i].left
@@ -309,6 +329,11 @@ class Tree:
                         
             if len(nodes_to_traverse) == 0:
                 done = True
+                
+        t = self.traverse()
+        num_rows = [len(r.rows) for r in t]
+        if 0 in num_rows:
+            print('after restructuring: there is a 0-row node')
         
     def traverse(self):
         '''Traverse down the tree and return all of the nodes in a list'''
