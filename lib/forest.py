@@ -213,7 +213,7 @@ class RNF:
     Null or we can say something like which trees are changed
     '''
     def update(self, more_data):
-        self.train_data.append(more_data)
+        self.train_data = self.train_data.append(more_data)
         
         self.n_max_input = self.train_data.shape[0]
         
@@ -224,7 +224,8 @@ class RNF:
         thresh = thresh / len(self.trees)
         self.oob_threshold = thresh
         
-        thresh = 99999999999999999999999999999999
+#         thresh *= 0.8
+#         thresh = 99999999999999999999999999999999
         
         idx_trees_to_retrain = []
         

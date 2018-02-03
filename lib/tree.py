@@ -230,7 +230,7 @@ class Tree:
         # also update their data
         nodes = [self.head]
         for node in nodes:
-            nodecdata = updated_data
+            node.data = updated_data
             node.rows = []
             node.proportions = {}
             nodes.remove(node)

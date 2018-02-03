@@ -85,9 +85,9 @@ print("setup is done")
 # prototyping for making multiple one_run calls
 log_filename = 'log.txt'
 # def one_run(df, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features, folds, filename):
-for n_trees in [128]:
-    for tree_depth in [95]:
-        for n_max_features in [90, 95]:
+for n_trees in [256]:
+    for tree_depth in [70, 95]:
+            for n_max_features in [90, 95]:
             # things to test on:
             # number of trees, tree_depth, n_max_features
             try:
