@@ -3,7 +3,7 @@ Database library for interacting with sqlite/pandas dataframes
 '''
 import pandas as pd
 import sqlalchemy
-from sqlalchemy import create_engine, MetaData, Table
+from sqlalchemy import create_engine, MetaData, Table, and_
 from sqlalchemy.orm import mapper, sessionmaker, Query
 from sqlalchemy.pool import StaticPool
 import ast
@@ -34,8 +34,9 @@ class Database():
         df = pd.read_sql_table(tablename, self.conn)
         if scenario:
             df = df.loc[df['Scenario'] == str(scenario)]
+        df = df.astype(str)
         df['Date'] = pd.to_datetime(df['Date'])
-        df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']].applymap(ast.literal_eval)
+        # df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']].applymap(ast.literal_eval)
         return df
 
     '''
@@ -47,7 +48,7 @@ class Database():
         res = self.session.query(self.emails).filter_by(ID=id)
         if scenario:
             res = res.filter_by(Scenario=str(scenario))
-        # print("here2")
+        print("here2")
         res = res.all()
         return [r._asdict() for r in res]
 
@@ -100,3 +101,20 @@ class Database():
         else:
             df = df.loc[df['Relevant'] == -1]
         return df
+
+    '''
+    Allows user to query multiple fields and get back all relevant emails
+    '''
+    def query_helper(self, Date='%', From='%', To='%', Subject='%', Message_Contents='%', ID='%'):
+        print('here')
+        res = self.session.query(self.emails).filter(and_(self.emails.c.Scenario.contains('401'),
+                                                            self.emails.c.Date.contains(Date),
+                                                            self.emails.c.From.contains(From),
+                                                            self.emails.c.To.contains(To),
+                                                            self.emails.c.Subject.contains(Subject),
+                                                            #Message-Contents, CHANGE NAME
+                                                            self.emails.c.ID.contains(ID))).all()
+        return [r._asdict() for r in res]
+
+    def query(self, dictionary):
+        return self.query_helper(**dictionary)

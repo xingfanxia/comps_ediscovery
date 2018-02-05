@@ -1,0 +1,103 @@
+<template>
+  <div class="col-lg-12">
+    <vuetable ref="vuetable"
+    :api-url="apiUrl"
+    :fields="fields"
+    :perPage="perPage"
+    pagination-path=""
+    detail-row-component="my-detail-row"
+    track-by="ID"
+    detail-row-transition="animate"
+    @vuetable:cell-clicked="onCellClicked"
+    @vuetable:pagination-data="onPaginationData"
+    ></vuetable>
+    <div class="vuetable-pagination ui basic segment grid">
+      <vuetable-pagination-info ref="paginationInfo"
+      ></vuetable-pagination-info>
+      <feedback></feedback>
+      <vuetable-pagination ref="pagination"
+      @vuetable-pagination:change-page="onChangePage"
+      ></vuetable-pagination>
+    </div>
+  </div>
+</template>
+
+<script>
+
+import Vue from 'vue'
+import Vuetable from 'vuetable-2/src/components/Vuetable'
+import VuetablePagination from 'vuetable-2/src/components/VuetablePagination'
+import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePaginationInfo'
+import DetailRow from './DetailRow.vue'
+import CustomActions from './CustomActions'
+import Feedback from './Feedback.vue'
+
+Vue.component('custom-actions', CustomActions)
+Vue.component('my-detail-row', DetailRow)
+
+export default {
+
+  data () {
+    return {
+    }
+  },
+
+  components: {
+    'vuetable': Vuetable,
+    'vuetable-pagination': VuetablePagination,
+    'vuetable-pagination-info': VuetablePaginationInfo,
+    'feedback': Feedback
+  },
+
+  props: {
+    'apiUrl': String,
+    'fields': Array,
+    'perPage': Number
+  },
+
+  methods: {
+    onPaginationData (paginationData) {
+      this.$refs.pagination.setPaginationData(paginationData)
+      this.$refs.paginationInfo.setPaginationData(paginationData)
+    },
+    onChangePage (page) {
+      this.$refs.vuetable.changePage(page)
+    },
+    onCellClicked (data, field, event) {
+      console.log('cellClicked: ', field.name)
+      this.$refs.vuetable.toggleDetailRow(data.ID)
+      if (this.lastCell !== '') {
+        this.$refs.vuetable.toggleDetailRow(this.lastCell)
+      }
+      this.lastCell = data.ID
+    }
+  }
+}
+
+</script>
+
+<style>
+
+.animate-enter-active,
+.animate-leave-active {
+  -moz-transition: -moz-transform .8s;
+  -o-transition: -o-transform .8s;
+  -webkit-transition: -webkit-transform .8s;
+   -moz-transform-origin: top;
+  -ms-transform-origin: top;
+  -o-transform-origin: top;
+  -webkit-transform-origin: top;
+  transform-origin: top;
+  transition: transform .8s;
+}
+
+.animate-enter ,
+.animate-leave-active {
+  -moz-transform: scaleY(0);
+  -ms-transform: scaleY(0);
+  -o-transform: scaleY(0);
+  -webkit-transform: scaleY(0);
+  transform: scaleY(0);
+}
+
+</style>

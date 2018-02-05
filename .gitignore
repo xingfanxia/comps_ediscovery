@@ -8,3 +8,5 @@ temp/
 __pycache__/
 *.pickle
 nachtm_exps/vis/
+.idea/
+**/node_modules/
