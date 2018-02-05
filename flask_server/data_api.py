@@ -17,8 +17,10 @@ from lib import *
 data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
 db = Database()
 
+scenario = '401'
 saved_payload = None
 saved_data = None
+rnf = None
 
 def addone(obj):
      val = int(obj.group(1))
@@ -41,8 +43,13 @@ dict_dump = {
   "to": 5
 }
 
-# Todo:
-# Add page turn with request parameteres
+@app.route('/feedback',methods=['GET','POST'])
+def log_feedback():
+    feedback = request.get_json()
+    print(feedback['ID'], feedback['Relevant'])
+    db.set_relevancy(feedback['ID'], scenario, feedback['Relevant'])
+    return '{"status": 200}\n'
+
 @app.route("/enron")
 def enron():
     global saved_data
@@ -84,5 +91,44 @@ def enron():
     dict_dump_copy['total'] = len(data)
     dict_dump_copy['last_page'] = int(len(data)/int(dict_dump_copy['per_page'])) + 1
     return jsonify(dict_dump_copy)
+
+@app.route('/dbtest')
+def dbtest():
+    print("Running Incremental Learning")
+    global rnf
+    lsa_np = np.load('../data/parsed/lsa_output.npy')
+    lsa_df = pd.DataFrame(lsa_np)
+
+    metadata = db.df_from_table('emails')
+    metadata = metadata.loc[metadata['Scenario'] == '401']
+    metadata = metadata.reset_index(drop=True)
+
+    df = pd.concat([metadata, lsa_df], axis=1, join_axes=[metadata.index])
+
+    cat_features = ['To','From']
+    features = list(range(100))
+    features.extend(cat_features + ['Date'])
+
+    df = df[features + ['Label'] + ['Relevant'] + ['ID']]
+
+    if rnf == None:
+        train_df = df.loc[df['Relevant'] != '-1']
+        train_df = train_df.reset_index(drop=True)
+        print (train_df.head())
+        test_df = df.loc[df['Relevant'] == '-1'][:100]
+        test_df = test_df.reset_index(drop=True)
+        print (test_df.head())
+        n_trees = 64
+        tree_depth = 5
+        random_seed = 42
+        n_max_features = 11
+        n_max_input = 300
+        benchmark = None
+
+        #train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features):
+        rnf = RNF(train_df, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features, user_input=True)
+        rnf.fit_parallel()
+        print(rnf.predict(test_df))
+    return '{"status": 200}\n'
 
 app.run(port=5000, debug=True)
