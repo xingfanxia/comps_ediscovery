@@ -32,6 +32,11 @@ export default {
     feedback: function (rowData, relevant, flag) {
       var vm = this;
 
+      if ((flag === 1 && vm.isCActive) || (flag === 0 && vm.isXActive)) {
+        alert("Can't select both!")
+        return
+      }
+
       axios.post('http://127.0.0.1:5000/feedback', {
         'ID': rowData.ID,
         'Relevant': relevant
