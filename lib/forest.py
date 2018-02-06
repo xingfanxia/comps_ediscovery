@@ -10,6 +10,9 @@ import pickle
 import multiprocessing
 import sys
 
+
+NUM_CORES = 10
+
 class RNF:
     '''
     params:
@@ -86,7 +89,7 @@ class RNF:
             self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features, user_input=self.input_type))
 
         # create N new processes, where N = number of trees
-        pool = multiprocessing.Pool( len(self.trees) )
+        pool = multiprocessing.Pool( NUM_CORES )
 
         # start the N tree.fit processes
         results = []
@@ -102,6 +105,9 @@ class RNF:
 
         for i in range(len(self.trees)):
             self.trees[i] = r[i]
+
+
+
 
 
     '''
@@ -125,7 +131,7 @@ class RNF:
 
 
     def predict_parallel(self, test_data, visualize=False):
-        pool = multiprocessing.Pool( len(self.trees) )
+        pool = multiprocessing.Pool( NUM_CORES )
         tasks = []
 
         for tree in self.trees:
@@ -134,6 +140,8 @@ class RNF:
         results = []
         for i in range(len(self.trees)):
             results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize)) )
+
+        pool.close()
 
         r = []
         for result in results:
@@ -150,6 +158,43 @@ class RNF:
         probas = [self.some_majority_count_metric(score) for score in scores]
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
         return probas, classes
+
+    '''
+    returns:
+
+    probas - [(prob_rel, prob_irrel), ...]
+        prob_rel - probability that this document is relevant
+        prob_irrel - probability that this document is irrelevant
+    classes - [relevance]
+        relevance - '1' if relevant, '0' if irrelevant
+    importances - [{feature:weight}]
+        feature - a row of the df we used to predict
+        weight - how important the feature was in the prediction, where positive means it nudged the prediction
+            towards relevance and negative means it nudged the prediction towards irrelevance
+    '''
+    def predict_with_feat_imp(self, test_data):
+        tree_results = [tree.predict_with_feat_imp(test_data) for tree in self.trees]
+        scores = [list() for doc in tree_results[0][0]]
+        for doc in range(len(tree_results[0][0])):
+            for tree in tree_results:
+                scores[doc].append(tree[0][doc])
+        probas = [self.some_majority_count_metric(score) for score in scores]
+        classes = ['1' if proba[0] > proba[1] else '0' for proba in probas]
+
+        #sum up all of the importances
+        importances = [{} for doc in tree_results[0][1]]
+        for doc in range(len(importances)):
+            for tree in tree_results:
+                for feature in tree[1][doc].keys():
+                    try:
+                        importances[doc][feature] += tree[1][doc][feature]
+                    except KeyError:
+                        importances[doc][feature] = tree[1][doc][feature]
+        #divide by num_trees
+        for importance_dict in range(len(importances)):
+            for feature in importances[importance_dict].keys():
+                importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees)
+        return probas, classes, importances
 
     def retrain_tree(self):
         # assume that self.data contains the new data
@@ -173,9 +218,9 @@ class RNF:
     Null or we can say something like which trees are changed
     '''
     def update(self, more_data):
+        self.train_data = self.train_data.append(more_data)
 
-        #self.train_data = more_data
-        self.train_data.append(more_data)
+        self.n_max_input = self.train_data.shape[0]
 
         # use average as placeholder function
         thresh = 0
@@ -184,29 +229,33 @@ class RNF:
         thresh = thresh / len(self.trees)
         self.oob_threshold = thresh
 
-        # TODO: This is temporary code for testing!!!
-        #thresh = 0
+#         thresh *= 0.8
+#         thresh = 99999999999999999999999999999999
 
         idx_trees_to_retrain = []
 
+
         for i in range(len(self.trees)):
             if (self.trees[i].oob_error < thresh):
+#                 build of list of indices of trees to rebuilt
                 idx_trees_to_retrain.append(i)
-                # discard and remake
-                # self.trees[i] = self.retrain_tree()
+#                 pass
             else:
-                # update leave nodes
                 self.update_leaves(self.trees[i])
+#                 pass
 
-        cpu_count = len(idx_trees_to_retrain)
-        pool = multiprocessing.Pool( cpu_count )
-        tasks = []
-        tNum = 0
-        max_t = cpu_count
+        if idx_trees_to_retrain == []:
+            return
 
+        print(len(idx_trees_to_retrain))
+        # Multi-processed rebuilding of trees
+        pool = multiprocessing.Pool( NUM_CORES )
         results = []
+
         for idx in idx_trees_to_retrain:
             results.append( pool.apply_async(self.retrain_tree) )
+
+        pool.close()
 
         retrained_trees = []
         for result in results:
@@ -216,13 +265,10 @@ class RNF:
             self.trees[idx_trees_to_retrain[i]] = retrained_trees[i]
 
 
-
-
     def store_rnf(self, file_path):
         f = open(file_path, 'wb')
         pickle.dump(self, f)
         f.close()
-#         pass
 
     def load_rnf(self, file_path):
         f = open(file_path, 'rb')
@@ -233,3 +279,21 @@ class RNF:
         self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
 #         the part that matters: load the pre-trained then stored trees into the RNF object instance
         self.trees = temp.trees
+
+    '''
+    Returns a measure for which features are most important in the tree.
+
+    returns:
+    total - {feature:importance}, where importance is a measure of how important that feature is to the overall
+        forest
+    '''
+    def get_feature_importances(self):
+        total = {}
+        for tree in self.trees:
+            curr_importances = tree.get_mean_decrease_impurity()
+            for feature in curr_importances.keys():
+                try:
+                    total[feature] += curr_importances[feature]
+                except KeyError:
+                    total[feature] = curr_importances[feature]
+        return total

@@ -8,7 +8,7 @@ import pandas as pd
 import math
 class Node:
 
-    def __init__(self, data, rows, features, depth, max_depth, cat_features, parent=None, side=None, user_input=False):
+    def __init__(self, data, rows, features, depth, max_depth, cat_features, parent_node, parent_id=None, side=None, user_input=False):
         self.left = None
         self.right = None
         self.data = data
@@ -28,9 +28,11 @@ class Node:
         self.min_feature = None
         self.min_break_point = None
         self.min_gini = None
-        self.parent = parent
+        self.parent_id = parent_id
         self.side = side
         self.cat_already_split_on = []
+        self.proportions = {}
+        self.parent_node = parent_node
 
 
 
@@ -47,23 +49,9 @@ class Node:
 
     def calc_gini_index(self):
         raw_val = 1
-#        string = '['
-#        for row in self.rows:
-#            string += str(row)
-#            string += ','
-#        string += ']'
-#        print(string)
-#        print(type(self.data))
-#        print(self.data.shape)
-#        print(self.label_index)
-#        members = [self.data[self.label_index][x] for x in self.rows]
         members = self.data.loc[self.rows][self.label_index].values
         for label in self.labels:
-#             members = self.data.loc[self.data[self.label_index] == label]
-            #maybe do as a for loop?
-            #filtered = [x for x in members if x == label]
             filtered = members[members == label]
-#             filtered = members
             raw_val -= (len(filtered)/len(self.rows))**2
         return raw_val
 
@@ -113,8 +101,8 @@ class Node:
                 other_sender_rows = to_parse.loc[to_parse[feature].apply(lambda x: address not in x)].index.values
 
                 #maybe a little sketch to not remove this feature?
-                from_this_address = Node(self.data, this_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features, user_input=self.input_type)
-                from_other_address = Node(self.data, other_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features, user_input=self.input_type)
+                from_this_address = Node(self.data, this_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features, self, user_input=self.input_type)
+                from_other_address = Node(self.data, other_sender_rows, self.features, self.depth + 1, self.max_depth, self.cat_features, self, user_input=self.input_type)
 
                 if len(this_sender_rows) <= 0 or len(other_sender_rows) <= 0:
                     continue
@@ -248,8 +236,8 @@ class Node:
             if identical:
                 raise CannotDistinguishException("All of the rows remaining have the same values for all of the features remaining.")
 
-        self.left = Node(self.data, left_members, left_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='l', user_input=self.input_type)
-        self.right = Node(self.data, right_members, right_features, self.depth+1, self.max_depth, self.cat_features, parent=self.id, side='r', user_input=self.input_type)
+        self.left = Node(self.data, left_members, left_features, self.depth+1, self.max_depth, self.cat_features, self, parent_id=self.id, side='l', user_input=self.input_type)
+        self.right = Node(self.data, right_members, right_features, self.depth+1, self.max_depth, self.cat_features, self, parent_id=self.id, side='r', user_input=self.input_type)
 
         self.min_feature, self.min_break_point, self.min_gini = min_feature, min_break_point, min_gini
 
@@ -401,10 +389,15 @@ class Node:
 #             "[{ID}, (Children=None)]".format(ID=self.id)
 
     def get_proportions(self, target_label):
-        members = self.data.loc[self.rows][self.label_index].values
+        try:
+            return self.proportions[target_label]
+        except KeyError:
+#             print('I\'m a node and I have {} rows'.format(len(self.rows)))
+            members = self.data.loc[self.rows][self.label_index].values
 
-        filtered = [x for x in members if x == target_label]
-#         members = self.data.loc[self.data[self.label_index] == target_label]
-#         filtered = [x for x in members.index.values if x in self.rows]
-        raw_val = (len(filtered)/len(self.rows))
-        return raw_val
+            filtered = [x for x in members if x == target_label]
+    #         members = self.data.loc[self.data[self.label_index] == target_label]
+    #         filtered = [x for x in members.index.values if x in self.rows]
+            raw_val = (len(filtered)/len(self.rows))
+            self.proportions[target_label] = raw_val
+            return raw_val

@@ -6,7 +6,6 @@
       </div>
   </section>
 </template>
-
 <script>
 
 import Table from './table.vue'
@@ -24,14 +23,22 @@ export default {
   data () {
     return {
       apiUrl: '',
-      fields: [],
+      fields: [
+        {
+          name: '__component:custom-actions',
+          title: 'Actions',
+          titleClass: 'center aligned',
+          dataClass: 'center aligned'
+        }
+      ],
       perPage: 0
     }
   },
 
   created: function () {
-    this.fields = ['ID', 'Date', 'From', 'To', 'Subject']
-    this.perPage = 50
+    var arr = ['ID', 'Date', 'From', 'To', 'Subject']
+    this.fields = arr.concat(this.fields)
+    this.perPage = 5
     let query = $.param(this.$route.query)
     let request = 'http://localhost:5000/enron?' + query
     console.log(request)

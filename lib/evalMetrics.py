@@ -8,13 +8,19 @@ import pandas as pd
 def recallPrecisionRelevant(tagArray, testData):
     #Number of emails our system said were relevant (True Positive + False Positive)
     numTagRelevant = 0
+    
+    numTagIrrelevant = 0
     #Number of emails that were tagged correctly (True Positive)
     numTagCorrect = 0
     #Number of emails that are actually relevant (True Positive + False Negative)
     totalRelevant = 0
+    
+    annotatedTestDataCount = 0
     for i in range(len(tagArray)):
         if testData["Label"].iloc[i] == '-1':
             continue
+        else:
+            annotatedTestDataCount += 1
         if testData["Label"].iloc[i] == '1':
             totalRelevant = totalRelevant + 1
         if tagArray[i] == '1':
@@ -22,9 +28,14 @@ def recallPrecisionRelevant(tagArray, testData):
             if testData["Label"].iloc[i] == '1':
 
                 numTagCorrect = numTagCorrect + 1
+        elif testData["Label"].iloc[i] == '0' and tagArray[i] == '0':
+            numTagIrrelevant += 1
+                    
+            
     recall = numTagCorrect / totalRelevant
     precision = numTagCorrect / numTagRelevant
-    return recall, precision
+    accuracy = (numTagCorrect + numTagIrrelevant) / annotatedTestDataCount
+    return recall, precision, accuracy
   
     
 #Calculate F1 Statistic from precision and recall
@@ -33,8 +44,14 @@ def recallPrecisionRelevant(tagArray, testData):
 def f1Eval(recall, precision):
     numer = recall * precision
     denomer = precision + recall
-    f1 = 2 * (numer / denomer)
+    if denomer > 0:
+        f1 = 2 * (numer / denomer)
+    else:
+        f1 = None
     return f1
+
+
+    
 
 
 #Display Statistics of system
@@ -43,9 +60,11 @@ def f1Eval(recall, precision):
 def evalStats(predictOutput, emails):
     stats = recallPrecisionRelevant(predictOutput, emails)
     fOne = f1Eval(stats[0], stats[1])
-    print("Recall:" + str(stats[0] * 100) + "%")
-    print("Precision:" + str(stats[1] * 100) + "%")
-    print("F1:" + str(fOne))
+#     print("Recall:" + str(stats[0] * 100) + "%")
+#     print("Precision:" + str(stats[1] * 100) + "%")
+#     print("Accuracy:" + str(stats[2] * 100) + "%")
+#     print("F1:" + str(fOne))
+    return stats[0], stats[1], stats[2], fOne
     
     
 #Evaluate System
