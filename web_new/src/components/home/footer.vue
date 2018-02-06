@@ -4,11 +4,11 @@
       <div class="content has-text-centered">
         <br>
         <p>
-          <strong>COPYRIGHT &copy; 2017 Xingfan Xia</strong>
+          <strong>Project by Ju Yun Kim, Dan Mayer, Micah Nacht, Adam Tigar, Xingfan Xia, and Lazar Zamurovic</strong>
           <br>
-          <a href="https://github.com"><strong>About this Proj</strong></a>
-          或
-          <a href="https://github.com"><strong>About Us</strong></a>
+          <a href="https://github.com/xxf1995/comps_ediscovery"><strong>About this Project</strong></a>
+		  <p>&emsp;</p>
+		  <a href="https://github.com"><strong>About Us</strong></a>
         </p>
       </div>
     </div>

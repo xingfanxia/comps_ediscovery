@@ -2,7 +2,7 @@
   <nav class="navbar" role="navigation" aria-label="main navigation">
     <div class="navbar-brand">
       <router-link class="navbar-item" to="/">
-        <h1 class="title has-text-centered"><span>E-discovery</span></h1>
+        <h1 class="title has-text-centered"><span>E-Discovery</span></h1>
       </router-link>
     </div>
     <div class="navbar-end">
@@ -22,7 +22,7 @@
 <style scoped>
 
 span {
-  color: darkcyan;
+  color: #0B5091;
 }
 
 </style>
