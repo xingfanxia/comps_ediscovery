@@ -25,7 +25,7 @@ def tfidfData(emaildf, scenarioNum):
         scenario_1 = pd.DataFrame(emaildf[0::3])
     elif scenarioNum == 2:
         scenario_1 = pd.DataFrame(emaildf[1::3])
-    else scenarioNum == 3:
+    else:
         scenario_1 = pd.DataFrame(emaildf[2::3])
     scenario_1_tfidf_matrix = CompsTFIDF.build_TFIDF_Matrix(scenario_1)
     vectorizer = scenario_1_tfidf_matrix[0]
@@ -43,41 +43,56 @@ def testTFIDF(vectorize, df, scenarioNum):
         scenario_1_test = pd.DataFrame(df[0::3])
     elif scenarioNum == 2:
         scenario_1_test = pd.DataFrame(df[1::3])
-    else scenarioNum == 3:
+    else:
         scenario_1_test = pd.DataFrame(df[2::3])
     matrix_test = CompsTFIDF.build_test_tfidf(vectorize, scenario_1_test)
     np.save('test_scenario_1_tfidf.npy', matrix_test)
     return matrix_test
 
 
-#Input: tfidfMatrix ([1]output from tfidfData())
-#Output: No direct ouput. Pickled LSA matrix
-def lsaData(tfMatrix):
-    lsa_email = CompsLSA.build_LSA_Matrix(tfMatrix)
-    #NEEDS TO BE SAVED .NPY USING MORE RAM COMPUTER
-    return lsa_email
-
-
-
 def discoverEnron(sceaniroNum):
     #Train data cleaned and TFIDF Run
-    email_clean_train = cleanData("training.csv")
+    email_clean_train = cleanData("./data/parsed/training.csv")
     print("Train Emails Cleaned")
     tfidf_train_vectorizer, tfidf_train_matrix = tfidfData(email_clean_train, scenarioNum)
     np.save("train_tfidf_1.npy", tfidf_train_matrix)
     print("Train TFIDF Matrix Done")
 
     #Test Data cleaned and TFIDF build
-    email_clean_test = cleanData("test.csv")
+    email_clean_test = cleanData("./data/parsed/test.csv")
     print("Test Emails Cleaned")
     email_tfidf_test = testTFIDF(tfidf_train_vectorizer, email_clean_test,scenarioNum)
     np.save("test_tfidf_1.npy", email_tfidf_test)
     print("Test TFIDF Matrix Done")
 
     #LSA build for train emails
-    # email_lsa_train = lsaData(email_tfidf_train_matrix)
-    # print("Train LSA Matrix Done")
     CompsLSA.build_LSA_train_test(email_tfidf_test, tfidf_train_matrix)
     print("Train/Test LSA Complete")
+
+    #Split Email Data based on inputted scenario
+    if scenarioNum == 1:
+        train_email_full = pd.DataFrame(email_clean_train[0::3])
+        test_email_full = pd.DataFrame(email_clean_test[0::3])
+    elif scenarioNum == 2:
+        train_email_full = pd.DataFrame(email_clean_train[1::3])
+        test_email_full = pd.DataFrame(email_clean_test[1::3])
+    else:
+        train_email_full = pd.DataFrame(email_clean_train[2::3])
+        test_email_full = pd.DataFrame(email_clean_test[2::3])
+
+    #Combine LSA and Email Data (TRAIN)
+    full_train_df = CompsML.setup_dataframe('lsa_output_train_Feb8.npy', train_email_full)
+    print("Train LSA/DF built")
+    #Combine LSA and Email Data (TEST)
+    full_test_df = CompsML.setup_dataframe('lsa_output_test_Feb8.npy', test_email_full)
+    print("Test LSA/DF built")
+
+    #Train Tree on full_train_df
+    CompsML.train_tree(full_train_df)
+    print("Tree Trained")
+
+    #Run Evaluation on Test Emails
+    CompsML.test_tree('scenario_full_train.pickle', full_test_df)
+
 
 discoverEnron(1)
