@@ -47,8 +47,18 @@ dict_dump = {
 def log_feedback():
     feedback = request.get_json()
     print(feedback['ID'], feedback['Relevant'])
-    db.set_relevancy(feedback['ID'], scenario, feedback['Relevant'])
-    return '{"status": 200}\n'
+    try:
+        db.set_relevancy(feedback['ID'], scenario, feedback['Relevant'])
+        response = {
+            'status_code': 200,
+            'message': "Success!\nFeedback is successfully logged to the backend database for incremental learning!"
+        }
+    except:
+        response = {
+            'status_code': 500,
+            'message': "ERROR!\nFeedback is not successfully passed to the backend!"
+        }
+    return jsonify(response)
 
 @app.route("/enron")
 def enron():
@@ -125,10 +135,20 @@ def dbtest():
         n_max_input = 300
         benchmark = None
 
-        #train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features):
-        rnf = RNF(train_df, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features, user_input=True)
-        rnf.fit_parallel()
-        print(rnf.predict(test_df))
-    return '{"status": 200}\n'
+        try:
+            #train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features):
+            rnf = RNF(train_df, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features, user_input=True)
+            rnf.fit_parallel()
+            print(rnf.predict(test_df))
+            response = {
+                'status_code': 200,
+                'message': "SUCCESS!\nIncremental training finished without trouble!"
+            }
+        except:
+            response = {
+                'status_code': 500,
+                'message': "ERROR!\nIncremental training failed!"
+            }
+    return jsonify(response)
 
 app.run(port=5000, debug=True)
