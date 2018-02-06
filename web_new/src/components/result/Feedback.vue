@@ -17,7 +17,11 @@ export default {
       axios.get('http://127.0.0.1:5000/dbtest')
         .then(function (response) {
           // REPOPULATE TABLE HERE YA DIG
-          alert(response.data['message'])
+          if (response.data['status_code'] === 500) {
+            alert(response.data['message'])
+          } else {
+            console.log(response.data['message'])
+          }
         })
         .catch(function (error) {
           console.log(error)

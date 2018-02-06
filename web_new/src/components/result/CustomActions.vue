@@ -21,16 +21,15 @@ export default {
     }
   },
 
-  data() {
+  data () {
     return {
       isCActive: false,
       isXActive: false
     }
-  }, 
+  },
 
   methods: {
     feedback: function (rowData, relevant) {
-      
       axios.post('http://127.0.0.1:5000/feedback', {
         'ID': rowData.ID,
         'Relevant': relevant
