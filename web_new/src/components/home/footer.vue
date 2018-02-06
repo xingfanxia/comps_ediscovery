@@ -5,8 +5,7 @@
         <br>
         <p>
           <strong>Project by Ju Yun Kim, Dan Mayer, Micah Nacht, Adam Tigar, Xingfan Xia, and Lazar Zamurovic</strong>
-=======
->>>>>>> 521a30b689b1df495b88d38f00ca9e8f802f825f
+          <strong>COPYRIGHT &copy; 2017 E-discovery Comps Group</strong>
           <br>
           <a href="https://github.com/xxf1995/comps_ediscovery"><strong>About this Project</strong></a>
 		  <p>&emsp;</p>
