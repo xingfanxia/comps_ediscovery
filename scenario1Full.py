@@ -1,6 +1,7 @@
 import email_filter
 import CompsTFIDF
 import CompsLSA
+import CompsML
 import numpy as np
 import pandas as pd
 
@@ -66,13 +67,9 @@ def discoverEnron(sceaniroNum):
     np.save("train_tfidf_1.npy", tfidf_train_matrix)
     print("Train TFIDF Matrix Done")
 
-    # tfidf_df_db = CompsTFIDF.tfidf_to_df(tfidf_train_matrix, tfidf_train_vectorizer, email_clean_train["ID"])
-
-
     #Test Data cleaned and TFIDF build
     email_clean_test = cleanData("test.csv")
     print("Test Emails Cleaned")
-    print(email_clean_test.shape)
     email_tfidf_test = testTFIDF(tfidf_train_vectorizer, email_clean_test,scenarioNum)
     np.save("test_tfidf_1.npy", email_tfidf_test)
     print("Test TFIDF Matrix Done")
