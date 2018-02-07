@@ -65,12 +65,12 @@ def discoverEnron(sceaniroNum):
     print("Train TFIDF Matrix Done")
 
     #TFIDF Run for Test data
-    email_tfidf_test = testTFIDF(tfidf_train_vectorizer, email_clean_test,scenarioNum)
-    np.save("test_tfidf_1.npy", email_tfidf_test)
+    tfidf_test_matrix = testTFIDF(tfidf_train_vectorizer, email_clean_test,scenarioNum)
+    np.save("test_tfidf_1.npy", tfidf_test_matrix)
     print("Test TFIDF Matrix Done")
 
     #LSA build for train emails
-    CompsLSA.build_LSA_train_test(email_tfidf_test, tfidf_train_matrix)
+    CompsLSA.build_LSA_train_test(tfidf_test_matrix, tfidf_train_matrix)
     print("Train/Test LSA Complete")
 
     #Split Email Data based on inputted scenario
