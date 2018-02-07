@@ -51,16 +51,20 @@ def testTFIDF(vectorize, df, scenarioNum):
 
 
 def discoverEnron(sceaniroNum):
-    #Train data cleaned and TFIDF Run
+    #Train data cleaned
     email_clean_train = cleanData("./data/parsed/training.csv")
     print("Train Emails Cleaned")
+    
+    #Test data cleaned
+    email_clean_test = cleanData("./data/parsed/test.csv")
+    print("Test Emails Cleaned")
+    
+    #TFIDF Run for Train data
     tfidf_train_vectorizer, tfidf_train_matrix = tfidfData(email_clean_train, scenarioNum)
     np.save("train_tfidf_1.npy", tfidf_train_matrix)
     print("Train TFIDF Matrix Done")
 
-    #Test Data cleaned and TFIDF build
-    email_clean_test = cleanData("./data/parsed/test.csv")
-    print("Test Emails Cleaned")
+    #TFIDF Run for Test data
     email_tfidf_test = testTFIDF(tfidf_train_vectorizer, email_clean_test,scenarioNum)
     np.save("test_tfidf_1.npy", email_tfidf_test)
     print("Test TFIDF Matrix Done")
@@ -83,6 +87,7 @@ def discoverEnron(sceaniroNum):
     #Combine LSA and Email Data (TRAIN)
     full_train_df = CompsML.setup_dataframe('lsa_output_train_Feb8.npy', train_email_full)
     print("Train LSA/DF built")
+    
     #Combine LSA and Email Data (TEST)
     full_test_df = CompsML.setup_dataframe('lsa_output_test_Feb8.npy', test_email_full)
     print("Test LSA/DF built")
