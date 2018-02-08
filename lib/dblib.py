@@ -115,9 +115,23 @@ class Database():
                                                             self.emails.c.Subject.contains(Subject),
                                                             self.emails.c.Relevant != ('1'),
                                                             self.emails.c.Relevant != ('0'),
-                                                            #Message-Contents, CHANGE NAME
+                                                            self.emails.c.Message_Contents.contains(Message_Contents),
                                                             self.emails.c.ID.contains(ID))).all()
         return [r._asdict() for r in res]
 
     def query(self, dictionary):
         return self.query_helper(**dictionary)
+
+    def reset_new_tag(self):
+        stmt = self.emails.update().\
+            where(self.emails.c.New_Tag=='1').\
+            values(New_Tag='0')
+        self.session.execute(stmt)
+        self.session.commit()
+
+    def reset_relevant(self):
+        stmt = self.emails.update().\
+            where(self.emails.c.Relevant != '-1').\
+            values(Relevant='-1')
+        self.session.execute(stmt)
+        self.session.commit()

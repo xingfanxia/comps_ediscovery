@@ -44,6 +44,18 @@ dict_dump = {
   "to": 5
 }
 
+@app.route("/reset")
+def reset():
+    try:
+        db.reset_relevant()
+        response = {
+            'status_code': 200
+        }
+    except:
+        response = {
+            'status_code': 500
+        }
+
 @app.route('/feedback',methods=['GET','POST'])
 def log_feedback():
     feedback = request.get_json()
@@ -94,7 +106,7 @@ def enron():
     else:
         data = saved_data
 
-    data = sorted(data, key=lambda k: k['Relevant'], reverse=True) 
+    data = sorted(data, key=lambda k: k['Relevant'], reverse=True)
 
     final_len = dict_dump_copy['from'] + int(dict_dump_copy['per_page']) - 1
     if final_len > len(data):
@@ -114,7 +126,7 @@ def dbtest():
     lsa_df = pd.DataFrame(lsa_np)
 
     metadata = db.df_from_table('emails')
-    metadata = metadata.loc[metadata['Scenario'] == '401']
+    metadata = metadata.loc[metadata['Scenario'] == scenario]
     metadata = metadata.reset_index(drop=True)
 
     df = pd.concat([metadata, lsa_df], axis=1, join_axes=[metadata.index])
@@ -123,13 +135,13 @@ def dbtest():
     features = list(range(100))
     features.extend(cat_features + ['Date'])
 
-    df = df[features + ['Label'] + ['Relevant'] + ['ID']]
+    df = df[features + ['Label'] + ['Relevant'] + ['ID'] + ['New_Tag']]
 
     if rnf == None:
         train_df = df.loc[df['Relevant'] != '-1']
         train_df = train_df.reset_index(drop=True)
         print (train_df.head())
-        test_df = df.loc[df['Relevant'] == '-1'][:100]
+        test_df = df.loc[df['Relevant'] == '-1']
         test_df = test_df.reset_index(drop=True)
         print (test_df.head())
         n_trees = 64
@@ -161,6 +173,30 @@ def dbtest():
                 'status_code': 500,
                 'message': "ERROR!\nIncremental training failed!"
             }
+    else:
+        try:
+            update_df = df.loc[df['New_Tag'] == '1']
+            rnf.update(update_df)
+            rnf.predict()
+            result = db.reset_new_tag()
+            probas = result[0]
+            ids = result[2]
+
+            for i, email in enumerate(ids):
+                db.set_relevancy(email, scenario, probas[i][0])
+            saved_payload = None
+
+            response = {
+                'status_code': 200,
+                'message': "SUCCESS!\nIncremental training finished without trouble!"
+            }
+        except:
+            response = {
+                'status_code': 500,
+                'message': "ERROR!\nIncremental training failed!"
+            }
+
+
     return jsonify(response)
 
 app.run(port=5000, debug=True)

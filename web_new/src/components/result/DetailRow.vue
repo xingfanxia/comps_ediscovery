@@ -3,7 +3,7 @@
     <div class="inline field" id="msgCon">
       <label>Email Content:</label>
       <hr>
-      <pre>{{rowData['Message-Contents']}}</pre>
+      <pre>{{rowData['Message_Contents']}}</pre>
     </div>
   </div>
 </template>
@@ -32,6 +32,14 @@ export default {
 </script>
 
 <style scoped>
+
+pre {
+ white-space: pre-wrap;       /* css-3 */
+ white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
+ white-space: -pre-wrap;      /* Opera 4-6 */
+ white-space: -o-pre-wrap;    /* Opera 7 */
+ word-wrap: break-word;       /* Internet Explorer 5.5+ */
+}
 
 #msgCon {
   border: 1px solid #ccc;

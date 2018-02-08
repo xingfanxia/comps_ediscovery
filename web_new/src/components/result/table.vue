@@ -7,7 +7,6 @@
     pagination-path=""
     detail-row-component="my-detail-row"
     track-by="ID"
-    detail-row-transition="animate"
     @vuetable:cell-clicked="onCellClicked"
     @vuetable:pagination-data="onPaginationData"
     ></vuetable>
@@ -66,10 +65,14 @@ export default {
     onCellClicked (data, field, event) {
       console.log('cellClicked: ', field.name)
       this.$refs.vuetable.toggleDetailRow(data.ID)
-      if (this.lastCell !== '') {
+      if (this.lastCell === data.ID){
+        this.lastCell = ''
+      } else if (this.lastCell !== '') {
         this.$refs.vuetable.toggleDetailRow(this.lastCell)
+        this.lastCell = data.ID
+      } else {
+        this.lastCell = data.ID
       }
-      this.lastCell = data.ID
     }
   }
 }
