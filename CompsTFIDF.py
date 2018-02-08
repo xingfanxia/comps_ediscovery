@@ -1,5 +1,6 @@
 import numpy as np
 import pandas as pd
+from lib import dblib
 from sklearn.feature_extraction import text
 from sklearn.feature_extraction.text import TfidfVectorizer
 stop_Words = text.ENGLISH_STOP_WORDS
@@ -41,4 +42,6 @@ Dataframe for intelligent searching
 def tfidf_to_df(tf_matrix, tf_vectorizer, email_id):
     newDF = pd.DataFrame(tf_matrix, columns = tf_vectorizer.get_feature_names())
     newDF["ID"] = pd.Series(email_id)
+    db =  dblib.Database()
+    db.df_to_table(newDF, "TFIDF_Matrix")
     return newDF
