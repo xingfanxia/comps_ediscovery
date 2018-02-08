@@ -5,9 +5,11 @@ import CompsML
 import numpy as np
 import pandas as pd
 
-#Input: data path as string of data in csv form
-#Ouput: pandas dataframe of cleaned data
-#Input data will be filterd for TFIDF and LSA. A pickled version of the  data  will be saved
+'''
+Input: data path as string of data in csv form
+Ouput: pandas dataframe of cleaned data
+Input data will be filterd for TFIDF and LSA. A pickled version of the  data  will be saved
+'''
 def cleanData(datapath):
     df = pd.read_csv(datapath, dtype=str)
 
@@ -17,9 +19,11 @@ def cleanData(datapath):
     return email_filtered
 
 
-#Input: pandas data frame of cleaned data
-#Ouput: list of feature names in [0] and tfidf matrix in [1]
-#Create tfidf matrix from cleaned train data. Save copy of matrix as well
+'''
+Input: pandas data frame of cleaned data
+Ouput: list of feature names in [0] and tfidf matrix in [1]
+Create tfidf matrix from cleaned train data. Save copy of matrix as well
+'''
 def tfidfData(emaildf, scenarioNum):
     if scenarioNum == 1:
         scenario_1 = pd.DataFrame(emaildf[0::3])
@@ -35,9 +39,11 @@ def tfidfData(emaildf, scenarioNum):
     return vectorizer, scenario_1_tfidf
 
 
-#Input: Training set TFIDFVectorizer (tfidfData[0] output), pandas data frame of cleaned test data
-#Output: tfidf matrix of test data
-#Create tfidf matrix from cleaned test data using train tfidf vectorizer. Save copy of matrix as well
+'''
+Input: Training set TFIDFVectorizer (tfidfData[0] output), pandas data frame of cleaned test data
+Output: tfidf matrix of test data
+Create tfidf matrix from cleaned test data using train tfidf vectorizer. Save copy of matrix as well
+'''
 def testTFIDF(vectorize, df, scenarioNum):
     if scenarioNum == 1:
         scenario_1_test = pd.DataFrame(df[0::3])
@@ -49,16 +55,20 @@ def testTFIDF(vectorize, df, scenarioNum):
     np.save('test_scenario_1_tfidf.npy', matrix_test)
     return matrix_test
 
-
+'''
+Input: Scenario number
+Output: TF-IDF matrix, LSA matrix, trained tree
+Main function
+'''
 def discoverEnron(sceaniroNum):
     #Train data cleaned
     email_clean_train = cleanData("./data/parsed/training.csv")
     print("Train Emails Cleaned")
-    
+
     #Test data cleaned
     email_clean_test = cleanData("./data/parsed/test.csv")
     print("Test Emails Cleaned")
-    
+
     #TFIDF Run for Train data
     tfidf_train_vectorizer, tfidf_train_matrix = tfidfData(email_clean_train, scenarioNum)
     np.save("train_tfidf_1.npy", tfidf_train_matrix)
@@ -87,7 +97,7 @@ def discoverEnron(sceaniroNum):
     #Combine LSA and Email Data (TRAIN)
     full_train_df = CompsML.setup_dataframe('lsa_output_train_Feb8.npy', train_email_full)
     print("Train LSA/DF built")
-    
+
     #Combine LSA and Email Data (TEST)
     full_test_df = CompsML.setup_dataframe('lsa_output_test_Feb8.npy', test_email_full)
     print("Test LSA/DF built")

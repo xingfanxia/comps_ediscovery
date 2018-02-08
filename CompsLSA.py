@@ -18,9 +18,12 @@ def build_LSA_Matrix(tfMatrix):
 def build_LSA_train_test(vectorized_test, vectorized_train):
     svd = TruncatedSVD(n_components = 100, algorithm='randomized')
     svd_one = svd.fit(vectorized_train)
+    # Checking which svd components are correct, will fix after
+    # the next run of the pipline
     lsa_one = svd_one.transform(vectorized_train)
+    np.save('svd_LSA_train.npy', svd_one.components_)
     lsa_two = svd_one.transform(vectorized_test)
-    np.save('svd_LSA_train_test.npy', svd_one)
+    np.save('svd_LSA_test.npy', svd_one.components_)
     np.save('lsa_output_train_Feb8.npy', lsa_one)
     np.save('lsa_output_test_Feb8.npy', lsa_two)
     print("LSA files saved")
