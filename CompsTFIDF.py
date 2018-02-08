@@ -1,12 +1,15 @@
 import numpy as np
 import pandas as pd
+from lib import dblib
 from sklearn.feature_extraction import text
 from sklearn.feature_extraction.text import TfidfVectorizer
 stop_Words = text.ENGLISH_STOP_WORDS
 
-#Input: Cleaned pandas dataframe of emails
-#Ouput: [0] vectorizer used to build matrix, [1] tfidf matrix of data
-#Build TFIDF matrix on given pandas data frame of cleaned emails
+'''
+Input: Cleaned pandas dataframe of emails
+Ouput: [0] vectorizer used to build matrix, [1] tfidf matrix of data
+Build TFIDF matrix on given pandas data frame of cleaned emails
+'''
 def build_TFIDF_Matrix(df):
     vectorizer = TfidfVectorizer(stop_words = stop_Words, min_df = .0005)
     vectorized = vectorizer.fit_transform(df["Message-Contents"])
@@ -21,19 +24,24 @@ def build_TFIDF_Matrix(df):
     vectorized = vectorizer.fit_transform(df["Message-Contents"])
     return vectorizer, vectorized
 
-
-#Input: TFIDF vectorizer, Cleaned pandas dataframe of emails
-#Ouput: tfidf matrix of data
-#Build TFIDF matrix on given pandas data frame of cleaned emails with inputted tfidf vectorizer
+'''
+Input: TFIDF vectorizer, Cleaned pandas dataframe of emails
+Ouput: tfidf matrix of data
+Build TFIDF matrix on given pandas data frame of cleaned emails with inputted tfidf vectorizer
+'''
 def build_test_tfidf(vectorize, df):
     test_matrix = vectorize.transform(df["Message-Contents"])
     return test_matrix
 
 
-#Input: tf_matrix = tfidf matrix, tf_vectorizer = TFIDF vectorizer, email_id = id's of all emails
-#Ouput: pandas dataframe with columns being ID and all the feature names and then rows being the tfidf values
-#Dataframe for intelligent searching
+'''
+Input: tf_matrix = tfidf matrix, tf_vectorizer = TFIDF vectorizer, email_id = id's of all emails
+Ouput: pandas dataframe with columns being ID and all the feature names and then rows being the tfidf values
+Dataframe for intelligent searching
+'''
 def tfidf_to_df(tf_matrix, tf_vectorizer, email_id):
     newDF = pd.DataFrame(tf_matrix, columns = tf_vectorizer.get_feature_names())
     newDF["ID"] = pd.Series(email_id)
+    db =  dblib.Database()
+    db.df_to_table(newDF, "TFIDF_Matrix")
     return newDF

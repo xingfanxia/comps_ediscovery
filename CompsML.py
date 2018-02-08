@@ -4,9 +4,11 @@ from lib import *
 import pandas as pd
 import numpy as np
 
-#Input: lsa_output_datapath = datapath .npy saved LSA matrix, email_clean = dataframe containing cleaned email data
-#Ouput: dataframe contaning LSA values and email data
-#Combine LSA matrix and email data
+'''
+Input: lsa_output_datapath = datapath .npy saved LSA matrix, email_clean = dataframe containing cleaned email data
+Ouput: dataframe contaning LSA values and email data
+Combine LSA matrix and email data
+'''
 def setup_dataframe(lsa_output_datapath, email_clean, scenarioNum):
     lsa_np = np.load(lsa_output_datapath)
     lsa_df = pd.DataFrame(lsa_np)
@@ -26,9 +28,11 @@ def setup_dataframe(lsa_output_datapath, email_clean, scenarioNum):
     return full_df
 
 
-#Input: full_dataframe =  output from setup_dataframe()
-#Output: None
-#Use full dataframe to train tree and save it.
+'''
+Input: full_dataframe =  output from setup_dataframe()
+Output: None
+Use full dataframe to train tree and save it.
+'''
 def train_tree(full_dataframe):
     n_trees = 64
     tree_depth = 10
