@@ -8,8 +8,8 @@
           <strong>COPYRIGHT &copy; 2017 E-discovery Comps Group</strong>
           <br>
           <a href="https://github.com/xxf1995/comps_ediscovery"><strong>About this Project</strong></a>
-		  <p>&emsp;</p>
-		  <a href="https://github.com"><strong>About Us</strong></a>
+          &emsp;
+          <a href="https://github.com"><strong>About Us</strong></a>
         </p>
       </div>
     </div>

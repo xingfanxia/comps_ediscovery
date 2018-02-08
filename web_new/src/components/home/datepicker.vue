@@ -5,7 +5,7 @@
 </template>
 
 <script>
-import Datepicker from 'vuejs-datepicker'
+// import Datepicker from 'vuejs-datepicker'
 
 const state = {
   date1: new Date()
@@ -34,7 +34,6 @@ export default {
       eventMsg: null,
       state: state,
       language: 'en',
-      languages: DateLanguages.translations,
       vModelExample: null
     }
   },

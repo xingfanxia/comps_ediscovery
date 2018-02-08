@@ -3,8 +3,8 @@
   <section class="section" id="home-section">
     <div class="container">
       <h1 class="title has-text-centered"><span>Explore</span></h1>
-	  <h1 class="title has-text-centered">the Enron Dataset</h1>
-	  <date-picker></date-picker>
+      <h1 class="title has-text-centered">the Enron Dataset</h1>
+      <date-picker></date-picker>
       <search-bar></search-bar>
     </div>
 
@@ -12,7 +12,7 @@
       <div class="columns">
         <div class="column is-6-desktop is-offset-3-desktop is-10-tablet is-offset-1-tablet is-10-mobile is-offset-1-mobile">
           <p>Example Query 1</p>
-		  <p><i>Returns all emails with sender email address containing "Monika"</i></p>
+          <p><i>Returns all emails with sender email address containing "Monika"</i></p>
           <pre><code class="bash">/To:'Monika'</code></pre>
 
           <p>Example Query 2</p>
@@ -33,7 +33,7 @@ export default {
 
   components: {
     'search-bar': SearchBar,
-	'date-picker': Datepicker
+    'date-picker': Datepicker
   }
 
 }

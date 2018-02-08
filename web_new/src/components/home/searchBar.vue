@@ -1,5 +1,4 @@
 <template>
-
   <div class="field is-grouped" id="home-searchbar">
     <select v-model="selected">
       <option v-for="(option, index) in options" :value="option.value" :key='index'>
@@ -7,13 +6,13 @@
       </option>
     </select>
     <p class="control is-expanded">
+      <!-- <input class="input" type="text" v-model="inputText" v-on:keyup="checkEnter"> -->
       <input class="input" type="text" v-model="inputText">
     </p>
     <p class="control">
       <a class="button is-info" :href="formatSearchUrl(inputText)" target="_blank">Search</a>
     </p>
   </div>
-
 </template>
 
 <script>
@@ -52,6 +51,12 @@ export default {
         return '/result?' + $.param(dict)
       }
     }
+    // checkEnter: function (e, inputText) {
+    //   if (e.keyCode === 13) {
+    //     alert('fuck off Vue.js')
+    //     formatSearchUrl(inputText);
+    //  }
+    // }
   },
 
   watch: {
