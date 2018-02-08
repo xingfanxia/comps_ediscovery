@@ -48,7 +48,7 @@ class RNF:
     #TODO: fix this so that the features selected are the actual features, not the indices of the features.
     def random_select(self, train_data):
         selected_rows = np.random.choice(self.train_data.shape[0], self.n_max_input)
-        print(selected_rows)
+#         print(selected_rows)
         selected_feature_indices = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
         selected_features = train_data.columns.values[[selected_feature_indices]]
         selected_features = np.delete(selected_features, np.where(selected_features == "Label"), axis=0)
@@ -157,7 +157,8 @@ class RNF:
                 scores[document_idx].append(tree[document_idx][0])
         probas = [self.some_majority_count_metric(score) for score in scores]
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
-        return probas, classes
+        ids = [doc[1] for doc in trees_outputs[0]]
+        return probas, classes, ids
 
     '''
     returns:
