@@ -102,6 +102,7 @@ class Database():
             df = df.loc[df['Relevant'] == -1]
         return df
 
+
     '''
     Allows user to query multiple fields and get back all relevant emails
     '''
@@ -112,6 +113,8 @@ class Database():
                                                             self.emails.c.From.contains(From),
                                                             self.emails.c.To.contains(To),
                                                             self.emails.c.Subject.contains(Subject),
+                                                            self.emails.c.Relevant != ('1'),
+                                                            self.emails.c.Relevant != ('0'),
                                                             #Message-Contents, CHANGE NAME
                                                             self.emails.c.ID.contains(ID))).all()
         return [r._asdict() for r in res]

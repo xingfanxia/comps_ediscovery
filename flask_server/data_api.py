@@ -6,6 +6,7 @@ import json
 import os, sys
 import pprint
 import re
+import collections
 
 app = Flask(__name__)
 CORS(app)
@@ -93,6 +94,8 @@ def enron():
     else:
         data = saved_data
 
+    data = sorted(data, key=lambda k: k['Relevant'], reverse=True) 
+
     final_len = dict_dump_copy['from'] + int(dict_dump_copy['per_page']) - 1
     if final_len > len(data):
         final_len = len(data)
@@ -106,6 +109,7 @@ def enron():
 def dbtest():
     print("Running Incremental Learning")
     global rnf
+    global saved_payload
     lsa_np = np.load('../data/parsed/lsa_output.npy')
     lsa_df = pd.DataFrame(lsa_np)
 
@@ -139,7 +143,15 @@ def dbtest():
             #train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features):
             rnf = RNF(train_df, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features, user_input=True)
             rnf.fit_parallel()
-            print(rnf.predict(test_df))
+            result = rnf.predict(test_df)
+            probas = result[0]
+            ids = result[2]
+
+            for i, email in enumerate(ids):
+                db.set_relevancy(email, scenario, probas[i][0])
+            saved_payload = None
+                # set_relevancy(self, id, scenario, score)
+
             response = {
                 'status_code': 200,
                 'message': "SUCCESS!\nIncremental training finished without trouble!"
