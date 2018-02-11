@@ -1,6 +1,14 @@
 import os
 import pprint
 
+def append(first, second):
+    to_return = []
+    for item in first:
+        to_return.append(item)
+    for item in second:
+        to_return.append(item)
+    return to_return
+
 directory_in_str = '../data/params/param/'
 directory = os.fsencode(directory_in_str)
 
@@ -67,10 +75,12 @@ pp = pprint.PrettyPrinter()
 #find best f1 score
 score_tuples = []
 for key in param_metrics_dict.keys():
-    score_tuples.append((key, *param_metrics_dict[key]))    
+    score_tuples.append(append([key],tuple(param_metrics_dict[key])))    
 print('Trees,tree_depth,features,precision,recall,accuracy,f1,fit_time')
 for setting in score_tuples:
     # print('{}'.format(setting[0]))    
     # print('precision {}\n recall {}\n accuracy {}\n f1 {}\n fit time {}\n predicttime {}'.format(*setting[1:]))
-    settings = (setting[0].split('.'))
-    print('{},{},{},{},{},{},{},{}'.format(*(*settings, *setting[1:6])))
+    params = (setting[0].split('.'))
+    print('{},{},{},{},{},{},{},{}'.format(params[0], params[1], params[2], setting[1], setting[2],
+                                          setting[3], setting[4], setting[5]))
+    
