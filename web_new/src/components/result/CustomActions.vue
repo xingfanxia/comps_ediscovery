@@ -30,7 +30,7 @@ export default {
 
   methods: {
     feedback: function (rowData, relevant, flag) {
-      var vm = this;
+      var vm = this
 
       if ((flag === 1 && vm.isCActive) || (flag === 0 && vm.isXActive)) {
         alert("Can't select both!")
@@ -56,7 +56,24 @@ export default {
     itemAction: function (rowData, rowIndex) {
       console.log(rowData, rowIndex)
     }
+  },
 
+  watch: {
+    rowData: function (oldVal, newVal) {
+      // console.log(oldVal, newVal)
+      console.log(newVal.Relevant)
+      if ((newVal.Relevant === -1) || (newVal.Relevant < 1 && newVal.Relevant > 0)) {
+        console.log('unmarked')
+        this.isCActive = false
+        this.isXActive = false
+      } else if (newVal.Relevant === 0) {
+        this.isCActive = true
+        this.isXActive = false
+      } else if (newVal.Relevant === 0) {
+        this.isXActive = true
+        this.isCActive = false
+      }
+    }
   }
 }
 </script>

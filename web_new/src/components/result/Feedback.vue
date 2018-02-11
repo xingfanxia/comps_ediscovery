@@ -22,7 +22,7 @@ export default {
           } else {
             console.log(response.data['message'])
             window.location.reload()
-            alert("Incremental Learning Finishes!")
+            alert('Incremental Learning Finishes!')
           }
         })
         .catch(function (error) {

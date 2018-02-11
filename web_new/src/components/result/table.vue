@@ -65,7 +65,7 @@ export default {
     onCellClicked (data, field, event) {
       console.log('cellClicked: ', field.name)
       this.$refs.vuetable.toggleDetailRow(data.ID)
-      if (this.lastCell === data.ID){
+      if (this.lastCell === data.ID) {
         this.lastCell = ''
       } else if (this.lastCell !== '') {
         this.$refs.vuetable.toggleDetailRow(this.lastCell)
