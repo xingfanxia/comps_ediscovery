@@ -4,6 +4,7 @@ import CompsLSA
 import CompsML
 import numpy as np
 import pandas as pd
+import pickle
 
 '''
 Input: data path as string of data in csv form
@@ -60,18 +61,20 @@ Input: Scenario number
 Output: TF-IDF matrix, LSA matrix, trained tree
 Main function
 '''
-def discoverEnron(sceaniroNum):
+def discoverEnron(scenarioNum):
     #Train data cleaned
-    email_clean_train = cleanData("./data/parsed/training.csv")
+    email_clean_train = cleanData("training.csv")
     print("Train Emails Cleaned")
 
     #Test data cleaned
-    email_clean_test = cleanData("./data/parsed/test.csv")
+    email_clean_test = cleanData("test.csv")
     print("Test Emails Cleaned")
 
     #TFIDF Run for Train data
     tfidf_train_vectorizer, tfidf_train_matrix = tfidfData(email_clean_train, scenarioNum)
     np.save("train_tfidf_1.npy", tfidf_train_matrix)
+    with open("feature_names_1.pkl", "wb") as f:
+        pickle.dump(tfidf_train_vectorizer.get_feature_names(), f)
     print("Train TFIDF Matrix Done")
 
     #TFIDF Run for Test data
