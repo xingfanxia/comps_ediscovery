@@ -23,6 +23,12 @@ saved_payload = None
 saved_data = None
 rnf = None
 
+topics = pd.read_pickle('../data/parsed/LSA_dataframes/pickled_LSA_termsFeb12.pickle')
+topic_dict = {}
+topic_arrays = topics.values.tolist()
+for i, row in enumerate(topic_arrays):
+    topic_dict[i] = row
+
 def addone(obj):
      val = int(obj.group(1))
      return str(val+1)
@@ -43,6 +49,20 @@ dict_dump = {
   "from": 1,
   "to": 5
 }
+
+def fake_data():
+    data = {
+        1 : ['the', 'but'],
+        2 : ['a'],
+        3 : ['for'],
+        4 : ['this']
+    }
+    return data
+
+@app.route("/topics")
+def fake_data_endpoint():
+    return flask.jsonify(topic_dict)
+
 
 @app.route("/reset")
 def reset():

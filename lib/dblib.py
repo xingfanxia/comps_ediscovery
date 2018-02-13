@@ -108,15 +108,6 @@ class Database():
     '''
     def query_helper(self, Date='%', From='%', To='%', Subject='%', Message_Contents='%', ID='%'):
         print('here')
-        res = self.session.query(self.emails).filter(and_(self.emails.c.Scenario.contains('401'),
-                                                            self.emails.c.Date.contains(Date),
-                                                            self.emails.c.From.contains(From),
-                                                            self.emails.c.To.contains(To),
-                                                            self.emails.c.Subject.contains(Subject),
-                                                            self.emails.c.Relevant != ('1'),
-                                                            self.emails.c.Relevant != ('0'),
-                                                            self.emails.c.ID.contains(ID))).all()
-
         # res = self.session.query(self.emails).filter(and_(self.emails.c.Scenario.contains('401'),
         #                                                     self.emails.c.Date.contains(Date),
         #                                                     self.emails.c.From.contains(From),
@@ -124,8 +115,17 @@ class Database():
         #                                                     self.emails.c.Subject.contains(Subject),
         #                                                     self.emails.c.Relevant != ('1'),
         #                                                     self.emails.c.Relevant != ('0'),
-        #                                                     self.emails.c.Message_Contents.contains(Message_Contents),
         #                                                     self.emails.c.ID.contains(ID))).all()
+
+        res = self.session.query(self.emails).filter(and_(self.emails.c.Scenario.contains('401'),
+                                                            self.emails.c.Date.contains(Date),
+                                                            self.emails.c.From.contains(From),
+                                                            self.emails.c.To.contains(To),
+                                                            self.emails.c.Subject.contains(Subject),
+                                                            self.emails.c.Relevant != ('1'),
+                                                            self.emails.c.Relevant != ('0'),
+                                                            self.emails.c.Message_Contents.contains(Message_Contents),
+                                                            self.emails.c.ID.contains(ID))).all()
         return [r._asdict() for r in res]
 
     def query(self, dictionary):

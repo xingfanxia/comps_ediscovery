@@ -3,14 +3,40 @@
     <div class="inline field" id="msgCon">
       <label>Email Content:</label>
       <hr>
-      <pre>{{rowData['Message_Contents']}}</pre>
+      <div class="code" v-html="spanMessage"></div>
     </div>
   </div>
 </template>
 
 <script>
 
+import axios from 'axios'
+
 export default {
+
+  data () {
+    return {
+      spanMessage: this.rowData['Message_Contents']
+    }
+  },
+
+  mounted: function () {
+    axios.get("http://127.0.0.1:5000/topics")
+      .then(response => {
+        for (var key in response.data) {
+          // check if the property/key is defined in the object itself, not in parent
+          if (response.data.hasOwnProperty(key)) {
+              var word_list = response.data[key]
+              for (var i in word_list){
+                  var word = word_list[i]
+                  var word_regex = new RegExp('\\b' + word + '\\b', 'gi')
+                  var word_span = "<span class=topic_" + key + " title=\"topic " + key + "\">" + word +"</span>"
+                  this.spanMessage = this.spanMessage.replace(word_regex, word_span)
+              }
+          }
+        }
+      })
+  },
 
   props: {
     rowData: {
@@ -33,12 +59,9 @@ export default {
 
 <style scoped>
 
-pre {
- white-space: pre-wrap;       /* css-3 */
- white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
- white-space: -pre-wrap;      /* Opera 4-6 */
- white-space: -o-pre-wrap;    /* Opera 7 */
- word-wrap: break-word;       /* Internet Explorer 5.5+ */
+.code {
+  font-family: monospace;
+  white-space: pre-wrap;      /* css-3 */
 }
 
 #msgCon {
@@ -46,8 +69,7 @@ pre {
   display: block;
   font-size: 15px;
   padding: 5px;
-  text-transform: uppercase;
-  background-color: #BABABA;
+  /*text-transform: uppercase;*/
   /*color: #abb2c0;*/
 }
 
