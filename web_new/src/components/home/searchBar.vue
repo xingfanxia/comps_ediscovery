@@ -86,6 +86,6 @@ export default {
 }
 
 #searchBar {
-    border-color: #0B5091; 
+    border-color: #0B5091;
 }
 </style>

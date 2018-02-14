@@ -21,18 +21,18 @@ export default {
   },
 
   mounted: function () {
-    axios.get("http://127.0.0.1:5000/topics")
+    axios.get('http://127.0.0.1:5000/topics')
       .then(response => {
         for (var key in response.data) {
           // check if the property/key is defined in the object itself, not in parent
           if (response.data.hasOwnProperty(key)) {
-              var word_list = response.data[key]
-              for (var i in word_list){
-                  var word = word_list[i]
-                  var word_regex = new RegExp('\\b' + word + '\\b', 'gi')
-                  var word_span = "<span class=topic_" + key + " title=\"topic " + key + "\">" + word +"</span>"
-                  this.spanMessage = this.spanMessage.replace(word_regex, word_span)
-              }
+            var wordList = response.data[key]
+            for (var i in wordList) {
+              var word = wordList[i]
+              var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
+              var wordSpan = '<span class=topic_' + key + ' title="topic ' + key + '">' + word + '</span>'
+              this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
+            }
           }
         }
       })

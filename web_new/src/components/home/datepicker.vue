@@ -1,6 +1,7 @@
 <template>
   <div id="home-datepicker">
     <datepicker></datepicker>
+    <datepicker></datepicker>
   </div>
 </template>
 
