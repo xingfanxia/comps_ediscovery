@@ -7,10 +7,10 @@
     </select>
     <p class="control is-expanded">
       <!-- <input class="input" type="text" v-model="inputText" v-on:keyup="checkEnter"> -->
-      <input class="input" type="text" v-model="inputText">
+      <input class="input"  id="searchBar" type="text" v-model="inputText">
     </p>
     <p class="control">
-      <a class="button is-info" :href="formatSearchUrl(inputText)" target="_blank">Search</a>
+      <a class="button is-info" id="searchButton" :href="formatSearchUrl(inputText)" target="_blank">Search</a>
     </p>
   </div>
 </template>
@@ -81,5 +81,11 @@ export default {
 </script>
 
 <style scoped>
+#searchButton {
+    background-color: #0B5091;
+}
 
+#searchBar {
+    border-color: #0B5091; 
+}
 </style>
