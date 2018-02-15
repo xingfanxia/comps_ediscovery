@@ -78,8 +78,12 @@ def reset():
 
 @app.route('/feedback',methods=['GET','POST'])
 def log_feedback():
+    global saved_payload
     feedback = request.get_json()
     print(feedback['ID'], feedback['Relevant'])
+    for item in saved_payload:
+        if item["ID"] == feedback['ID']:
+            item['Relevant'] = feedback['Relevant']
     try:
         db.set_relevancy(feedback['ID'], scenario, feedback['Relevant'])
         response = {

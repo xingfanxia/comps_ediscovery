@@ -16,7 +16,6 @@ export default {
       alert('Incremental learning starts, please wait patiently!')
       axios.get('http://127.0.0.1:5000/dbtest')
         .then(function (response) {
-          // REPOPULATE TABLE HERE YA DIG
           if (response.data['status_code'] === 500) {
             alert(response.data['message'])
           } else {
