@@ -38,6 +38,16 @@ export default {
       })
   },
 
+  updated: function () {
+    axios.get('http://127.0.0.1:5000/pred_meta')
+      .then(response => {
+        for (var key in response.data) {
+          $('#msgCon span').css('background-color', 'red')
+        }
+      })
+    
+  },
+
   props: {
     rowData: {
       type: Object,
@@ -79,7 +89,7 @@ hr {
 }
 
 span {
-  background-color: yellow;
+  color: yellow;
 }
 
 </style>

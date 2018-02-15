@@ -29,12 +29,14 @@ export default {
   },
 
   methods: {
-    feedback: function (rowData, relevant) {
+    feedback: function (rowData, flag) {
       var vm = this
+      var relevant = -1
 
-      if ((relevant === 0 && vm.isCActive) || (relevant === 1 && vm.isXActive)) {
-        alert("Can't select both!")
-        return
+      if (flag === rowData.Relevant) {
+        relevant = -1
+      } else {
+        relevant = flag
       }
 
       axios.post('http://127.0.0.1:5000/feedback', {
@@ -44,12 +46,16 @@ export default {
         .then(function (response) {
           console.log(response.data['message'])
           if (relevant === 1) {
-            vm.isCActive = !vm.isCActive
-            rowData.Relevant = 1
+            vm.isXActive = false
+            vm.isCActive = true
+          } else if (relevant === 0) {
+            vm.isXActive = true
+            vm.isCActive = false
           } else {
-            vm.isXActive = !vm.isXActive
-            rowData.Relevant = 0
+            vm.isXActive = false
+            vm.isCActive = false
           }
+          rowData.Relevant = relevant
         })
         .catch(function (error) {
           console.log(error)
@@ -61,26 +67,28 @@ export default {
   },
 
   watch: {
-    rowData: function (oldVal, newVal) {
-      // console.log(oldVal, newVal)
+    rowData: function (newVal, oldVal) {
+      // console.log(newVal, oldVal)
       console.log(newVal.Relevant)
       var relevancyCheck = parseFloat(newVal.Relevant)
       if ((relevancyCheck === -1) || (relevancyCheck < 1 && relevancyCheck > 0)) {
         console.log('unmarked')
-        // this.isCActive = false
-        // this.isXActive = false
-        $('.check').removeClass('CActive')
-        $('.x').removeClass('XActive')
+        this.isCActive = false
+        this.isXActive = false
+        // $('.check').removeClass('CActive')
+        // $('.x').removeClass('XActive')
       } else if (relevancyCheck === 1) {
-        // this.isCActive = true
-        // this.isXActive = false
-        $('.check').addClass('CActive')
-        $('.x').removeClass('XActive')
+        console.log("checked")
+        this.isCActive = true
+        this.isXActive = false
+        // $('.check').addClass('CActive')
+        // $('.x').removeClass('XActive')
       } else if (relevancyCheck === 0) {
-        // this.isXActive = true
-        // this.isCActive = false
-        $('.check').removeClass('CActive')
-        $('.x').addClass('XActive')
+        console.log("x ed")
+        this.isXActive = true
+        this.isCActive = false
+        // $('.check').removeClass('CActive')
+        // $('.x').addClass('XActive')
       }
       this.$forceUpdate()
     }

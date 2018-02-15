@@ -7,6 +7,7 @@ import os, sys
 import pprint
 import re
 import collections
+import random
 
 app = Flask(__name__)
 CORS(app)
@@ -59,6 +60,14 @@ def fake_data():
     }
     return data
 
+@app.route("/pred_meta")
+def pred_data():
+    data = dict()
+    for i in range(10):
+        data[i] = random.uniform(-1, 1)
+
+    return jsonify(data)
+
 @app.route("/topics")
 def fake_data_endpoint():
     return flask.jsonify(topic_dict)
@@ -78,12 +87,12 @@ def reset():
 
 @app.route('/feedback',methods=['GET','POST'])
 def log_feedback():
-    global saved_payload
+    global saved_data
     feedback = request.get_json()
     print(feedback['ID'], feedback['Relevant'])
-    for item in saved_payload:
+    for item in saved_data:
         if item["ID"] == feedback['ID']:
-            item['Relevant'] = feedback['Relevant']
+            item['Relevant'] = str(feedback['Relevant'])
     try:
         db.set_relevancy(feedback['ID'], scenario, feedback['Relevant'])
         response = {
