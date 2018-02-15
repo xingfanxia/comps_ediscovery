@@ -1,6 +1,7 @@
 <template>
   <div id="home-datepicker">
     <datepicker></datepicker>
+    <datepicker></datepicker>
   </div>
 </template>
 
@@ -16,20 +17,6 @@ export default {
     return {
       format: 'd MMMM yyyy',
       disabled: {},
-      disabledFn: {
-        customPredictor (date) {
-          if (date.getDate() % 3 === 0) {
-            return true
-          }
-        }
-      },
-      highlightedFn: {
-        customPredictor (date) {
-          if (date.getDate() % 4 === 0) {
-            return true
-          }
-        }
-      },
       highlighted: {},
       eventMsg: null,
       state: state,
