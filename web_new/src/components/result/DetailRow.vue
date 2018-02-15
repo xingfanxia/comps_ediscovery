@@ -78,4 +78,8 @@ hr {
   margin-bottom: 0.5rem;
 }
 
+span {
+  background-color: yellow;
+}
+
 </style>

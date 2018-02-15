@@ -82,4 +82,8 @@ export default {
 
 <style scoped>
 
+.is-info {
+  background-color: #0B5091;
+}
+
 </style>
