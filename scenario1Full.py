@@ -87,22 +87,22 @@ def discoverEnron(scenarioNum):
     print("Train/Test LSA Complete")
 
     #Split Email Data based on inputted scenario
-    if scenarioNum == 1:
-        train_email_full = pd.DataFrame(email_clean_train[0::3])
-        test_email_full = pd.DataFrame(email_clean_test[0::3])
-    elif scenarioNum == 2:
-        train_email_full = pd.DataFrame(email_clean_train[1::3])
-        test_email_full = pd.DataFrame(email_clean_test[1::3])
-    else:
-        train_email_full = pd.DataFrame(email_clean_train[2::3])
-        test_email_full = pd.DataFrame(email_clean_test[2::3])
+    # if scenarioNum == 1:
+    #     train_email_full = pd.DataFrame(email_clean_train[0::3])
+    #     test_email_full = pd.DataFrame(email_clean_test[0::3])
+    # elif scenarioNum == 2:
+    #     train_email_full = pd.DataFrame(email_clean_train[1::3])
+    #     test_email_full = pd.DataFrame(email_clean_test[1::3])
+    # else:
+    #     train_email_full = pd.DataFrame(email_clean_train[2::3])
+    #     test_email_full = pd.DataFrame(email_clean_test[2::3])
 
     #Combine LSA and Email Data (TRAIN)
-    full_train_df = CompsML.setup_dataframe('lsa_output_train_Feb8.npy', train_email_full)
+    full_train_df = CompsML.setup_dataframe('lsa_output_train_Feb13.npy', train_email_full)
     print("Train LSA/DF built")
 
     #Combine LSA and Email Data (TEST)
-    full_test_df = CompsML.setup_dataframe('lsa_output_test_Feb8.npy', test_email_full)
+    full_test_df = CompsML.setup_dataframe('lsa_output_test_Feb13.npy', test_email_full)
     print("Test LSA/DF built")
 
     #Train Tree on full_train_df
