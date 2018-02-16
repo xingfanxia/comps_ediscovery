@@ -63,7 +63,7 @@ def fake_data():
 @app.route("/pred_meta")
 def pred_data():
     data = dict()
-    for i in range(10):
+    for i in range(100):
         data[i] = random.uniform(-1, 1)
 
     return jsonify(data)

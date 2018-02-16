@@ -42,10 +42,17 @@ export default {
     axios.get('http://127.0.0.1:5000/pred_meta')
       .then(response => {
         for (var key in response.data) {
-          $('#msgCon span').css('background-color', 'red')
+          if (response.data.hasOwnProperty(key)) {
+            var alpha = response.data[key]
+            console.log(alpha)
+            if (alpha < 0) {
+              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) + ')')
+            } else {
+              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) + ')')
+            }
+          }
         }
       })
-    
   },
 
   props: {
@@ -89,7 +96,7 @@ hr {
 }
 
 span {
-  color: yellow;
+  border-radius: 75%;
 }
 
 </style>
