@@ -25,7 +25,7 @@ scenario = '401'
 saved_payload = None
 saved_data = None
 try:
-    f = open('saved_tree.pickle', 'rb')
+    f = open('saved_forest.pickle', 'rb')
     rnf = pickle.load(f)
     f.close()
 except:
@@ -205,7 +205,7 @@ def dbtest():
         test_df = df.loc[df['Relevant'] == '-1']
         test_df = test_df.reset_index(drop=True)
         print (test_df.head())
-        n_trees = 64
+        n_trees = 32
         tree_depth = 5
         random_seed = 42
         n_max_features = 11
@@ -257,7 +257,7 @@ def dbtest():
                 'message': "ERROR!\nIncremental training failed!"
             }
 
-    f = open('saved_tree.pickle', 'wb')
+    f = open('saved_forest.pickle', 'wb')
     pickle.dump(rnf, f)
     f.close()
     return jsonify(response)
