@@ -8,7 +8,9 @@ import pprint
 import re
 import collections
 import random
-
+'''
+Setup, loading files
+'''
 app = Flask(__name__)
 CORS(app)
 
@@ -22,7 +24,12 @@ db = Database()
 scenario = '401'
 saved_payload = None
 saved_data = None
-rnf = None
+try:
+    f = open('saved_tree.pickle', 'rb')
+    rnf = pickle.load(f)
+    f.close()
+except:
+    rnf = None
 
 topics = pd.read_pickle('../data/parsed/LSA_dataframes/pickled_LSA_termsFeb12.pickle')
 topic_dict = {}
@@ -30,6 +37,9 @@ topic_arrays = topics.values.tolist()
 for i, row in enumerate(topic_arrays):
     topic_dict[i] = row
 
+'''
+Methods used in pagination regexes to get last and next pages
+'''
 def addone(obj):
      val = int(obj.group(1))
      return str(val+1)
@@ -38,28 +48,23 @@ def subone(obj):
     val = int(obj.group(1))
     return str(val-1)
 
-email_key = data[['ID','Date', 'From', 'To', 'Subject']][:15].copy()
-list_dump = email_key.to_dict(orient='records')
+'''
+Model table data that gets populated by enron()
+'''
 dict_dump = {
-  "total": len(list_dump),
-  "per_page": 5,
-  "current_page": 1,
-  "last_page": 14,
+  "total": 0,
+  "per_page": 0,
+  "current_page": 0,
+  "last_page": 0,
   "next_page_url": "http://localhost:5000/enron",
   "prev_page_url": None,
-  "from": 1,
-  "to": 5
+  "from": 0,
+  "to": 0
 }
 
-def fake_data():
-    data = {
-        1 : ['the', 'but'],
-        2 : ['a'],
-        3 : ['for'],
-        4 : ['this']
-    }
-    return data
-
+'''
+endpoint for tree metadata for visualizations
+'''
 @app.route("/pred_meta")
 def pred_data():
     data = dict()
@@ -68,23 +73,40 @@ def pred_data():
 
     return jsonify(data)
 
+'''
+endpoint for topic data for visualizations
+'''
 @app.route("/topics")
 def fake_data_endpoint():
     return flask.jsonify(topic_dict)
 
-
+'''
+reset endpoint to clear database of any user-tagged data
+'''
 @app.route("/reset")
 def reset():
+    global saved_payload
+    global rnf
     try:
         db.reset_relevant()
+        db.reset_new_tag()
+        saved_payload = None
+        rnf = None
+        print('reset!')
         response = {
-            'status_code': 200
+            'status_code': 200,
+            'message' : 'Reset was a success! Please reload your webpage'
         }
     except:
+        print('fail')
         response = {
             'status_code': 500
         }
+    return(jsonify(response))
 
+'''
+endpoint to recieve feedback (user tagged documents) and update database and table json
+'''
 @app.route('/feedback',methods=['GET','POST'])
 def log_feedback():
     global saved_data
@@ -106,6 +128,9 @@ def log_feedback():
         }
     return jsonify(response)
 
+'''
+Endpoint that recieves a query, constructs the datastructure vuetable needs to populate, and returns it
+'''
 @app.route("/enron")
 def enron():
     global saved_data
@@ -150,6 +175,9 @@ def enron():
     dict_dump_copy['last_page'] = int(len(data)/int(dict_dump_copy['per_page'])) + 1
     return jsonify(dict_dump_copy)
 
+'''
+endpoint to call incremental learning which will update the predicted value of the untagged emails
+'''
 @app.route('/dbtest')
 def dbtest():
     print("Running Incremental Learning")
@@ -229,7 +257,9 @@ def dbtest():
                 'message': "ERROR!\nIncremental training failed!"
             }
 
-
+    f = open('saved_tree.pickle', 'wb')
+    pickle.dump(rnf, f)
+    f.close()
     return jsonify(response)
 
 app.run(port=5000, debug=True)
