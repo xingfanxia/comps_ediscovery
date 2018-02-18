@@ -16,7 +16,11 @@ export default {
 
   data () {
     return {
-      spanMessage: this.rowData['Message_Contents']
+      spanMessage: this.rowData['Message_Contents'].replace(/&/g, "&amp;")
+                                                   .replace(/</g, "&lt;")
+                                                   .replace(/>/g, "&gt;")
+                                                   .replace(/"/g, "&quot;")
+                                                   .replace(/'/g, "&#039;")
     }
   },
 
@@ -50,6 +54,7 @@ export default {
             } else {
               $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) + ')')
             }
+            $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
           }
         }
       })
@@ -67,7 +72,12 @@ export default {
 
   methods: {
     onClick (event) {
-      console.log('my-detail-row: on-click', event.target)
+    },
+    showTooltip(key){
+      console.log(key)
+    },
+    hideTooltip(){
+      console.log('yolo')
     }
   }
 }
@@ -93,10 +103,6 @@ export default {
 hr {
   margin-top: 0.1rem;
   margin-bottom: 0.5rem;
-}
-
-span {
-  border-radius: 75%;
 }
 
 </style>
