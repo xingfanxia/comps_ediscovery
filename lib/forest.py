@@ -130,16 +130,16 @@ class RNF:
 
 
 
-    def predict_parallel(self, test_data, visualize=False):
+    def predict_parallel(self, test_data, visualize=False, importance=False):
         pool = multiprocessing.Pool( NUM_CORES )
-        tasks = []
-
-        for tree in self.trees:
-            tasks.append( (test_data, visualize) )
+        # tasks = []
+        #
+        # for tree in self.trees:
+        #     tasks.append( (test_data, visualize) )
 
         results = []
         for i in range(len(self.trees)):
-            results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize)) )
+            results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize, importance)) )
 
         pool.close()
 
@@ -150,14 +150,31 @@ class RNF:
         trees_outputs = r
 
 
-        trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
+        # trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
         scores = [ list() for i in range(len(test_data))]
         for document_idx in range(len(test_data)):
             for tree in trees_outputs:
-                scores[document_idx].append(tree[document_idx][0])
+                scores[document_idx].append(tree[0][document_idx])
         probas = [self.some_majority_count_metric(score) for score in scores]
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
-        ids = [doc[1] for doc in trees_outputs[0]]
+        ids = trees_outputs[0][1]
+
+        if importance:
+            #sum up all of the importances
+            importances = [{} for doc in trees_outputs[0][2]]
+            for doc_idx in range(len(importances)):
+                for tree in trees_outputs:
+                    for feature in tree[2][doc_idx].keys():
+                        try:
+                            importances[doc_idx][feature] += tree[2][doc_idx][feature]
+                        except KeyError:
+                            importances[doc_idx][feature] = tree[2][doc_idx][feature]
+            #divide by num_trees
+            for importance_dict in range(len(importances)):
+                for feature in importances[importance_dict].keys():
+                    importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees)
+            return probas, classes, ids, importances
+
         return probas, classes, ids
 
     '''
