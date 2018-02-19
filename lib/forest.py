@@ -148,12 +148,6 @@ class RNF:
             r.append(result.get())
 
         trees_outputs = r
-
-<<<<<<< HEAD
-=======
-
-        # trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
->>>>>>> ml_master
         scores = [ list() for i in range(len(test_data))]
         for document_idx in range(len(test_data)):
             for tree in trees_outputs:
@@ -165,17 +159,19 @@ class RNF:
         if importance:
             #sum up all of the importances
             importances = [{} for doc in trees_outputs[0][2]]
-            for doc_idx in range(len(importances)):
+            for doc_idx, imp in enumerate(importances):
                 for tree in trees_outputs:
                     for feature in tree[2][doc_idx].keys():
                         try:
-                            importances[doc_idx][feature] += tree[2][doc_idx][feature]
+                            imp[feature] += tree[2][doc_idx][feature]
                         except KeyError:
-                            importances[doc_idx][feature] = tree[2][doc_idx][feature]
+                            imp[feature] = tree[2][doc_idx][feature]
             #divide by num_trees
             for importance_dict in range(len(importances)):
                 for feature in importances[importance_dict].keys():
                     importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees)
+            # print(importances)
+            # print(ids)
             return probas, classes, ids, importances
 
         return probas, classes, ids

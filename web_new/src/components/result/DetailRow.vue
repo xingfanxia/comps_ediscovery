@@ -25,34 +25,33 @@ export default {
   },
 
   mounted: function () {
-    axios.get('http://127.0.0.1:5000/topics')
+    axios.get('http://127.0.0.1:5000/span_data/' + this.rowData['ID'])
       .then(response => {
         for (var key in response.data) {
+          console.log(key)
           // check if the property/key is defined in the object itself, not in parent
           if (response.data.hasOwnProperty(key)) {
-            var wordList = response.data[key]
-            for (var i in wordList) {
-              var word = wordList[i]
+              var word = key
               var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
-              var wordSpan = '<span class=topic_' + key + ' title="topic ' + key + '">' + word + '</span>'
+              var topic = response.data[key][1]
+              var wordSpan = '<span class=topic_' + topic + ' title="topic ' + topic + '">' + word + '</span>'
               this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
             }
           }
-        }
       })
   },
 
   updated: function () {
-    axios.get('http://127.0.0.1:5000/pred_meta')
+    axios.get('http://127.0.0.1:5000/pred_meta/' + this.rowData['ID'])
       .then(response => {
         for (var key in response.data) {
           if (response.data.hasOwnProperty(key)) {
             var alpha = response.data[key]
             console.log(alpha)
             if (alpha < 0) {
-              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) + ')')
+              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha * 10) + ')')
             } else {
-              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) + ')')
+              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha * 10) + ')')
             }
             $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
           }

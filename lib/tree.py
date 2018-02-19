@@ -215,13 +215,15 @@ class Tree:
     '''
     def _get_feature_importance(self, node_path, lefts):
         features = {}
+        # print(node_path)
         for before_split_ind in range(len(node_path) - 1):
             before = node_path[before_split_ind]
             after = node_path[before_split_ind + 1]
             before_prop = before.get_proportions('1')
             after_prop = after.get_proportions('1')
             high_low = "_low" if lefts[before_split_ind] else "_high"
-            features[str(before.min_feature) + high_low] = after_prop - before_prop
+            # features[str(before.min_feature) + high_low] = after_prop - before_prop
+            features[str(before.min_feature)] = after_prop - before_prop
         return features
 
     '''

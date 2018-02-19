@@ -8,6 +8,8 @@ import pprint
 import re
 import collections
 import random
+import pickle
+import time
 '''
 Setup, loading files
 '''
@@ -37,6 +39,10 @@ topic_arrays = topics.values.tolist()
 for i, row in enumerate(topic_arrays):
     topic_dict[i] = row
 
+imp_data = dict()
+for i in range(100):
+    data[i] = 0
+
 '''
 Methods used in pagination regexes to get last and next pages
 '''
@@ -65,13 +71,9 @@ dict_dump = {
 '''
 endpoint for tree metadata for visualizations
 '''
-@app.route("/pred_meta")
-def pred_data():
-    data = dict()
-    for i in range(100):
-        data[i] = random.uniform(-1, 1)
-
-    return jsonify(data)
+@app.route("/pred_meta/<identifier>")
+def pred_data(identifier):
+    return jsonify(imp_data[identifier])
 
 '''
 endpoint for topic data for visualizations
@@ -79,6 +81,23 @@ endpoint for topic data for visualizations
 @app.route("/topics")
 def fake_data_endpoint():
     return flask.jsonify(topic_dict)
+
+@app.route("/span_data/<identifier>")
+def span_data(identifier):
+    print(topic_dict)
+    word_dict = {}
+    relevant_topics = imp_data[identifier]
+    for key, value in relevant_topics.items():
+        for word in topic_dict[int(key)]:
+            try:
+                word_dict[word].append((value,key))
+            except KeyError:
+                word_dict[word] = [(value,key)]
+    for key, value in word_dict.items():
+        word_dict[key] = max(value, key=lambda item:abs(item[0]))
+
+    return(jsonify(word_dict))
+
 
 '''
 reset endpoint to clear database of any user-tagged data
@@ -180,6 +199,8 @@ endpoint to call incremental learning which will update the predicted value of t
 '''
 @app.route('/dbtest')
 def dbtest():
+    start = time.time()
+    global imp_data
     print("Running Incremental Learning")
     global rnf
     global saved_payload
@@ -198,7 +219,9 @@ def dbtest():
 
     df = df[features + ['Label'] + ['Relevant'] + ['ID'] + ['New_Tag']]
 
+    print('making rnf')
     if rnf == None:
+        print('there is none')
         train_df = df.loc[df['Relevant'] != '-1']
         train_df = train_df.reset_index(drop=True)
         print (train_df.head())
@@ -211,14 +234,27 @@ def dbtest():
         n_max_features = 11
         n_max_input = 300
         benchmark = None
+        # n_trees = 5
+        # tree_depth = 5
+        # random_seed = 42
+        # n_max_features = 3
+        # n_max_input = 300
+        # benchmark = None
+
 
         try:
             #train_data, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features):
             rnf = RNF(train_df, n_trees, tree_depth, random_seed, n_max_features, n_max_input, cat_features, user_input=True)
             rnf.fit_parallel()
-            result = rnf.predict(test_df)
+            print('fit done')
+            result = rnf.predict_parallel(test_df, importance=True)
+            print('predict done')
             probas = result[0]
             ids = result[2]
+            temp = result[3]
+            imp_data = dict()
+            for i, identifier in enumerate(ids):
+                imp_data[identifier] = temp[i]
 
             for i, email in enumerate(ids):
                 db.set_relevancy(email, scenario, probas[i][0])
@@ -242,6 +278,11 @@ def dbtest():
             result = db.reset_new_tag()
             probas = result[0]
             ids = result[2]
+            temp = result[3]
+            imp_data = dict()
+            for i, identifier in enumerate(ids):
+                imp_data[identifier] = temp[i]
+
 
             for i, email in enumerate(ids):
                 db.set_relevancy(email, scenario, probas[i][0])
@@ -256,10 +297,12 @@ def dbtest():
                 'status_code': 500,
                 'message': "ERROR!\nIncremental training failed!"
             }
-
-    f = open('saved_forest.pickle', 'wb')
-    pickle.dump(rnf, f)
-    f.close()
+    end = time.time()
+    # f = open('saved_forest.pickle', 'wb')
+    # pickle.dump(rnf, f)
+    # f.close()
+    print("DONE")
+    print(end - start)
     return jsonify(response)
 
 app.run(port=5000, debug=True)
