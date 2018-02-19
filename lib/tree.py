@@ -393,10 +393,12 @@ class Tree:
         # rows in the complement:
         cases = self.data.loc[list(complement)]
         predictions = self.predict(cases)
-        for p in predictions:
+        for p in range(len(predictions[0])):
+            p_id = predictions[1][p]
+            p_pred = predictions[0][p]
             # input row for this prediction
-            r = self.data.loc[self.data['ID'] == p[1]]
-            if p[0][0] > p[0][1]: # system said it was relevant
+            r = self.data.loc[self.data['ID'] == p_id]
+            if p_pred[0] > p_pred[1]: # system said it was relevant
                 num_incorrect += 1 if r['Label'].values[0] == '0' else 0
             else: # system said it was irrelevant
                 num_incorrect += 1 if r['Label'].values[0] == '1' else 0
