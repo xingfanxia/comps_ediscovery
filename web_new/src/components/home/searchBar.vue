@@ -1,5 +1,6 @@
 <template>
   <div class="field is-grouped" id="home-searchbar">
+
     <select v-model="selected">
       <option v-for="(option, index) in options" :value="option.value" :key='index'>
         {{ option.text }}
@@ -7,11 +8,18 @@
     </select>
     <p class="control is-expanded">
       <!-- <input class="input" type="text" v-model="inputText" v-on:keyup="checkEnter"> -->
-      <input type="text" class="input"  id="searchBar" v-model="inputText">
+      <input type="text" class="input"  id="searchBar" v-model="inputText" >
     </p>
     <p class="control">
       <a class="button is-info" id="searchButton" :href="formatSearchUrl(inputText)" target="_blank">Search</a>
     </p>
+    <br />
+    <div id="the-buttons">
+      <button id="queryButtons" type="button" class="btn-sm" v-for="(option, index) in options" @:click="addField()" value="option.value">
+        {{ option.text }}
+      </button>
+
+    </div>
   </div>
 </template>
 
@@ -51,6 +59,13 @@ export default {
         console.log(dict)
         return '/result?' + $.param(dict)
       }
+    },
+    addField: function () {
+        document.getElementById('searchBar').value='what'
+        alert("wtf hat")
+    },
+    whyVue: function () {
+      formatSearchUrl(inputText)
     }
     // checkEnter: function (e, inputText) {
     //   if (e.keyCode === 13) {
@@ -90,6 +105,11 @@ export default {
 </script>
 
 <style scoped>
+
+#queryButtons {
+    border-color: #0B5091;
+    margin: 3px;
+}
 
 #searchButton {
     background-color: #0B5091;
