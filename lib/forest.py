@@ -149,8 +149,6 @@ class RNF:
 
         trees_outputs = r
 
-
-        trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
         scores = [ list() for i in range(len(test_data))]
         for document_idx in range(len(test_data)):
             for tree in trees_outputs:
