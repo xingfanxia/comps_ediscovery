@@ -84,15 +84,17 @@ def fake_data_endpoint():
 
 @app.route("/span_data/<identifier>")
 def span_data(identifier):
-    print(topic_dict)
     word_dict = {}
     relevant_topics = imp_data[identifier]
     for key, value in relevant_topics.items():
-        for word in topic_dict[int(key)]:
-            try:
-                word_dict[word].append((value,key))
-            except KeyError:
-                word_dict[word] = [(value,key)]
+        if key == 'Date':
+            print('skipping date')
+        else:
+            for word in topic_dict[int(key)]:
+                try:
+                    word_dict[word].append((value,key))
+                except KeyError:
+                    word_dict[word] = [(value,key)]
     for key, value in word_dict.items():
         word_dict[key] = max(value, key=lambda item:abs(item[0]))
 
@@ -222,24 +224,25 @@ def dbtest():
     print('making rnf')
     if rnf == None:
         print('there is none')
-        train_df = df.loc[df['Relevant'] != '-1']
+        train_df = df.loc[df['Relevant'].isin(['0','1'])]
         train_df = train_df.reset_index(drop=True)
         print (train_df.head())
-        test_df = df.loc[df['Relevant'] == '-1']
+        test_df = df.loc[df['Relevant'] != '1']
+        test_df = df.loc[df['Relevant'] != '0']
         test_df = test_df.reset_index(drop=True)
         print (test_df.head())
-        n_trees = 32
-        tree_depth = 5
-        random_seed = 42
-        n_max_features = 11
-        n_max_input = 300
-        benchmark = None
-        # n_trees = 5
+        # n_trees = 32
         # tree_depth = 5
         # random_seed = 42
-        # n_max_features = 3
+        # n_max_features = 11
         # n_max_input = 300
         # benchmark = None
+        n_trees = 5
+        tree_depth = 5
+        random_seed = 42
+        n_max_features = 3
+        n_max_input = 300
+        benchmark = None
 
 
         try:
@@ -256,8 +259,13 @@ def dbtest():
             for i, identifier in enumerate(ids):
                 imp_data[identifier] = temp[i]
 
-            for i, email in enumerate(ids):
-                db.set_relevancy(email, scenario, probas[i][0])
+            # data = db.df_from_table('emails', scenario=scenario)
+            # for i, email in enumerate(ids):
+            #     data.loc[data['ID'] == email, 'Relevant'] = probas[i]
+            # db.df_to_table(data, 'emails')
+
+            # for i, email in enumerate(ids):
+            #     db.set_relevancy(email, scenario, probas[i][0])
             saved_payload = None
                 # set_relevancy(self, id, scenario, score)
 
@@ -265,7 +273,8 @@ def dbtest():
                 'status_code': 200,
                 'message': "SUCCESS!\nIncremental training finished without trouble!"
             }
-        except:
+        except Exception as e:
+            print(e)
             response = {
                 'status_code': 500,
                 'message': "ERROR!\nIncremental training failed!"
@@ -283,9 +292,13 @@ def dbtest():
             for i, identifier in enumerate(ids):
                 imp_data[identifier] = temp[i]
 
+            # data = db.df_from_table('emails', scenario=scenario)
+            # for i, email in enumerate(ids):
+            #     data.loc[data['ID'] == email, 'Relevant'] = probas[i]
+            # db.df_to_table(data, 'emails')
 
-            for i, email in enumerate(ids):
-                db.set_relevancy(email, scenario, probas[i][0])
+            # for i, email in enumerate(ids):
+            #     db.set_relevancy(email, scenario, probas[i][0])
             saved_payload = None
 
             response = {
