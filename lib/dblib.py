@@ -128,9 +128,15 @@ class Database():
                                                             self.emails.c.ID.contains(ID))).all()
         return [r._asdict() for r in res]
 
+    '''
+    calls query helper
+    '''
     def query(self, dictionary):
         return self.query_helper(**dictionary)
 
+    '''
+    resets all of the tags marked to be passed into tree.update()
+    '''
     def reset_new_tag(self):
         stmt = self.emails.update().\
             where(self.emails.c.New_Tag=='1').\
@@ -138,6 +144,9 @@ class Database():
         self.session.execute(stmt)
         self.session.commit()
 
+    '''
+    resets all of the tags marking emails as relevant/not relevant
+    '''
     def reset_relevant(self):
         stmt = self.emails.update().\
             where(self.emails.c.Relevant != '-1').\

@@ -93,13 +93,13 @@ export default {
     }
   },
 
-  created: function() {
-    $("#searchButton").keyup(function(event) {
-      if (event.keyCode === 13) {
-        $("#searchButton").click();
-      }
-    })
-  }
+  // created: function() {
+  //   $("#searchButton").keyup(function(event) {
+  //     if (event.keyCode === 13) {
+  //       $("#searchButton").click();
+  //     }
+  //   })
+  // }
 
 }
 </script>
