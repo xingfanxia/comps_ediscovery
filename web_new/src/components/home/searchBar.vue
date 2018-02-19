@@ -1,17 +1,26 @@
 <template>
-  <div class="field is-grouped" id="home-searchbar">
-    <select v-model="selected">
-      <option v-for="(option, index) in options" :value="option.value" :key='index'>
+  <div>
+     <div class="row" id="homeSearchBar">
+        <div class='col-lg-11'>
+            <p class="control is-expanded">
+              <!-- <input class="input" type="text" v-model="inputText" v-on:keyup="checkEnter"> -->
+              <input type="text" class="input" id="searchBar" v-model="inputText">
+            </p>
+        </div>
+        <div class="col-lg-1">
+          <p class="control">
+            <a class="button is-info" id="searchButton" :href="formatSearchUrl(inputText)" target="_blank">Search</a>
+          </p>
+
+        </div>
+    </div>
+    <div id="the-buttons" class="row">
+      <p><i>Add search fields to your query: </i></p>
+      <button id="queryButtons" type="button" class="btn-sm" v-for="(option, index) in options" @click="addField(option.value)" value="option.value">
         {{ option.text }}
-      </option>
-    </select>
-    <p class="control is-expanded">
-      <!-- <input class="input" type="text" v-model="inputText" v-on:keyup="checkEnter"> -->
-      <input type="text" class="input"  id="searchBar" v-model="inputText">
-    </p>
-    <p class="control">
-      <a class="button is-info" id="searchButton" :href="formatSearchUrl(inputText)" target="_blank">Search</a>
-    </p>
+      </button>
+
+    </div>
   </div>
 </template>
 
@@ -23,12 +32,12 @@ export default {
       inputText: '',
       selected: '',
       options: [
-        {text: 'Date', value: '/Date:\'\''},
-        {text: 'From', value: '/From:\'\''},
-        {text: 'To', value: '/To:\'\''},
-        {text: 'Subject', value: '/Subject:\'\''},
-        {text: 'Message Contents', value: '/Message_Contents:\'\''},
-        {text: 'ID', value: '/ID:\'\''}
+        {text: 'Date', value: '/Date:\'\' '},
+        {text: 'From', value: '/From:\'\' '},
+        {text: 'To', value: '/To:\'\' '},
+        {text: 'Subject', value: '/Subject:\'\' '},
+        {text: 'Message Contents', value: '/Message_Contents:\'\' '},
+        {text: 'ID', value: '/ID:\'\' '}
       ]
     }
   },
@@ -52,12 +61,6 @@ export default {
         return '/result?' + $.param(dict)
       }
     }
-    // checkEnter: function (e, inputText) {
-    //   if (e.keyCode === 13) {
-    //     alert('fuck off Vue.js')
-    //     formatSearchUrl(inputText);
-    //  }
-    // }
   },
 
   watch: {
@@ -78,21 +81,37 @@ export default {
     }
   },
 
-  // created: function() {
-  //   $("#searchButton").keyup(function(event) {
-  //     if (event.keyCode === 13) {
-  //       $("#searchButton").click();
-  //     }
-  //   })
-  // }
+  created: function () {
+    $('#searchButton').keyup(function (event) {
+      if (event.keyCode === 13) {
+        $('#searchButton').click()
+      }
+    })
+  }
 
 }
 </script>
 
 <style scoped>
 
+#homeSearchBar {
+    margin: auto;
+
+}
+
+#queryButtons {
+    border-color: #0B5091;
+}
+
 #searchButton {
+    color: #fff;
     background-color: #0B5091;
+    border-color: #0B5091;
+    border-radius: 4px;
+}
+
+#buttonMain {
+
 }
 
 #searchBar {
