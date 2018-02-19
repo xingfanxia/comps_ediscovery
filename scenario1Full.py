@@ -110,7 +110,7 @@ def discoverEnron(scenarioNum):
     print("Tree Trained")
 
     #Run Evaluation on Test Emails
-    CompsML.test_tree('scenario_full_train.pickle', full_test_df)
+    CompsML.test_tree('scenario_full_train.pickle', full_test_df,user_input=False)
 
 
 discoverEnron(1)

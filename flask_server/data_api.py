@@ -311,9 +311,9 @@ def dbtest():
                 'message': "ERROR!\nIncremental training failed!"
             }
     end = time.time()
-    # f = open('saved_forest.pickle', 'wb')
-    # pickle.dump(rnf, f)
-    # f.close()
+    f = open('../saved_forest.pickle', 'wb')
+    pickle.dump(rnf, f)
+    f.close()
     print("DONE")
     print(end - start)
     return jsonify(response)
