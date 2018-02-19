@@ -10,3 +10,8 @@ __pycache__/
 nachtm_exps/vis/
 .idea/
 **/node_modules/
+kimj4_exps/.ipynb_checkpoints/
+kimj4_exps/param/
+kimj4_exps/vis/
+kimj4_exps/log.txt
+kimj4_exps/results.txt
