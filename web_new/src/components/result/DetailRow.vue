@@ -33,8 +33,14 @@ export default {
             var wordList = response.data[key]
             for (var i in wordList) {
               var word = wordList[i]
+              // var container = document.createElement('div')
               var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
               var wordSpan = '<span class=topic_' + key + ' title="topic ' + key + '">' + word + '</span>'
+              // container.appendChild()
+              // var tooltip = document.createElement('p')
+              // tooltip.setAttribute('id', 'tooltip')
+              // tooltip.value = "This is a tooltip"
+              // container.appendChild(tooltip)
               this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
             }
           }
@@ -42,23 +48,23 @@ export default {
       })
   },
 
-  updated: function () {
-    axios.get('http://127.0.0.1:5000/pred_meta')
-      .then(response => {
-        for (var key in response.data) {
-          if (response.data.hasOwnProperty(key)) {
-            var alpha = response.data[key]
-            console.log(alpha)
-            if (alpha < 0) {
-              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) + ')')
-            } else {
-              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) + ')')
-            }
-            $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
-          }
-        }
-      })
-  },
+  // updated: function () {
+  //   axios.get('http://127.0.0.1:5000/pred_meta')
+  //     .then(response => {
+  //       for (var key in response.data) {
+  //         if (response.data.hasOwnProperty(key)) {
+  //           var alpha = response.data[key]
+  //           console.log(alpha)
+  //           if (alpha < 0) {
+  //             $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) + ')')
+  //           } else {
+  //             $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) + ')')
+  //           }
+  //           $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
+  //         }
+  //       }
+  //     })
+  // },
 
   props: {
     rowData: {
@@ -104,5 +110,8 @@ hr {
   margin-top: 0.1rem;
   margin-bottom: 0.5rem;
 }
+
+
+
 
 </style>
