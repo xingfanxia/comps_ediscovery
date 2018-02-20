@@ -87,7 +87,7 @@ def span_data(identifier):
     word_dict = {}
     relevant_topics = imp_data[identifier]
     for key, value in relevant_topics.items():
-        if key == 'Date':
+        if key == 'Date' or key == 'To' or key == 'From':
             print('skipping date')
         else:
             for word in topic_dict[int(key)]:
