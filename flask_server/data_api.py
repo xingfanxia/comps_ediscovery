@@ -39,9 +39,7 @@ topic_arrays = topics.values.tolist()
 for i, row in enumerate(topic_arrays):
     topic_dict[i] = row
 
-imp_data = dict()
-for i in range(100):
-    data[i] = 0
+imp_data = None
 
 '''
 Methods used in pagination regexes to get last and next pages
@@ -73,7 +71,10 @@ endpoint for tree metadata for visualizations
 '''
 @app.route("/pred_meta/<identifier>")
 def pred_data(identifier):
-    return jsonify(imp_data[identifier])
+    if imp_data:
+        return jsonify(imp_data[identifier])
+    else:
+        return jsonify({})
 
 '''
 endpoint for topic data for visualizations
@@ -85,18 +86,19 @@ def fake_data_endpoint():
 @app.route("/span_data/<identifier>")
 def span_data(identifier):
     word_dict = {}
-    relevant_topics = imp_data[identifier]
-    for key, value in relevant_topics.items():
-        if key == 'Date' or key == 'To' or key == 'From':
-            print('skipping date')
-        else:
-            for word in topic_dict[int(key)]:
-                try:
-                    word_dict[word].append((value,key))
-                except KeyError:
-                    word_dict[word] = [(value,key)]
-    for key, value in word_dict.items():
-        word_dict[key] = max(value, key=lambda item:abs(item[0]))
+    if imp_data:
+        relevant_topics = imp_data[identifier]
+        for key, value in relevant_topics.items():
+            if key == 'Date' or key == 'To' or key == 'From':
+                print('skipping date')
+            else:
+                for word in topic_dict[int(key)]:
+                    try:
+                        word_dict[word].append((value,key))
+                    except KeyError:
+                        word_dict[word] = [(value,key)]
+        for key, value in word_dict.items():
+            word_dict[key] = max(value, key=lambda item:abs(item[0]))
 
     return(jsonify(word_dict))
 
@@ -318,13 +320,15 @@ def dbtest():
             # for i, email in enumerate(ids):
             #     db.set_relevancy(email, scenario, probas[i][0])
 
-            data = db.df_from_table('emails', scenario=scenario)
-            probID = pd.DataFrame({'ID' : ids, 'Relevant' : probas}).sort(columns = ['ID'])
+            data = db.df_from_table('emails', scenario=scenario, time=False)
+            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID'])
+
+            print(probID.head())
 
             mask = data['ID'].isin(ids)
 
-            unchanged = pd.DataFrame(~data.loc[mask])
-            change = pd.DataFrame(data.loc[mask]).sort(columns = ['ID']).drop(columns = ['Relevant'])
+            unchanged = pd.DataFrame(data.loc[~mask])
+            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).drop('Relevant', axis=1)
             change['Relevant'] = probID['Relevant']
 
             data = pd.concat([unchanged,change])
