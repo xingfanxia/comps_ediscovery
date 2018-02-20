@@ -15,7 +15,7 @@
         </div>
     </div>
     <div id="the-buttons" class="row center">
-      <button id="queryButtons" type="button" class="btn-sm" v-for="(option, index) in options" @click="addField(option.value)" value="option.value">
+      <button id="queryButtons" type="button" class="btn-sm" v-for="option in options" @click="addField(option.value)" value="option.value">
         {{ option.text }}
       </button>
 
@@ -61,28 +61,13 @@ export default {
       }
     },
     addField: function (newVal) {
-        document.getElementById('searchBar').value += newVal
-    }
-  },
-
-  watch: {
-    selected (newValue) {
-      if (this.inputText.length === 0) {
-        if (this.inputText.indexOf(this.selected) === -1) {
-          this.inputText = this.inputText + this.selected
-        } else {
-          alert('this field has already added')
-        }
+      if (document.getElementById('searchBar').value !== 0 && document.getElementById('searchBar').value.indexOf(newVal) !== -1) {
+        alert('This field has already added')
       } else {
-        if (this.inputText.indexOf(this.selected) === -1) {
-          this.inputText = this.inputText + ' ' + this.selected
-        } else {
-          alert('this field has already added')
-        }
+        document.getElementById('searchBar').value += newVal
       }
     }
   },
-
   created: function () {
     $('#searchButton').keyup(function (event) {
       if (event.keyCode === 13) {
