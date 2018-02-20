@@ -231,18 +231,18 @@ def dbtest():
         test_df = df.loc[df['Relevant'] != '0']
         test_df = test_df.reset_index(drop=True)
         print (test_df.head())
-        # n_trees = 32
-        # tree_depth = 5
-        # random_seed = 42
-        # n_max_features = 11
-        # n_max_input = 300
-        # benchmark = None
-        n_trees = 5
+        n_trees = 32
         tree_depth = 5
         random_seed = 42
-        n_max_features = 3
+        n_max_features = 11
         n_max_input = 300
         benchmark = None
+        # n_trees = 5
+        # tree_depth = 5
+        # random_seed = 42
+        # n_max_features = 3
+        # n_max_input = 300
+        # benchmark = None
 
 
         try:
@@ -253,6 +253,7 @@ def dbtest():
             result = rnf.predict_parallel(test_df, importance=True)
             print('predict done')
             probas = result[0]
+            rlvnt = [x[0] for x in probas]
             ids = result[2]
             temp = result[3]
             imp_data = dict()
@@ -266,6 +267,23 @@ def dbtest():
 
             # for i, email in enumerate(ids):
             #     db.set_relevancy(email, scenario, probas[i][0])
+
+
+            data = db.df_from_table('emails', scenario=scenario, time=False)
+            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID'])
+
+            print(probID.head())
+
+            mask = data['ID'].isin(ids)
+
+            unchanged = pd.DataFrame(data.loc[~mask])
+            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).drop('Relevant', axis=1)
+            change['Relevant'] = probID['Relevant']
+
+            data = pd.concat([unchanged,change])
+            db.df_to_table(data, 'emails')
+
+
             saved_payload = None
                 # set_relevancy(self, id, scenario, score)
 
@@ -299,6 +317,19 @@ def dbtest():
 
             # for i, email in enumerate(ids):
             #     db.set_relevancy(email, scenario, probas[i][0])
+
+            data = db.df_from_table('emails', scenario=scenario)
+            probID = pd.DataFrame({'ID' : ids, 'Relevant' : probas}).sort(columns = ['ID'])
+
+            mask = data['ID'].isin(ids)
+
+            unchanged = pd.DataFrame(~data.loc[mask])
+            change = pd.DataFrame(data.loc[mask]).sort(columns = ['ID']).drop(columns = ['Relevant'])
+            change['Relevant'] = probID['Relevant']
+
+            data = pd.concat([unchanged,change])
+            db.df_to_table(data, 'emails')
+
             saved_payload = None
 
             response = {
