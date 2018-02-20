@@ -270,11 +270,9 @@ class Node:
     '''
     A faster way to find the best breakpoint.
     Note that we're assuming that the node we're splitting isn't pure.
-
     input:
     values - an arraylike of the values associated with each element (sorted)
     classes - a arraylike of the labels for each element, in the same order as values
-
     returns:
     (min_gini, min_break_point)
     '''
@@ -347,10 +345,8 @@ class Node:
 
     '''
     Calculates the gini index from a dictionary of proportions
-
     input:
     members - a dict from string label to int count of members
-
     returns - the gini index for a node containing these members
     '''
     def calc_gini_from_props(members):
@@ -364,13 +360,11 @@ class Node:
 
     '''
     Calculates the aggregate gini index from two child nodes.
-
     input:
     score1 - the gini score for one child
     score2 - the gini score for the other child
     num1 - the number of members of the first child
     num2 - the number of members of the second child
-
     returns - a weighted average of the two scores
     '''
     def aggregate_gini(score1, score2, num1, num2):
@@ -394,6 +388,14 @@ class Node:
         except KeyError:
 #             print('I\'m a node and I have {} rows'.format(len(self.rows)))
             members = self.data.loc[self.rows][self.label_index].values
+            
+#             s = set(self.rows) - set(self.data.index)
+#             if (len(s) > 0):
+#                 print('the problem rows: {}'.format(s))
+#                 print('data indices: {}'.format(sorted(self.data.index)))
+#                 print('I am a node with {} rows'.format(len(self.data.index)))
+#             else:
+#                 print('I am a node with {} rows'.format(len(self.data.index)))
 
             filtered = [x for x in members if x == target_label]
     #         members = self.data.loc[self.data[self.label_index] == target_label]
