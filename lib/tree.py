@@ -80,13 +80,11 @@ class Tree:
     feature_importances (optional) - [{feature:prediction_weight}]
         where feature is a column and prediction_weight is the amount that this feature shifted the relevant confidence
         (a positive value suggests that this feature implies relevance, and a negative value suggests the opposite).
+
     TODO: the current toggling mechanism for visualization is super clunky. Maybe we
           can improve on it down the line
     '''
     def predict(self, test_data, visualize=False, importance=False):
-#         print('tree rows:')
-#         print(self.rows)
-        
         #         assuming input data is a dataframe right now
         confidences = []
         feature_importances = [] #dict from featurename: (rel_bias, irrel_bias)

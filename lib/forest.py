@@ -137,7 +137,6 @@ class RNF:
         results = []
         for i in range(len(self.trees)):
             results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize, importance)) )
-        
 
         r = []
         for result in results:
@@ -147,9 +146,7 @@ class RNF:
         pool.join()
 
         trees_outputs = r
-#         print()
 
-#         trees_outputs_w = [tree.predict(test_data, visualize) for tree in self.trees]
         scores = [ list() for i in range(len(test_data))]
         for document_idx in range(len(test_data)):
             for tree in trees_outputs:
