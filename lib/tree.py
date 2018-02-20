@@ -73,26 +73,40 @@ class Tree:
     params:
     test_data - test data to run the prediction on
     visualize - if True, runs the parts of the code responsible for visualization
+    imporance - if True, also returns feature importances for predicting each value
 
     return:
-    outputs confidence/probability of each category
+    confidence/probability of each category
+    id of each document
+    feature_importances (optional) - [{feature:prediction_weight}]
+        where feature is a column and prediction_weight is the amount that this feature shifted the relevant confidence
+        (a positive value suggests that this feature implies relevance, and a negative value suggests the opposite).
 
     TODO: the current toggling mechanism for visualization is super clunky. Maybe we
           can improve on it down the line
     '''
-    def predict(self, test_data, visualize=False):
+    def predict(self, test_data, visualize=False, importance=False):
         #         assuming input data is a dataframe right now
         confidences = []
+        feature_importances = [] #dict from featurename: (rel_bias, irrel_bias)
+        ids = []
+
         if visualize:
             if not os.path.exists('vis'):
                 os.makedirs('vis')
 
         for index, row in test_data.iterrows():
+            node_path = []
+            lefts = [] #True if we go left, False otherwise
+            cur_feat_imp = {}
+
             if visualize:
                 to_put = []
 
             cur_node = self.head
             while (cur_node.left and cur_node.right):
+                if importance:
+                    node_path.append(cur_node)
                 if cur_node.left or cur_node.right:
                     if visualize:
                         to_put.append('{ID} [label="X[{min_feature}] < {min_break}\n'
@@ -124,20 +138,28 @@ class Tree:
 
                 if self._should_go_left(row, cur_node):
                     cur_node = cur_node.left
+                    if importance:
+                        lefts.append(True)
                 else:
                     cur_node = cur_node.right
-
-
+                    if importance:
+                        lefts.append(False)
+            if importance:
+                node_path.append(cur_node)
+                feature_importances.append(self._get_feature_importance(node_path, lefts))
 
             relevant_confidence = cur_node.get_proportions('1')
             irrelevant_confidence = cur_node.get_proportions('0')
-            confidences.append( ((relevant_confidence, irrelevant_confidence), row["ID"]) )
+            ids.append(row["ID"])
+            confidences.append( (relevant_confidence, irrelevant_confidence) )
 
-            if (visualize):
+            if visualize:
                 joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}"
                 with open("vis/{}_predict_vis.dot".format(index), "w") as f:
                     f.write(joined)
-        return confidences
+        if importance:
+            return confidences, ids, feature_importances
+        return confidences, ids
 
     '''
     Predicts the labels of test_data, and returns some information about how the tree came to those predictions.
@@ -193,13 +215,15 @@ class Tree:
     '''
     def _get_feature_importance(self, node_path, lefts):
         features = {}
+        # print(node_path)
         for before_split_ind in range(len(node_path) - 1):
             before = node_path[before_split_ind]
             after = node_path[before_split_ind + 1]
             before_prop = before.get_proportions('1')
             after_prop = after.get_proportions('1')
             high_low = "_low" if lefts[before_split_ind] else "_high"
-            features[str(before.min_feature) + high_low] = after_prop - before_prop
+            # features[str(before.min_feature) + high_low] = after_prop - before_prop
+            features[str(before.min_feature)] = after_prop - before_prop
         return features
 
     '''

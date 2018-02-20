@@ -14,9 +14,8 @@
 
         </div>
     </div>
-    <div id="the-buttons" class="row">
-      <p><i>Add search fields to your query: </i></p>
-      <button id="queryButtons" type="button" class="btn-sm" v-for="(option, index) in options" @click="addField(option.value)" value="option.value">
+    <div id="the-buttons" class="row center">
+      <button id="queryButtons" type="button" class="btn-sm" v-for="option in options" @click="addField(option.value)" value="option.value">
         {{ option.text }}
       </button>
 
@@ -60,27 +59,15 @@ export default {
         console.log(dict)
         return '/result?' + $.param(dict)
       }
-    }
-  },
-
-  watch: {
-    selected (newValue) {
-      if (this.inputText.length === 0) {
-        if (this.inputText.indexOf(this.selected) === -1) {
-          this.inputText = this.inputText + this.selected
-        } else {
-          alert('this field has already added')
-        }
+    },
+    addField: function (newVal) {
+      if (document.getElementById('searchBar').value !== 0 && document.getElementById('searchBar').value.indexOf(newVal) !== -1) {
+        alert('This field has already added')
       } else {
-        if (this.inputText.indexOf(this.selected) === -1) {
-          this.inputText = this.inputText + ' ' + this.selected
-        } else {
-          alert('this field has already added')
-        }
+        document.getElementById('searchBar').value += newVal
       }
     }
   },
-
   created: function () {
     $('#searchButton').keyup(function (event) {
       if (event.keyCode === 13) {
@@ -101,6 +88,10 @@ export default {
 
 #queryButtons {
     border-color: #0B5091;
+    display: inline;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
 }
 
 #searchButton {
@@ -110,8 +101,9 @@ export default {
     border-radius: 4px;
 }
 
-#buttonMain {
-
+#the-buttons {
+    display: flex;
+    justify-content: center;
 }
 
 #searchBar {

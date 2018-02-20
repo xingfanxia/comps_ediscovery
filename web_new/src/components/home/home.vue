@@ -12,13 +12,16 @@
       <div class="columns">
         <div class="column is-6-desktop is-offset-3-desktop is-10-tablet is-offset-1-tablet is-10-mobile is-offset-1-mobile">
           <p>Example Query 1</p>
-          <p><i>Returns all emails with sender email address containing "Monika"</i></p>
+          <p><i>Emails with recipient email address containing 'monika'</i></p>
           <pre><code class="bash">/To:'Monika'</code></pre>
 
           <p>Example Query 2</p>
-          <pre><code class="bash">key term sort by :confidence</code></pre>
+          <p><i>Emails from 'david.allan@enron.com' with 'lunch' in message contents</i></p>
+          <pre><code class="bash">/From:'david.allan@enron.com' /Message_Contents:'lunch' </code></pre>
+
           <p>Example Query 3</p>
-          <pre><code class="bash">key term sort by :relevance</code></pre>
+          <p><i>Emails from 'monika.causholli@enron.com' to 'david.allan@enron.com"</i></p>
+          <pre><code class="bash">/To:'david.allan@enron.com' /From:'monika.causholli@enron.com'</code></pre>
         </div>
       </div>
 

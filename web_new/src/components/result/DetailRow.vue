@@ -25,26 +25,19 @@ export default {
   },
 
   mounted: function () {
-    axios.get('http://127.0.0.1:5000/topics')
+    axios.get('http://127.0.0.1:5000/span_data/' + this.rowData['ID'])
       .then(response => {
         for (var key in response.data) {
+          console.log(key)
           // check if the property/key is defined in the object itself, not in parent
           if (response.data.hasOwnProperty(key)) {
-            var wordList = response.data[key]
-            for (var i in wordList) {
-              var word = wordList[i]
-              // var container = document.createElement('div')
+              var word = key
               var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
-              var wordSpan = '<span class=topic_' + key + ' title="topic ' + key + '">' + word + '</span>'
-              // container.appendChild()
-              // var tooltip = document.createElement('p')
-              // tooltip.setAttribute('id', 'tooltip')
-              // tooltip.value = "This is a tooltip"
-              // container.appendChild(tooltip)
+              var topic = response.data[key][1]
+              var wordSpan = '<span class=topic_' + topic + ' title="topic ' + topic + '">' + word + '</span>'
               this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
             }
           }
-        }
       })
   },
 
