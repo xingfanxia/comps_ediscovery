@@ -14,8 +14,7 @@
 
         </div>
     </div>
-    <div id="the-buttons" class="row">
-      <p><i>Add search fields to your query: </i></p>
+    <div id="the-buttons" class="row center">
       <button id="queryButtons" type="button" class="btn-sm" v-for="(option, index) in options" @click="addField(option.value)" value="option.value">
         {{ option.text }}
       </button>
@@ -60,6 +59,9 @@ export default {
         console.log(dict)
         return '/result?' + $.param(dict)
       }
+    },
+    addField: function (newVal) {
+        document.getElementById('searchBar').value += newVal
     }
   },
 
@@ -101,6 +103,10 @@ export default {
 
 #queryButtons {
     border-color: #0B5091;
+    display: inline;
+    margin-left: 10px;
+    margin-right: 10px;
+    margin-top: 10px;
 }
 
 #searchButton {
@@ -110,8 +116,9 @@ export default {
     border-radius: 4px;
 }
 
-#buttonMain {
-
+#the-buttons {
+    display: flex;
+    justify-content: center;
 }
 
 #searchBar {
