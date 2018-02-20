@@ -9,6 +9,7 @@ import random
 import pickle
 import multiprocessing
 import sys
+import time
 
 
 NUM_CORES = 10
@@ -47,7 +48,7 @@ class RNF:
     '''
     #TODO: fix this so that the features selected are the actual features, not the indices of the features.
     def random_select(self, train_data):
-        selected_rows = np.random.choice(self.train_data.shape[0], self.n_max_input)
+        selected_rows = np.random.choice(self.train_data.index, self.n_max_input)
 #         print(selected_rows)
         selected_feature_indices = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
         selected_features = train_data.columns.values[[selected_feature_indices]]
@@ -130,39 +131,53 @@ class RNF:
 
 
 
-    def predict_parallel(self, test_data, visualize=False):
+    def predict_parallel(self, test_data, visualize=False, importance=False):
         pool = multiprocessing.Pool( NUM_CORES )
-        tasks = []
-
-        for tree in self.trees:
-            tasks.append( (test_data, visualize) )
-
+        
         results = []
         for i in range(len(self.trees)):
-            results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize)) )
-
-        pool.close()
+            results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize, importance)) )
+        
 
         r = []
         for result in results:
             r.append(result.get())
+            
+        pool.close()
+        pool.join()
 
         trees_outputs = r
+#         print()
 
-
-        trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
+#         trees_outputs_w = [tree.predict(test_data, visualize) for tree in self.trees]
         scores = [ list() for i in range(len(test_data))]
         for document_idx in range(len(test_data)):
             for tree in trees_outputs:
-                scores[document_idx].append(tree[document_idx][0])
+                scores[document_idx].append(tree[0][document_idx])
         probas = [self.some_majority_count_metric(score) for score in scores]
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
-        ids = [doc[1] for doc in trees_outputs[0]]
+        ids = trees_outputs[0][1]
+
+        if importance:
+            #sum up all of the importances
+            importances = [{} for doc in trees_outputs[0][2]]
+            for doc_idx in range(len(importances)):
+                for tree in trees_outputs:
+                    for feature in tree[2][doc_idx].keys():
+                        try:
+                            importances[doc_idx][feature] += tree[2][doc_idx][feature]
+                        except KeyError:
+                            importances[doc_idx][feature] = tree[2][doc_idx][feature]
+            #divide by num_trees
+            for importance_dict in range(len(importances)):
+                for feature in importances[importance_dict].keys():
+                    importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees)
+            return probas, classes, ids, importances
+
         return probas, classes, ids
 
     '''
     returns:
-
     probas - [(prob_rel, prob_irrel), ...]
         prob_rel - probability that this document is relevant
         prob_irrel - probability that this document is irrelevant
@@ -208,21 +223,22 @@ class RNF:
     def update_leaves(self, tree):
         # assume that self.data contains the new data
         # TODO: change as necessary
+        tree.data = self.train_data
         tree.update(self.train_data, self.random_select(self.train_data)[0])
 
 
     '''
     params:
     more_data - more training data to update the forest
-
     return:
     Null or we can say something like which trees are changed
     '''
     def update(self, more_data):
-        self.train_data = self.train_data.append(more_data).reset_index(drop=True)
+        self.train_data = self.train_data.append(more_data)
+        # self.train_data = self.train_data.append(more_data).reset_index(drop=True)
 
         self.n_max_input = self.train_data.shape[0]
-
+        
         # use average as placeholder function
         thresh = 0
         for tree in self.trees:
@@ -248,7 +264,7 @@ class RNF:
         if idx_trees_to_retrain == []:
             return
 
-        print(len(idx_trees_to_retrain))
+#         print(len(idx_trees_to_retrain))
         # Multi-processed rebuilding of trees
         pool = multiprocessing.Pool( NUM_CORES )
         results = []
@@ -256,11 +272,16 @@ class RNF:
         for idx in idx_trees_to_retrain:
             results.append( pool.apply_async(self.retrain_tree) )
 
-        pool.close()
+#         pool.close()
+#         pool.join()
 
         retrained_trees = []
         for result in results:
             retrained_trees.append(result.get())
+            
+        pool.close()
+        pool.join()
+#         print('update: right after join')
 
         for i in range(len(idx_trees_to_retrain)):
             self.trees[idx_trees_to_retrain[i]] = retrained_trees[i]
@@ -283,7 +304,6 @@ class RNF:
 
     '''
     Returns a measure for which features are most important in the tree.
-
     returns:
     total - {feature:importance}, where importance is a measure of how important that feature is to the overall
         forest

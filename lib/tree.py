@@ -73,26 +73,41 @@ class Tree:
     params:
     test_data - test data to run the prediction on
     visualize - if True, runs the parts of the code responsible for visualization
-
+    imporance - if True, also returns feature importances for predicting each value
     return:
-    outputs confidence/probability of each category
-
+    confidence/probability of each category
+    id of each document
+    feature_importances (optional) - [{feature:prediction_weight}]
+        where feature is a column and prediction_weight is the amount that this feature shifted the relevant confidence
+        (a positive value suggests that this feature implies relevance, and a negative value suggests the opposite).
     TODO: the current toggling mechanism for visualization is super clunky. Maybe we
           can improve on it down the line
     '''
-    def predict(self, test_data, visualize=False):
+    def predict(self, test_data, visualize=False, importance=False):
+#         print('tree rows:')
+#         print(self.rows)
+        
         #         assuming input data is a dataframe right now
         confidences = []
+        feature_importances = [] #dict from featurename: (rel_bias, irrel_bias)
+        ids = []
+
         if visualize:
             if not os.path.exists('vis'):
                 os.makedirs('vis')
 
         for index, row in test_data.iterrows():
+            node_path = []
+            lefts = [] #True if we go left, False otherwise
+            cur_feat_imp = {}
+
             if visualize:
                 to_put = []
 
             cur_node = self.head
             while (cur_node.left and cur_node.right):
+                if importance:
+                    node_path.append(cur_node)
                 if cur_node.left or cur_node.right:
                     if visualize:
                         to_put.append('{ID} [label="X[{min_feature}] < {min_break}\n'
@@ -124,27 +139,33 @@ class Tree:
 
                 if self._should_go_left(row, cur_node):
                     cur_node = cur_node.left
+                    if importance:
+                        lefts.append(True)
                 else:
                     cur_node = cur_node.right
-
-
+                    if importance:
+                        lefts.append(False)
+            if importance:
+                node_path.append(cur_node)
+                feature_importances.append(self._get_feature_importance(node_path, lefts))
 
             relevant_confidence = cur_node.get_proportions('1')
             irrelevant_confidence = cur_node.get_proportions('0')
-            confidences.append( ((relevant_confidence, irrelevant_confidence), row["ID"]) )
+            ids.append(row["ID"])
+            confidences.append( (relevant_confidence, irrelevant_confidence) )
 
-            if (visualize):
+            if visualize:
                 joined = "digraph Tree {\nnode [shape=box];\n" + "\n".join(to_put) + "\n}"
                 with open("vis/{}_predict_vis.dot".format(index), "w") as f:
                     f.write(joined)
-        return confidences
+        if importance:
+            return confidences, ids, feature_importances
+        return confidences, ids
 
     '''
     Predicts the labels of test_data, and returns some information about how the tree came to those predictions.
-
     params:
     test_data - a pandas df with the same columns as the train_data. Each row is considered to be one sample to predict.
-
     returns:
     confidences - [(relevant_confidence_doc1, irrelevant_confidence_doc1), (relevant_confidence_doc2...)...]
         where relevant_confidence_doc1 is the confidence this tree has in the first row being a relevant document,
@@ -186,7 +207,6 @@ class Tree:
         len(lefts) == len(node_path) - 1
         lefts[i] iff node_path[i].left == node_path[i+1]
         !lefts[i] iff node_path[i].right == node_path[i+1]
-
     returns:
     features - {feature: prediction weight}, where a large positive value suggests that this feature means
         the item is relevant, and a large negative value suggests the opposite.
@@ -207,7 +227,6 @@ class Tree:
     params:
     row - arraylike from the test data. Should have the same length as the training data.
     cur_node - the node that we are currently on.
-
     return:
     true if row's value is the same as cur_node's categorical breakpoint, or less than
         cur_node's numerical breakpoint
@@ -221,23 +240,40 @@ class Tree:
     '''
     params:
     more_data - more training data to update the tree
-
     return:
     Null or we can say something like which nodes are changed
     '''
     def update(self, updated_data, new_rows):
+#         print('tree update new data size: {}'.format(updated_data.shape[0]))
         # empty the list of rows stored in each node in the tree
         # also update their data
+#         nodes = [self.head]
+#         for node in nodes:
+#             temp = nodes
+#             node.data = updated_data
+# #             node.data = self.data
+#             node.rows = []
+#             node.proportions = {}
+#             nodes.remove(node)
+#             if node.left:
+#                 nodes.append(node.left)
+#             if node.right:
+#                 nodes.append(node.right)
+
         nodes = [self.head]
-        for node in nodes:
-            node.data = updated_data
-            node.rows = []
-            node.proportions = {}
-            nodes.remove(node)
-            if node.left:
-                nodes.append(node.left)
-            if node.right:
-                nodes.append(node.right)
+        while (True):
+            temp = nodes
+            nodes = []
+            for node in temp:
+                node.data = updated_data
+                node.rows = []
+                node.proportions = {}
+                if node.left:
+                    nodes.append(node.left)
+                if node.right:
+                    nodes.append(node.right)
+            if nodes == []:
+                break
 
         # traverse each new data point through the tree, append row to each node
         for index, row in updated_data.loc[new_rows].iterrows():
@@ -264,7 +300,8 @@ class Tree:
         t = self.traverse()
         num_rows = [len(r.rows) for r in t]
         if 0 in num_rows:
-            print('before restructuring: there is a 0-row node')
+#             print('before restructuring: there is a 0-row node')
+            pass
 
         # after updating, look for empty nodes, and reshape tree accordingly.
         nodes_to_traverse = [self.head]
@@ -333,7 +370,8 @@ class Tree:
         t = self.traverse()
         num_rows = [len(r.rows) for r in t]
         if 0 in num_rows:
-            print('after restructuring: there is a 0-row node')
+#             print('after restructuring: there is a 0-row node')
+            pass
 
     def traverse(self):
         '''Traverse down the tree and return all of the nodes in a list'''
@@ -371,10 +409,12 @@ class Tree:
         # rows in the complement:
         cases = self.data.loc[list(complement)]
         predictions = self.predict(cases)
-        for p in predictions:
+        for p in range(len(predictions[0])):
+            p_id = predictions[1][p]
+            p_pred = predictions[0][p]
             # input row for this prediction
-            r = self.data.loc[self.data['ID'] == p[1]]
-            if p[0][0] > p[0][1]: # system said it was relevant
+            r = self.data.loc[self.data['ID'] == p_id]
+            if p_pred[0] > p_pred[1]: # system said it was relevant
                 num_incorrect += 1 if r['Label'].values[0] == '0' else 0
             else: # system said it was irrelevant
                 num_incorrect += 1 if r['Label'].values[0] == '1' else 0
