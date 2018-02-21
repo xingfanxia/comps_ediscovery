@@ -4,4 +4,5 @@ from lib.tree import Tree
 from lib.forest import RNF
 from lib.utils import *
 from lib.evalMetrics import *
+from lib.queryMethods import *
 # from lib.dblib import *
