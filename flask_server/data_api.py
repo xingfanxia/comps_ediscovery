@@ -80,7 +80,16 @@ endpoint for topic data for visualizations
 '''
 @app.route("/topics")
 def fake_data_endpoint():
-    return flask.jsonify(topic_dict)
+    topic_terms = [val for key, val in topic_dict.items()]
+    topics = [key for key, val in topic_dict.items()]
+    response = dict()
+    response['data'] = []
+    for i in range(len(topics)):
+        each_topic = dict()
+        each_topic['topic'] = topics[i]
+        each_topic['terms'] = topic_terms[i]
+        response['data'].append(each_topic)
+    return flask.jsonify(response)
 
 @app.route("/span_data/<identifier>")
 def span_data(identifier):

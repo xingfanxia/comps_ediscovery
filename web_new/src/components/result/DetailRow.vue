@@ -9,7 +9,7 @@
       <div class="col-lg-4 metaInfo inline field" id="msgCon">
        <label>Topic Metadata:</label>
         <hr>
-        <div class="code" v-html="topicMeta"></div>
+        <mytable :apiUrl="apiUrl" :fields="fields"></mytable>
       </div>
     </div>
   </div>
@@ -18,8 +18,13 @@
 <script>
 
 import axios from 'axios'
+import Vuetable from 'vuetable-2/src/components/Vuetable'
 
 export default {
+
+  components: {
+    'mytable': Vuetable
+  },
 
   data () {
     return {
@@ -28,7 +33,9 @@ export default {
                                                    .replace(/>/g, "&gt;")
                                                    .replace(/"/g, "&quot;")
                                                    .replace(/'/g, "&#039;"),
-      topicMeta: ''                                     
+      // topicMeta: '',
+      apiUrl: 'http://127.0.0.1:5000/topics',
+      fields: ['topic', 'terms']
     }
   },
 
