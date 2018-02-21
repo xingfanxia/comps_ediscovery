@@ -116,7 +116,7 @@ class RNF:
     should ouput two arrays: probas and classfication
     '''
     def some_majority_count_metric(self, score):
-        return np.mean(score, axis=0)
+        return np.nanmean(score, axis=0)
 
     def predict(self, test_data, visualize=False):
         trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]

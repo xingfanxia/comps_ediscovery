@@ -68,7 +68,8 @@ class Database():
         stmt = self.emails.update().\
             where(self.emails.c.ID==id).\
             where(self.emails.c.Scenario==str(scenario)).\
-            values(Relevant=score)
+            values(Relevant=score).\
+            values(New_Tag=score)
         self.session.execute(stmt)
         self.session.commit()
 

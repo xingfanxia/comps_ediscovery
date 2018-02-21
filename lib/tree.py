@@ -24,6 +24,7 @@ class Tree:
         self.head = Node(data, rows, features, 0, depth, cat_features, None, user_input=user_input)
         self.oob_error = -1
         self.cat_features = cat_features
+        self.user_input = user_input
 
     def visualize(self):
         if not os.path.exists('vis'):
@@ -414,12 +415,20 @@ class Tree:
             p_pred = predictions[0][p]
             # input row for this prediction
             r = self.data.loc[self.data['ID'] == p_id]
+            if self.user_input:
+                column = 'Relevant'
+            else:
+                column = 'Label'
             if p_pred[0] > p_pred[1]: # system said it was relevant
-                num_incorrect += 1 if r['Label'].values[0] == '0' else 0
+                num_incorrect += 1 if r[column].values[0] == '0' else 0
             else: # system said it was irrelevant
-                num_incorrect += 1 if r['Label'].values[0] == '1' else 0
+                num_incorrect += 1 if r[column].values[0] == '1' else 0
 
-        self.oob_error = num_incorrect / len(test_data)
+        if len(test_data) < 1:
+            print("oh no!")
+            self.oob_error = .5
+        else:
+            self.oob_error = num_incorrect / len(test_data)
 #         self.oob_error = num_incorrect / len(complement)
         return self.oob_error
 

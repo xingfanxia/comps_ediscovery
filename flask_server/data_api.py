@@ -10,6 +10,8 @@ import collections
 import random
 import pickle
 import time
+import numpy
+import traceback
 '''
 Setup, loading files
 '''
@@ -27,7 +29,7 @@ scenario = '401'
 saved_payload = None
 saved_data = None
 try:
-    f = open('saved_forest.pickle', 'rb')
+    f = open('../saved_forest.pickle', 'rb')
     rnf = pickle.load(f)
     f.close()
 except:
@@ -115,6 +117,9 @@ def reset():
         db.reset_new_tag()
         saved_payload = None
         rnf = None
+        f = open('../saved_forest.pickle', 'wb')
+        pickle.dump(rnf, f)
+        f.close()
         print('reset!')
         response = {
             'status_code': 200,
@@ -233,18 +238,18 @@ def dbtest():
         test_df = df.loc[df['Relevant'] != '0']
         test_df = test_df.reset_index(drop=True)
         print (test_df.head())
-        n_trees = 32
-        tree_depth = 5
-        random_seed = 42
-        n_max_features = 11
-        n_max_input = 300
-        benchmark = None
-        # n_trees = 5
+        # n_trees = 32
         # tree_depth = 5
         # random_seed = 42
-        # n_max_features = 3
+        # n_max_features = 11
         # n_max_input = 300
         # benchmark = None
+        n_trees = 5
+        tree_depth = 5
+        random_seed = 42
+        n_max_features = 3
+        n_max_input = 300
+        benchmark = None
 
 
         try:
@@ -256,8 +261,17 @@ def dbtest():
             print('predict done')
             probas = result[0]
             rlvnt = [x[0] for x in probas]
+
+            for r in rlvnt:
+                if type(r) != numpy.float64:
+                    print(r, type(r))
+
             ids = result[2]
             temp = result[3]
+
+            if len(probas) != len(ids):
+                print("not equal len!")
+                exit(0)
             imp_data = dict()
             for i, identifier in enumerate(ids):
                 imp_data[identifier] = temp[i]
@@ -272,17 +286,19 @@ def dbtest():
 
 
             data = db.df_from_table('emails', scenario=scenario, time=False)
-            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID'])
-
-            print(probID.head())
-
+            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID']).reset_index(drop=True)
             mask = data['ID'].isin(ids)
 
             unchanged = pd.DataFrame(data.loc[~mask])
-            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).drop('Relevant', axis=1)
-            change['Relevant'] = probID['Relevant']
+            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).reset_index(drop=True).drop('Relevant', axis=1)
+            change['Relevant'] = probID['Relevant'].values
 
             data = pd.concat([unchanged,change])
+            #TODO: find why there are NaNs
+
+            # print(data[data.isnull().any(axis=1)])
+
+            # print(data[data['ID'] == '3.97882.O0BKFVNBDWGGLAN12HZZLRD0I0PW2TE2A'])
             db.df_to_table(data, 'emails')
 
 
@@ -300,38 +316,33 @@ def dbtest():
                 'message': "ERROR!\nIncremental training failed!"
             }
     else:
+        update_df = df.loc[df['New_Tag'] == '1']
+        test_df = df.loc[df['Relevant'] != '1']
+        test_df = df.loc[df['Relevant'] != '0']
+        test_df = test_df.reset_index(drop=True)
+
         try:
-            update_df = df.loc[df['New_Tag'] == '1']
             rnf.update(update_df)
-            rnf.predict()
-            result = db.reset_new_tag()
+            result = rnf.predict_parallel(test_df, importance=True)
             probas = result[0]
+            rlvnt = [x[0] for x in probas]
             ids = result[2]
             temp = result[3]
             imp_data = dict()
             for i, identifier in enumerate(ids):
                 imp_data[identifier] = temp[i]
 
-            # data = db.df_from_table('emails', scenario=scenario)
-            # for i, email in enumerate(ids):
-            #     data.loc[data['ID'] == email, 'Relevant'] = probas[i]
-            # db.df_to_table(data, 'emails')
-
-            # for i, email in enumerate(ids):
-            #     db.set_relevancy(email, scenario, probas[i][0])
-
             data = db.df_from_table('emails', scenario=scenario, time=False)
-            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID'])
-
-            print(probID.head())
-
+            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID']).reset_index(drop=True)
             mask = data['ID'].isin(ids)
 
             unchanged = pd.DataFrame(data.loc[~mask])
-            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).drop('Relevant', axis=1)
-            change['Relevant'] = probID['Relevant']
+            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).reset_index(drop=True).drop('Relevant', axis=1)
+            change['Relevant'] = probID['Relevant'].values
 
             data = pd.concat([unchanged,change])
+            data['New_Tag'] = 0
+            #TODO: find why there are NaNs
             db.df_to_table(data, 'emails')
 
             saved_payload = None
@@ -340,11 +351,14 @@ def dbtest():
                 'status_code': 200,
                 'message': "SUCCESS!\nIncremental training finished without trouble!"
             }
-        except:
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
             response = {
                 'status_code': 500,
                 'message': "ERROR!\nIncremental training failed!"
             }
+
     end = time.time()
     f = open('../saved_forest.pickle', 'wb')
     pickle.dump(rnf, f)
