@@ -34,7 +34,7 @@ export default {
                                                    .replace(/"/g, "&quot;")
                                                    .replace(/'/g, "&#039;"),
       // topicMeta: '',
-      apiUrl: 'http://127.0.0.1:5000/topics',
+      apiUrl: 'http://127.0.0.1:5000/topic_table',
       fields: ['topic', 'terms']
     }
   },
@@ -53,6 +53,7 @@ export default {
               var topic = response.data[key][1]
               var wordSpan = '<span class=topic_' + topic + ' title="topic ' + topic + '">' + word + '</span>'
               this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
+              console.log(this.spanMessage)
             }
           }
       })
@@ -72,25 +73,23 @@ export default {
     //   })
   },
 
-  // updated: function () {
-  //   axios.get('http://127.0.0.1:5000/pred_meta/' + this.rowData['ID'])
-  //     .then(response => {
-  //       this.topicMeta = response.text()
-  //       console.log(response)
-  //       for (var key in response.data) {
-  //         if (response.data.hasOwnProperty(key)) {
-  //           var alpha = response.data[key]
-  //           console.log(alpha)
-  //           if (alpha < 0) {
-  //             $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha * 10) + ')')
-  //           } else {
-  //             $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha * 10) + ')')
-  //           }
-  //           $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
-  //         }
-  //       }
-  //     })
-  // },
+  updated: function () {
+    axios.get('http://127.0.0.1:5000/pred_meta/' + this.rowData['ID'])
+      .then(response => {
+        for (var key in response.data) {
+          if (response.data.hasOwnProperty(key)) {
+            var alpha = response.data[key]
+            console.log(alpha)
+            if (alpha < 0) {
+              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) * 10 + ')')
+            } else {
+              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) * 10 + ')')
+            }
+            $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
+          }
+        }
+      })
+  },
 
   props: {
     rowData: {

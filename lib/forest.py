@@ -116,7 +116,7 @@ class RNF:
     should ouput two arrays: probas and classfication
     '''
     def some_majority_count_metric(self, score):
-        return np.mean(score, axis=0)
+        return np.nanmean(score, axis=0)
 
     def predict(self, test_data, visualize=False):
         trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
@@ -133,7 +133,7 @@ class RNF:
 
     def predict_parallel(self, test_data, visualize=False, importance=False):
         pool = multiprocessing.Pool( NUM_CORES )
-        
+
         results = []
         for i in range(len(self.trees)):
             results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize, importance)) )
@@ -141,7 +141,7 @@ class RNF:
         r = []
         for result in results:
             r.append(result.get())
-            
+
         pool.close()
         pool.join()
 
@@ -236,7 +236,7 @@ class RNF:
         # self.train_data = self.train_data.append(more_data).reset_index(drop=True)
 
         self.n_max_input = self.train_data.shape[0]
-        
+
         # use average as placeholder function
         thresh = 0
         for tree in self.trees:
@@ -276,7 +276,7 @@ class RNF:
         retrained_trees = []
         for result in results:
             retrained_trees.append(result.get())
-            
+
         pool.close()
         pool.join()
 #         print('update: right after join')

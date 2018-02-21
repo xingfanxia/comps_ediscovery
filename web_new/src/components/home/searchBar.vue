@@ -44,7 +44,7 @@ export default {
   methods: {
     formatSearchUrl: function (inputText) {
       if (inputText.length === 0) {
-        return '/result?input=' + inputText
+        return '/result?Message_Contents=' + inputText
       } else {
         var dict = {}
         var reFields = /(\/.*?:)/g
