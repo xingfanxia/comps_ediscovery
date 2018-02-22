@@ -2,9 +2,8 @@
 
   <section class="section" id="home-section">
     <div class="container">
-      <h1 class="title has-text-centered"><span>Explore</span></h1>
-      <h1 class="title has-text-centered">the Enron Dataset</h1>
-      <date-picker></date-picker>
+      <h1 class="title has-text-centered"><span>Catchy Title</span></h1>
+      <h1 class="title has-text-centered">Tell a narrative</h1>
       <search-bar></search-bar>
     </div>
 
@@ -31,12 +30,10 @@
 
 <script>
 import SearchBar from './searchBar.vue'
-import Datepicker from './datepicker.vue'
 export default {
 
   components: {
-    'search-bar': SearchBar,
-    'date-picker': Datepicker
+    'search-bar': SearchBar
   }
 
 }

@@ -1,10 +1,11 @@
 <template>
   <div>
      <div class="row" id="homeSearchBar">
-        <div class='col-lg-11'>
+        <datepicker id="dater"></datepicker>
+        <div class='col-lg-7'>
             <p class="control is-expanded">
               <!-- <input class="input" type="text" v-model="inputText" v-on:keyup="checkEnter"> -->
-              <input type="text" class="input" id="searchBar" v-model="inputText">
+              <input type="text" class="input" id="searchBar" v-on:keyup.enter="checkEnter" v-model="inputText">
             </p>
         </div>
         <div class="col-lg-1">
@@ -15,7 +16,7 @@
         </div>
     </div>
     <div id="the-buttons" class="row center">
-      <button id="queryButtons" type="button" class="btn-sm" v-for="option in options" @click="addField(option.value)" value="option.value">
+      <button type="button" class="btn-sm queryButtons" v-for="option in options" @click="addField(option.value)" value="option.value">
         {{ option.text }}
       </button>
 
@@ -24,14 +25,17 @@
 </template>
 
 <script>
-export default {
+import Datepicker from './datepickerv2.vue'
 
+export default {
+  components: {
+    'datepicker': Datepicker
+  },
   data () {
     return {
       inputText: '',
       selected: '',
       options: [
-        {text: 'Date', value: '/Date:\'\' '},
         {text: 'From', value: '/From:\'\' '},
         {text: 'To', value: '/To:\'\' '},
         {text: 'Subject', value: '/Subject:\'\' '},
@@ -66,32 +70,42 @@ export default {
       } else {
         document.getElementById('searchBar').value += newVal
       }
+    },
+    checkEnter: function() {
+      console.log('this works')
+      $('#searchBar').keyup(function (event) {
+        if (event.keyCode === 13) {
+          $('#searchButton').click()
     }
-  },
-  created: function () {
-    $('#searchButton').keyup(function (event) {
-      if (event.keyCode === 13) {
-        $('#searchButton').click()
-      }
     })
+    }
+}
   }
 
-}
 </script>
 
 <style scoped>
+
+.dateStyle {
+    width: 200px;
+}
 
 #homeSearchBar {
     margin: auto;
 
 }
 
-#queryButtons {
+.queryButtons {
     border-color: #0B5091;
     display: inline;
     margin-left: 10px;
     margin-right: 10px;
     margin-top: 10px;
+    transition-duration: 0.5s;
+}
+.queryButtons:hover {
+    background-color: #0B5091;
+    color: white;
 }
 
 #searchButton {

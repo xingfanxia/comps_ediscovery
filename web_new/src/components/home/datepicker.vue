@@ -1,18 +1,20 @@
 <template>
   <div id="home-datepicker">
     <datepicker></datepicker>
-    <datepicker></datepicker>
   </div>
 </template>
 
 <script>
-// import Datepicker from 'vuejs-datepicker'
+import Datepicker from 'vuejs-datepicker'
 
 const state = {
   date1: new Date()
 }
 
 export default {
+  components: {
+          Datepicker
+  },
   data () {
     return {
       format: 'd MMMM yyyy',
