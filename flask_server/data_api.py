@@ -10,6 +10,8 @@ import collections
 import random
 import pickle
 import time
+import numpy
+import traceback
 '''
 Setup, loading files
 '''
@@ -27,7 +29,7 @@ scenario = '401'
 saved_payload = None
 saved_data = None
 try:
-    f = open('saved_forest.pickle', 'rb')
+    f = open('../saved_forest.pickle', 'rb')
     rnf = pickle.load(f)
     f.close()
 except:
@@ -39,9 +41,7 @@ topic_arrays = topics.values.tolist()
 for i, row in enumerate(topic_arrays):
     topic_dict[i] = row
 
-imp_data = dict()
-for i in range(100):
-    data[i] = 0
+imp_data = None
 
 '''
 Methods used in pagination regexes to get last and next pages
@@ -73,30 +73,47 @@ endpoint for tree metadata for visualizations
 '''
 @app.route("/pred_meta/<identifier>")
 def pred_data(identifier):
-    return jsonify(imp_data[identifier])
+    if imp_data:
+        return jsonify(imp_data[identifier])
+    else:
+        return jsonify({})
 
 '''
 endpoint for topic data for visualizations
 '''
+@app.route("/topic_table")
+def table_data_endpoint():
+    topic_terms = [val for key, val in topic_dict.items()]
+    topics = [key for key, val in topic_dict.items()]
+    response = dict()
+    response['data'] = []
+    for i in range(len(topics)):
+        each_topic = dict()
+        each_topic['topic'] = topics[i]
+        each_topic['terms'] = topic_terms[i]
+        response['data'].append(each_topic)
+    return flask.jsonify(response)
+
 @app.route("/topics")
-def fake_data_endpoint():
+def topic_endpoint():
     return flask.jsonify(topic_dict)
 
 @app.route("/span_data/<identifier>")
 def span_data(identifier):
     word_dict = {}
-    relevant_topics = imp_data[identifier]
-    for key, value in relevant_topics.items():
-        if key == 'Date':
-            print('skipping date')
-        else:
-            for word in topic_dict[int(key)]:
-                try:
-                    word_dict[word].append((value,key))
-                except KeyError:
-                    word_dict[word] = [(value,key)]
-    for key, value in word_dict.items():
-        word_dict[key] = max(value, key=lambda item:abs(item[0]))
+    if imp_data:
+        relevant_topics = imp_data[identifier]
+        for key, value in relevant_topics.items():
+            if key == 'Date' or key == 'To' or key == 'From':
+                print('skipping date')
+            else:
+                for word in topic_dict[int(key)]:
+                    try:
+                        word_dict[word].append((value,key))
+                    except KeyError:
+                        word_dict[word] = [(value,key)]
+        for key, value in word_dict.items():
+            word_dict[key] = max(value, key=lambda item:abs(item[0]))
 
     return(jsonify(word_dict))
 
@@ -113,6 +130,9 @@ def reset():
         db.reset_new_tag()
         saved_payload = None
         rnf = None
+        f = open('../saved_forest.pickle', 'wb')
+        pickle.dump(rnf, f)
+        f.close()
         print('reset!')
         response = {
             'status_code': 200,
@@ -231,18 +251,18 @@ def dbtest():
         test_df = df.loc[df['Relevant'] != '0']
         test_df = test_df.reset_index(drop=True)
         print (test_df.head())
-        n_trees = 32
-        tree_depth = 5
-        random_seed = 42
-        n_max_features = 11
-        n_max_input = 300
-        benchmark = None
-        # n_trees = 5
+        # n_trees = 32
         # tree_depth = 5
         # random_seed = 42
-        # n_max_features = 3
+        # n_max_features = 11
         # n_max_input = 300
         # benchmark = None
+        n_trees = 5
+        tree_depth = 5
+        random_seed = 42
+        n_max_features = 3
+        n_max_input = 300
+        benchmark = None
 
 
         try:
@@ -254,8 +274,17 @@ def dbtest():
             print('predict done')
             probas = result[0]
             rlvnt = [x[0] for x in probas]
+
+            for r in rlvnt:
+                if type(r) != numpy.float64:
+                    print(r, type(r))
+
             ids = result[2]
             temp = result[3]
+
+            if len(probas) != len(ids):
+                print("not equal len!")
+                exit(0)
             imp_data = dict()
             for i, identifier in enumerate(ids):
                 imp_data[identifier] = temp[i]
@@ -270,17 +299,19 @@ def dbtest():
 
 
             data = db.df_from_table('emails', scenario=scenario, time=False)
-            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID'])
-
-            print(probID.head())
-
+            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID']).reset_index(drop=True)
             mask = data['ID'].isin(ids)
 
             unchanged = pd.DataFrame(data.loc[~mask])
-            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).drop('Relevant', axis=1)
-            change['Relevant'] = probID['Relevant']
+            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).reset_index(drop=True).drop('Relevant', axis=1)
+            change['Relevant'] = probID['Relevant'].values
 
             data = pd.concat([unchanged,change])
+            #TODO: find why there are NaNs
+
+            # print(data[data.isnull().any(axis=1)])
+
+            # print(data[data['ID'] == '3.97882.O0BKFVNBDWGGLAN12HZZLRD0I0PW2TE2A'])
             db.df_to_table(data, 'emails')
 
 
@@ -298,36 +329,33 @@ def dbtest():
                 'message': "ERROR!\nIncremental training failed!"
             }
     else:
+        update_df = df.loc[df['New_Tag'] == '1']
+        test_df = df.loc[df['Relevant'] != '1']
+        test_df = df.loc[df['Relevant'] != '0']
+        test_df = test_df.reset_index(drop=True)
+
         try:
-            update_df = df.loc[df['New_Tag'] == '1']
             rnf.update(update_df)
-            rnf.predict()
-            result = db.reset_new_tag()
+            result = rnf.predict_parallel(test_df, importance=True)
             probas = result[0]
+            rlvnt = [x[0] for x in probas]
             ids = result[2]
             temp = result[3]
             imp_data = dict()
             for i, identifier in enumerate(ids):
                 imp_data[identifier] = temp[i]
 
-            # data = db.df_from_table('emails', scenario=scenario)
-            # for i, email in enumerate(ids):
-            #     data.loc[data['ID'] == email, 'Relevant'] = probas[i]
-            # db.df_to_table(data, 'emails')
-
-            # for i, email in enumerate(ids):
-            #     db.set_relevancy(email, scenario, probas[i][0])
-
-            data = db.df_from_table('emails', scenario=scenario)
-            probID = pd.DataFrame({'ID' : ids, 'Relevant' : probas}).sort(columns = ['ID'])
-
+            data = db.df_from_table('emails', scenario=scenario, time=False)
+            probID = pd.DataFrame({'ID' : ids, 'Relevant' : rlvnt}).sort_values(by = ['ID']).reset_index(drop=True)
             mask = data['ID'].isin(ids)
 
-            unchanged = pd.DataFrame(~data.loc[mask])
-            change = pd.DataFrame(data.loc[mask]).sort(columns = ['ID']).drop(columns = ['Relevant'])
-            change['Relevant'] = probID['Relevant']
+            unchanged = pd.DataFrame(data.loc[~mask])
+            change = pd.DataFrame(data.loc[mask]).sort_values(by = ['ID']).reset_index(drop=True).drop('Relevant', axis=1)
+            change['Relevant'] = probID['Relevant'].values
 
             data = pd.concat([unchanged,change])
+            data['New_Tag'] = 0
+            #TODO: find why there are NaNs
             db.df_to_table(data, 'emails')
 
             saved_payload = None
@@ -336,11 +364,14 @@ def dbtest():
                 'status_code': 200,
                 'message': "SUCCESS!\nIncremental training finished without trouble!"
             }
-        except:
+        except Exception as e:
+            print(e)
+            traceback.print_exc()
             response = {
                 'status_code': 500,
                 'message': "ERROR!\nIncremental training failed!"
             }
+
     end = time.time()
     f = open('../saved_forest.pickle', 'wb')
     pickle.dump(rnf, f)

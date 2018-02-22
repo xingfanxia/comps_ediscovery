@@ -2,7 +2,7 @@ import pandas as pd
 import CompsTFIDF
 import email_filter
 
-df = pd.read_csv("./data/parsed/training.csv", dtype=str)
+df = pd.read_csv("training.csv", dtype=str)
 email_filtered = pd.DataFrame()
 email_filtered = email_filter.full_filter_email(df)
 print("Emails Cleaned")
