@@ -386,20 +386,20 @@ class Node:
         try:
             return self.proportions[target_label]
         except KeyError:
-#             print('I\'m a node and I have {} rows'.format(len(self.rows)))
             members = self.data.loc[self.rows][self.label_index].values
-            
-#             s = set(self.rows) - set(self.data.index)
-#             if (len(s) > 0):
-#                 print('the problem rows: {}'.format(s))
-#                 print('data indices: {}'.format(sorted(self.data.index)))
-#                 print('I am a node with {} rows'.format(len(self.data.index)))
-#             else:
-#                 print('I am a node with {} rows'.format(len(self.data.index)))
 
             filtered = [x for x in members if x == target_label]
-    #         members = self.data.loc[self.data[self.label_index] == target_label]
-    #         filtered = [x for x in members.index.values if x in self.rows]
+            
+#             if len(filtered) == 0:
+#                 print('this node has no rows')
+#                 if len(self.parent_node.rows) > 0:
+#                     print(len(self.parent_node.rows))
+#                 if self.left != None and self.right != None:
+#                     print('this is an empty non leaf node')
+#                 print('does it have a parent?: {}'.format(self.parent_node != None))
+#                 print('does it have left?: {}'.format(self.left != None))
+#                 print('does it have right?: {}'.format(self.right != None))
+            
             raw_val = (len(filtered)/len(self.rows))
             self.proportions[target_label] = raw_val
             return raw_val

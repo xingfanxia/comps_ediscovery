@@ -211,16 +211,14 @@ class RNF:
         return probas, classes, importances
 
     def retrain_tree(self):
-        # assume that self.data contains the new data
-        # TODO: change as necessary
         selected = self.random_select(self.train_data)
-        tree = Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features, user_input=self.input_type)
+        tree = Tree(self.train_data, self.tree_depth,
+                    0, selected[0], selected[1],
+                    self.cat_features, user_input=self.input_type)
         tree.fit()
         return tree
 
     def update_leaves(self, tree):
-        # assume that self.data contains the new data
-        # TODO: change as necessary
         tree.data = self.train_data
         tree.update(self.train_data, self.random_select(self.train_data)[0])
 
@@ -233,19 +231,14 @@ class RNF:
     '''
     def update(self, more_data):
         self.train_data = self.train_data.append(more_data)
-        # self.train_data = self.train_data.append(more_data).reset_index(drop=True)
 
         self.n_max_input = self.train_data.shape[0]
 
-        # use average as placeholder function
         thresh = 0
         for tree in self.trees:
             thresh += tree.calc_oob_error()
         thresh = thresh / len(self.trees)
         self.oob_threshold = thresh
-
-#         thresh *= 0.8
-#         thresh = 99999999999999999999999999999999
 
         idx_trees_to_retrain = []
 
@@ -254,15 +247,12 @@ class RNF:
             if (self.trees[i].oob_error < thresh):
 #                 build of list of indices of trees to rebuilt
                 idx_trees_to_retrain.append(i)
-#                 pass
             else:
                 self.update_leaves(self.trees[i])
-#                 pass
 
         if idx_trees_to_retrain == []:
             return
 
-#         print(len(idx_trees_to_retrain))
         # Multi-processed rebuilding of trees
         pool = multiprocessing.Pool( NUM_CORES )
         results = []
@@ -270,19 +260,17 @@ class RNF:
         for idx in idx_trees_to_retrain:
             results.append( pool.apply_async(self.retrain_tree) )
 
-#         pool.close()
-#         pool.join()
-
         retrained_trees = []
         for result in results:
             retrained_trees.append(result.get())
 
         pool.close()
         pool.join()
-#         print('update: right after join')
 
         for i in range(len(idx_trees_to_retrain)):
             self.trees[idx_trees_to_retrain[i]] = retrained_trees[i]
+
+#         print('update finishes')
 
 
     def store_rnf(self, file_path):
@@ -296,7 +284,8 @@ class RNF:
         f.close()
 
 #         reinitialize some variables
-        self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
+        self.__init__(temp.train_data, temp.n_trees, temp.tree_depth,
+                      temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
 #         the part that matters: load the pre-trained then stored trees into the RNF object instance
         self.trees = temp.trees
 
