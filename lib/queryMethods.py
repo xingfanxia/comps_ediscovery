@@ -4,6 +4,26 @@ from lib import *
 import pandas as pd
 import numpy as np
 
+def regular_increment(df, n_trees, tree_depth, random_seed, n_max_features, cat_features):
+    incremental_forest = RNF(df[0:100], n_trees, tree_depth, random_seed, n_max_features, 100, cat_features)
+    incremental_forest.fit_parallel()
+    print(evalStats(incremental_forest.predict_parallel(df[-100:])[1], df[-100:]))
+    incremental_forest.update(df[100:200])
+    print(evalStats(incremental_forest.predict_parallel(df[-100:])[1], df[-100:]))
+
+    incremental_forest.update(df[200:300])
+    print(evalStats(incremental_forest.predict_parallel(df[-100:])[1], df[-100:]))
+
+    incremental_forest.update(df[300:400])
+    print(evalStats(incremental_forest.predict_parallel(df[-100:])[1], df[-100:]))
+
+    incremental_forest.update(df[400:500])
+    print(evalStats(incremental_forest.predict_parallel(df[-100:])[1], df[-100:]))
+
+    incremental_forest.update(df[500:600])
+    print(evalStats(incremental_forest.predict_parallel(df[-100:])[1], df[-100:]))
+
+
 def entropy(pred):
     s = 0
     for x in pred[0]:
@@ -70,7 +90,7 @@ def committee_increment_copy(df, n_trees, tree_depth, random_seed, n_max_feature
         print(evalStats(committee_rnf.predict_parallel(test_set)[1], test_set))
         
         
-def homogenous_increment(df, n_trees, tree_depth, random_seed, n_max_features, cat_features):
+def homogeneous_increment(df, n_trees, tree_depth, random_seed, n_max_features, cat_features):
     '''Incremental training, but tries to give data points that even out the proportions of relevant vs not relevant
         rows that the forest has'''
     homogenous_rnf = RNF(df[:100], n_trees, tree_depth, random_seed, n_max_features, 100, cat_features)
@@ -91,25 +111,25 @@ def homogenous_increment(df, n_trees, tree_depth, random_seed, n_max_features, c
         # get ratio in the forest's training data
         num_relevant = homogenous_rnf.train_data[homogenous_rnf.train_data['Label']=='1'].shape[0]
         num_irrelevant = homogenous_rnf.train_data[homogenous_rnf.train_data['Label']=='0'].shape[0]
-        print('forest has {} relevant and {} irrelevant docs in the training set'.format(num_relevant, num_irrelevant))
+#         print('forest has {} relevant and {} irrelevant docs in the training set'.format(num_relevant, num_irrelevant))
     
         # look at the distribution of new data points
         if (num_irrelevant > num_relevant):
-            print('here1')
+#             print('here1')
             # need to supplement relevant docs
             difference = num_irrelevant - num_relevant
             num_new_rel = difference + (num_new_rows - difference) // 2
             num_new_irr = num_new_rows - num_new_rel
         elif (num_relevant > num_irrelevant):
-            print('here2')
+#             print('here2')
             difference = num_relevant - num_irrelevant
             num_new_irr = difference + (num_new_rows - difference) // 2
             num_new_rel = num_new_rows - num_new_irr
         else:
-            print('here3')
+#             print('here3')
             num_new_irr = num_new_rows // 2
             num_new_rel = num_new_rows - num_new_irr
-        print('rel rows added: {}, irr rows added: {}'.format(num_new_rel, num_new_irr))
+#         print('rel rows added: {}, irr rows added: {}'.format(num_new_rel, num_new_irr))
         
         # predict on all of the rest of the training set that hasn't been added to the forest
 #         unlabeled_predict = committee_rnf.predict_parallel(df.loc[np.logical_not(df['ID'].isin(labeled_ids))])
@@ -144,17 +164,15 @@ def most_confident_increment(df, n_trees, tree_depth, random_seed, n_max_feature
     test_set = df[-100:]
     train_set = df[:-100]
     
-    print('Initial performance')
     print(evalStats(mc_rnf.predict_parallel(test_set)[1], test_set))
     
     for i in range(5):
         to_predict_on = train_set[~train_set['ID'].isin(mc_rnf.train_data['ID'])].dropna()
-        print('the effective size of the train_set is {}'.format(to_predict_on.shape[0]))
         predictions = mc_rnf.predict_parallel(to_predict_on)
         
         most_confident = sorted(zip(predictions[0], predictions[2]), key= lambda x: abs(x[0][1] - x[0][0]), reverse=True)[:100]
         most_confident_ids = [x[1] for x in most_confident]
-#         print(most_confident_ids)
+        print(most_confident_ids)
         incrementing_set = train_set[train_set['ID'].isin(most_confident_ids)]
         mc_rnf.update(incrementing_set)
         print(evalStats(mc_rnf.predict_parallel(test_set)[1], test_set))
