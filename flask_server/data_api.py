@@ -74,6 +74,21 @@ endpoint for tree metadata for visualizations
 @app.route("/pred_meta/<identifier>")
 def pred_data(identifier):
     if imp_data:
+        data_array = []
+        for key, val in imp_data[identifier].items():
+            new_dict = dict()
+            new_dict['topic'] = key
+            new_dict['importance'] = val
+            data_array.append(new_dict)
+        response = dict()
+        response['data'] = data_array
+        return jsonify(response)
+    else:
+        return jsonify({})
+
+@app.route("/pred_meta_color/<identifier>")
+def pred_data_color(identifier):
+    if imp_data:
         return jsonify(imp_data[identifier])
     else:
         return jsonify({})
