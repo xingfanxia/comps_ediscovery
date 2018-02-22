@@ -1,7 +1,8 @@
 <template>
   <div>
      <div class="row" id="homeSearchBar">
-        <datepicker id="dater"></datepicker>
+        <datepicker id="dater" v-model='time1' lang="en" range format="yyyy-MM-dd" confirm :shortcuts="shortcuts"></datepicker>
+        <button v-on:click="getDate">Pass Date</button>
         <div class='col-lg-7'>
             <p class="control is-expanded">
               <!-- <input class="input" type="text" v-model="inputText" v-on:keyup="checkEnter"> -->
@@ -25,16 +26,26 @@
 </template>
 
 <script>
-import Datepicker from './datepickerv2.vue'
+import Datepicker from 'vue2-datepicker'
 
 export default {
+
   components: {
     'datepicker': Datepicker
   },
+
   data () {
     return {
       inputText: '',
       selected: '',
+      time1: '',
+      shortcuts: [
+        {
+          text: 'Today',
+          start: new Date(),
+          end: new Date()
+        }
+      ],
       options: [
         {text: 'From', value: '/From:\'\' '},
         {text: 'To', value: '/To:\'\' '},
@@ -64,6 +75,7 @@ export default {
         return '/result?' + $.param(dict)
       }
     },
+
     addField: function (newVal) {
       if (document.getElementById('searchBar').value !== 0 && document.getElementById('searchBar').value.indexOf(newVal) !== -1) {
         alert('This field has already added')
@@ -71,14 +83,20 @@ export default {
         document.getElementById('searchBar').value += newVal
       }
     },
+
     checkEnter: function() {
       console.log('this works')
       $('#searchBar').keyup(function (event) {
         if (event.keyCode === 13) {
           $('#searchButton').click()
+        }
+      })
+    },
+
+    getDate: function () {
+      document.getElementById('searchBar').value += 'Date:/\'' + this.time1[0] + '-' + this.time1[1] + '\''
     }
-    })
-    }
+
 }
   }
 
