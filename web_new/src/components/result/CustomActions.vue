@@ -78,13 +78,13 @@ export default {
         // $('.check').removeClass('CActive')
         // $('.x').removeClass('XActive')
       } else if (relevancyCheck === 1) {
-        console.log("checked")
+        console.log('checked')
         this.isCActive = true
         this.isXActive = false
         // $('.check').addClass('CActive')
         // $('.x').removeClass('XActive')
       } else if (relevancyCheck === 0) {
-        console.log("x ed")
+        console.log('x ed')
         this.isXActive = true
         this.isCActive = false
         // $('.check').removeClass('CActive')

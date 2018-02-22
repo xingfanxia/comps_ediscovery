@@ -1,7 +1,7 @@
 <template>
   <div>
      <div class="row" id="homeSearchBar">
-        <datepicker id="dater" v-model='time1' lang="en" range format="yyyy-MM-dd" confirm :shortcuts="shortcuts"></datepicker>
+        <datepicker id="dater" v-model='time1' lang="en" range format="yyyy-MM-dd" :shortcuts="shortcuts"></datepicker>
         <button v-on:click="getDate">Pass Date</button>
         <div class='col-lg-7'>
             <p class="control is-expanded">
@@ -84,7 +84,7 @@ export default {
       }
     },
 
-    checkEnter: function() {
+    checkEnter: function () {
       console.log('this works')
       $('#searchBar').keyup(function (event) {
         if (event.keyCode === 13) {
@@ -94,11 +94,15 @@ export default {
     },
 
     getDate: function () {
-      document.getElementById('searchBar').value += 'Date:/\'' + this.time1[0] + '-' + this.time1[1] + '\''
+      var date1 = this.time1[0]
+      var date2 = this.time1[1]
+      console.log(date1)
+      if (date1 !== undefined && date2 !== undefined) {
+        document.getElementById('searchBar').value += 'Date:/\'' + this.time1[0] + '-' + this.time1[1] + '\''
+      }
     }
-
-}
   }
+}
 
 </script>
 

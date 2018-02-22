@@ -28,11 +28,11 @@ export default {
 
   data () {
     return {
-      spanMessage: this.rowData['Message_Contents'].replace(/&/g, "&amp;")
-                                                   .replace(/</g, "&lt;")
-                                                   .replace(/>/g, "&gt;")
-                                                   .replace(/"/g, "&quot;")
-                                                   .replace(/'/g, "&#039;"),
+      spanMessage: this.rowData['Message_Contents'].replace(/&/g, '&amp;')
+                                                   .replace(/</g, '&lt;')
+                                                   .replace(/>/g, '&gt;')
+                                                   .replace(/"/g, '&quot;')
+                                                   .replace(/'/g, '&#039;'),
       // topicMeta: '',
       apiUrl: 'http://127.0.0.1:5000/topic_table',
       fields: ['topic', 'terms']
@@ -48,14 +48,14 @@ export default {
         for (var key in response.data) {
           // check if the property/key is defined in the object itself, not in parent
           if (response.data.hasOwnProperty(key)) {
-              var word = key
-              var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
-              var topic = response.data[key][1]
-              var wordSpan = '<span class=topic_' + topic + ' title="topic ' + topic + '">' + word + '</span>'
-              this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
-              console.log(this.spanMessage)
-            }
+            var word = key
+            var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
+            var topic = response.data[key][1]
+            var wordSpan = '<span class=topic_' + topic + ' title="topic   ' + topic + '">' + word + '</span>'
+            this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
+            console.log(this.spanMessage)
           }
+        }
       })
     // axios.get('http://127.0.0.1:5000/span_data/' + this.rowData['ID'])
     //   .then(response => {
@@ -104,10 +104,10 @@ export default {
   methods: {
     onClick (event) {
     },
-    showTooltip(key){
+    showTooltip (key) {
       console.log(key)
     },
-    hideTooltip(){
+    hideTooltip () {
       console.log('yolo')
     }
   }
