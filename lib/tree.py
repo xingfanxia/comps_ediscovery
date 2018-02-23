@@ -220,7 +220,7 @@ class Tree:
             after_prop = after.get_proportions('1')
             high_low = "_low" if lefts[before_split_ind] else "_high"
             # features[str(before.min_feature) + high_low] = after_prop - before_prop
-            features[str(before.min_feature)] = after_prop - before_prop
+            features[str(before.min_feature) + high_low] = after_prop - before_prop
         return features
 
     '''
