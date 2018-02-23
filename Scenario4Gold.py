@@ -2,6 +2,10 @@ import CompsML
 import email_filter
 import pandas as pd
 import pickle
+import sys
+sys.path.append('.')
+from lib import *
+from lib.dblib import Database
 
 relevantTree = pd.read_csv('RelevantLunch.txt', sep = '\n', names = ["ID"])
 relevantTree["Label"] = 1
@@ -18,11 +22,12 @@ notRelevantTree["Label"] = 0
 
 with open("cleaned_test_emails.pickle", 'rb') as handle:
     email_filtered = pickle.load(handle)
+    dates = pd.DatetimeIndex(pd.to_datetime(email_filtered['Date'], utc=True)).tz_localize(None)
+    email_filtered['Date'] = dates
 
 mask = email_filtered['ID'].isin(relevantTree["ID"])
 relevant = pd.DataFrame(email_filtered.loc[mask])
 relevant["Relevant"] = '1'
-
 mask1 = email_filtered['ID'].isin(notRelevantTree["ID"])
 notrelevant = pd.DataFrame(email_filtered.loc[mask1])
 notrelevant["Relevant"] = '0'
@@ -32,7 +37,7 @@ full_test_df = pd.concat([relevant,notrelevant])
 full_test_df = full_test_df.reset_index(drop = True)
 
 
-full_test_df = CompsML.setup_dataframe('./data/Feb8hhmi/lsa_output_test_Feb8.npy', full_test_df,user_input = True)
+full_test_df = CompsML.setup_dataframe('./data/Feb8hhmi/lsa_output_test_Feb8.npy', full_test_df,user_input =True)
 
 
-CompsML.test_tree('saved_forest.pickle', full_test_df, user_input = True)
+CompsML.test_tree('saved_forest.pickle', full_test_df, user_input=True)

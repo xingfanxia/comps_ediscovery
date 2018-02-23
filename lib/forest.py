@@ -123,7 +123,7 @@ class RNF:
         scores = [ list() for i in range(len(test_data))]
         for document_idx in range(len(test_data)):
             for tree in trees_outputs:
-                scores[document_idx].append(tree[document_idx][0])
+                scores[document_idx].append(tree[0][document_idx])
         probas = [self.some_majority_count_metric(score) for score in scores]
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
         ids = [doc[1] for doc in trees_outputs[0]]

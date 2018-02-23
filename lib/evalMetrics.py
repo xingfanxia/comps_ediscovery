@@ -17,6 +17,7 @@ def recallPrecisionRelevant(tagArray, testData, user_input= False):
 
     annotatedTestDataCount = 0
     if user_input:
+        print(testData["Relevant"])
         for i in range(len(tagArray)):
             if testData["Relevant"].iloc[i] == '-1':
                 continue

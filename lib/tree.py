@@ -236,6 +236,8 @@ class Tree:
     def _should_go_left(self, row, cur_node):
         if cur_node.min_feature in self.cat_features:
             return row[cur_node.min_feature] == cur_node.min_break_point
+        if cur_node.min_feature == 'Date':
+            print('{} vs {}'.format(row[cur_node.min_feature], cur_node.min_break_point)) 
         return row[cur_node.min_feature] < cur_node.min_break_point
 
     '''
@@ -254,8 +256,8 @@ class Tree:
             for node in temp:
                 # debugging: check how many nodes this sees
                 node_count += 1
-                
-                
+
+
                 node.data = updated_data
                 node.rows = []
                 node.proportions = {}
@@ -265,7 +267,7 @@ class Tree:
                     nodes.append(node.right)
             if nodes == []:
                 break
-                
+
         # debugging: how many nodes go through the resetting process?
 #         print('tree.update: resetted {} nodes'.format(node_count))
         # debugging: how does this compare to number of nodes that exist in the tree?
@@ -304,11 +306,11 @@ class Tree:
                 elif parent.right == e:
                     parent.right = None
                 else:
-                    print('should not be here')      
+                    print('should not be here')
             else:
                 # the empty node is a head
                 print('this is a head')
-        
+
         # after updating, look for empty nodes, and reshape tree accordingly.
         nodes_to_traverse = [self.head]
         done = False
@@ -316,7 +318,7 @@ class Tree:
             temp = nodes_to_traverse
             nodes_to_traverse = []
             for i in range(len(temp)):
-                # if the current node has children, perform the rebalancing process 
+                # if the current node has children, perform the rebalancing process
                 cur = temp[i]
                 left = cur.left
                 right = cur.right
@@ -357,7 +359,7 @@ class Tree:
                         nodes_to_traverse.append(right)
                         nodes_to_traverse.append(parent)
                         nodes_to_traverse.append(parent.parent_node)
-    
+
 
 
                     elif right_empty:
@@ -372,7 +374,7 @@ class Tree:
                             parent.right = left
                         nodes_to_traverse.append(left)
                         nodes_to_traverse.append(parent)
-                        
+
                     # debugging: checking what this condition would be, or if it ever happens
                     else:
                         pass
@@ -407,16 +409,16 @@ class Tree:
 #             print('has right: {}'.format(e.right != None))
 #             print('has parent: {}'.format(e.parent_node != None))
 #             print('is head: {}'.format(e == self.head))
-            
+
 #             print('parent has {} rows'.format(len(e.parent_node.rows)))
 #             if e.parent_node.left == e:
 
 #                 print('neighbor has {} rows'.format(len(e.parent_node.right.rows)))
 #             else:
 #                 print('neighbor has {} rows'.format(len(e.parent_node.left.rows)))
-            
-            
-            
+
+
+
         num_rows = [len(r.rows) for r in t]
         if 0 in num_rows:
             print('Warning: after restructuring: there is a 0-row node')

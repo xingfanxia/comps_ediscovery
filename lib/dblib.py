@@ -10,8 +10,8 @@ import ast
 import datetime
 
 class Database():
-    def __init__(self):
-        self.conn = sqlalchemy.create_engine('sqlite:///../data/parsed/databases/ediscovery.db', connect_args={'check_same_thread':False}, poolclass=StaticPool)
+    def __init__(self, path='sqlite:///../data/parsed/databases/ediscovery.db'):
+        self.conn = sqlalchemy.create_engine(path, connect_args={'check_same_thread':False}, poolclass=StaticPool)
         self.metadata = MetaData(self.conn)
         Session = sessionmaker(bind=self.conn)
         self.session = Session()
@@ -36,7 +36,7 @@ class Database():
             df = df.loc[df['Scenario'] == str(scenario)]
         df = df.astype(str)
         if time:
-            df['Date'] = pd.to_datetime(df['Date'])
+            df['Date'] = pd.to_datetime(df['Date']).dt.tz_localize(None)
         # df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']] = df[['To','From','X-To','X-From','Label','Scenario','Relevant','New_Tag']].applymap(ast.literal_eval)
         return df
 
