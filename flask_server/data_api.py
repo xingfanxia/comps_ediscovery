@@ -68,7 +68,7 @@ def upload_sort(search_dict, dict_tfidf, db_data):
                 db_data[i]["TF-IDF Value"] = dict_tfidf[db_data[i]["ID"]].get(search_dict["Message_Contents"])
         db_data = sorted(db_data, key=lambda k: k['TF-IDF Value'], reverse = True)
     else:
-        db_data = sorted(db_data, key=lambda k: queryMethods.entropy(k['Relevant'], 1-k['Relevant']), reverse=True)
+        db_data = sorted(db_data, key=lambda k: queryMethods.entropy((float(k['Relevant']), 1-float(k['Relevant']))), reverse=True)
     return db_data
 
 '''
