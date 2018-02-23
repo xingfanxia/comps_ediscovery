@@ -15,27 +15,21 @@
     </div>
     <div id="the-buttons" class="row center">
       <datepicker id="dater" v-model='time1' lang="en" range format="yyyy-MM-dd" :shortcuts="shortcuts"></datepicker>
-      <button class="btn-sm queryButtons" v-on:click="getDate">Put Date</button>
+      <button id="tooltip" class="btn-sm queryButtons" v-on:click="getDate" data-text="Pass Date to Input">Put Date</button>
       <p class="separator">||</p>
-      <button type="button" id="tooltip" class="btn-sm queryButtons" v-for="option in options" @click="addField(option.value)" value="option.value" data-text="Click this button">
+      <button type="button" id="tooltip" class="btn-sm queryButtons" v-for="option in options" @click="addField(option.value)" value="option.value" :data-text="option.tooltip">
         {{ option.text }}
       </button>
-    </div>
-    <div class="tooltip">
-        Hover over me
-      <span class="tooltiptext">Tooltip text</span>
     </div>
   </div>
 </template>
 
 <script>
 import Datepicker from 'vue2-datepicker'
-import VTooltip from 'v-tooltip'
 
 export default {
   components: {
-    'datepicker': Datepicker,
-    'v-tooltip': VTooltip
+    'datepicker': Datepicker
   },
 
   data () {
@@ -52,11 +46,11 @@ export default {
         }
       ],
       options: [
-        {text: 'From', value: '/From:\'\' '},
-        {text: 'To', value: '/To:\'\' '},
-        {text: 'Subject', value: '/Subject:\'\' '},
-        {text: 'Message Contents', value: '/Message_Contents:\'\' '},
-        {text: 'ID', value: '/ID:\'\' '}
+        {text: 'From', value: '/From:\'\' ', tooltip: 'select from whom'},
+        {text: 'To', value: '/To:\'\' ', tooltip: 'select to whom'},
+        {text: 'Subject', value: '/Subject:\'\' ', tooltip: 'search for emails contain given keyword in subject'},
+        {text: 'Message Contents', value: '/Message_Contents:\'\' ', tooltip: 'search for emails contain given keyword in its content'},
+        {text: 'ID', value: '/ID:\'\' ', tooltip: 'search for emails with given ID'}
       ]
     }
   },
