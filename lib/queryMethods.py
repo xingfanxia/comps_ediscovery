@@ -4,12 +4,12 @@ from lib import *
 import pandas as pd
 import numpy as np
 
-def entropy(pred):
+def entropy(probs):
     s = 0
-    for x in pred[0]:
+    for x in probs:
         if x != 0:
             s += x * math.log(x)
-    return (-1 * s, pred[1])
+    return -1 * s
 
 def committee_increment(df, n_trees, tree_depth, random_seed, n_max_features, cat_features):
     # initial training
@@ -31,7 +31,8 @@ def committee_increment(df, n_trees, tree_depth, random_seed, n_max_features, ca
         # initial train scores
         unlabeled_predict = committee_rnf.predict_parallel(df.loc[np.logical_not(df['ID'].isin(labeled_ids))])
 
-        to_label = sorted(map(entropy, zip(unlabeled_predict[0], unlabeled_predict[2])), reverse=True)[:increment_size]
+        # to_label = sorted(map(entropy, zip(unlabeled_predict[0], unlabeled_predict[2])), reverse=True)[:increment_size]
+        to_label = sorted(zip(map(entropy, unlabeled_predict[0]), unlabeled_predict[2]), reverse=True)[:increment_size]
 
         to_label_ids = [x[1] for x in to_label]
 
@@ -62,7 +63,8 @@ def committee_increment_copy(df, n_trees, tree_depth, random_seed, n_max_feature
         print('the effective size of the train_set is {}'.format(to_predict_on.shape[0]))
         predictions = committee_rnf.predict_parallel(to_predict_on)
         
-        least_agreement = sorted(zip(predictions[0], predictions[2]), key= lambda x: entropy(x), reverse=True)[:100]
+        # least_agreement = sorted(zip(predictions[0], predictions[2]), key= lambda x: entropy(x), reverse=True)[:100]
+        least_agreement = sorted(zip(map(entropy, predictions[0]), predictions[2]), reverse=True)[:100]
         least_agreement_ids = [x[1] for x in least_agreement]
 #         print(most_confident_ids)
         incrementing_set = train_set[train_set['ID'].isin(least_agreement_ids)]
