@@ -49,7 +49,7 @@ export default {
         {text: 'From', value: '/From:\'\' ', tooltip: 'Filter by sender name or email'},
         {text: 'To', value: '/To:\'\' ', tooltip: 'Filter by recipient name or email'},
         {text: 'Subject', value: '/Subject:\'\' ', tooltip: 'Filter by keyword(s) in subject'},
-        {text: 'Message Contents', value: '/Message_Contents:\'\' ', tooltip: 'Filter by keyword(s) in message contents'},
+        {text: 'Message Contents', value: '/Message_Contents:\'\' ', tooltip: 'Filter by keyword(s) in \n message contents'},
         {text: 'ID', value: '/ID:\'\' ', tooltip: 'Filter by ID'}
       ]
     }
@@ -95,6 +95,8 @@ export default {
     getDate: function () {
       var date1 = this.time1[0]
       var date2 = this.time1[1]
+      var date1re = date1.match(/[^\w{3}].+?(?=00)/g)
+      console.log(date1re)
       console.log(date1)
       if (date1 !== undefined && date2 !== undefined) {
         document.getElementById('searchBar').value += 'Date:/\'' + this.time1[0] + '-' + this.time1[1] + '\' '
@@ -176,7 +178,7 @@ export default {
     padding: 5px 15px;
     position: absolute;
     z-index: 98;
-    width: 220px;
+    width: 235px;
     white-space: pre;
 }
 

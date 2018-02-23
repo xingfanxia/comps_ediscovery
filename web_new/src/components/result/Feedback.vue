@@ -1,5 +1,6 @@
 <template>
   <section id="feedback">
+    <loading :active.sync="visible" :can-cancel="true"></loading>
     <div id="buttons">
       <button class="ui basic button" @click="learn()">Run Incremental Learning</button>
     </div>
@@ -9,6 +10,7 @@
 <script>
 
 import axios from 'axios'
+
 
 export default {
   methods: {
