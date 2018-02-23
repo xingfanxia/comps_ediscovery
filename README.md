@@ -1,13 +1,7 @@
-## This is the repo for comps project E-discovery at Carleton College
+## Tree Discovery: E-Discovery on the Enron Dataset
+Carleton College Computer Science Comps, 2018
+By Ju Yun Kim, Dan Mayer, Micah Nacht, Adam Tigar, Xingfan Xia, and Lazar Zamurovic
+Advised by Eric Alexander
 
-### ML-Todos
-- **Important** Optimize speed (Micah)
-- Better Visualization (Xingfan)
-- Take batch test input
-- **Important** Incremental learning (update tree than training again)
-- Save & Load tree (Ju Yun)
-- Categorical Data (non-digit data like emails)
-- Evaluation Metrics (`F1 scores` and `actual cross_val`)
 
-### Further
-- Migration to fit the actual `ENRON` set.
+## More?

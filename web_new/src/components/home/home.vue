@@ -2,8 +2,8 @@
 
   <section class="section" id="home-section">
     <div class="container">
-      <h1 class="title has-text-centered"><span>Catchy Title</span></h1>
-      <h1 class="title has-text-centered">Tell a narrative</h1>
+      <h1 class="title has-text-centered"><span>Lunch at Enron:</span></h1>
+      <h1 class="title has-text-centered">The Emails</h1>
       <search-bar></search-bar>
     </div>
 
