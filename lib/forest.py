@@ -115,7 +115,14 @@ class RNF:
     should ouput two arrays: probas and classfication
     '''
     def some_majority_count_metric(self, score):
-        return np.nanmean(score, axis=0)
+        return np.array([self.dampen(x) for x in np.nanmean(score, axis=0)])
+
+    def dampen(self, x):
+        if x == 1:
+            return .9999
+        elif x == 0:
+            return .0001
+        return x
 
     '''
     Use the trained model to predict a label for previously unseen data.
