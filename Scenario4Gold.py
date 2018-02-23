@@ -3,12 +3,12 @@ import email_filter
 import pandas as pd
 import pickle
 
-def scenario_4_Gold():
+def scenario_4_Gold(rnf):
 
-    relevantTree = pd.read_csv('RelevantLunch.txt', sep = '\n', names = ["ID"])
+    relevantTree = pd.read_csv('./testingData/RelevantLunch.txt', sep = '\n', names = ["ID"])
     relevantTree["Label"] = 1
 
-    notRelevantTree = pd.read_csv('NotRelevantLunch.txt', sep = '\n', names = ["ID"], encoding = 'utf-8')
+    notRelevantTree = pd.read_csv('./testingData/NotRelevantLunch.txt', sep = '\n', names = ["ID"], encoding = 'utf-8')
     notRelevantTree["Label"] = 0
 
 # df = pd.read_csv('./data/parsed/test.csv', dtype=str)
@@ -18,7 +18,7 @@ def scenario_4_Gold():
 # with open("cleaned_test_emails.pickle",'wb') as handle:
 #     pickle.dump(email_filtered, handle)
 
-    with open("cleaned_test_emails.pickle", 'rb') as handle:
+    with open("./testingData/cleaned_test_emails.pickle", 'rb') as handle:
         email_filtered = pickle.load(handle)
 
     mask = email_filtered['ID'].isin(relevantTree["ID"])
@@ -32,6 +32,8 @@ def scenario_4_Gold():
     full_test_df = pd.concat([relevant,notrelevant])
     full_test_df = full_test_df.reset_index(drop = True)
 
-    full_test_df = CompsML.setup_dataframe('./data/Feb8hhmi/lsa_output_test_Feb8.npy', full_test_df,user_input = True)
+    full_test_df = CompsML.setup_dataframe('./testingData/lsa_output_test_Feb8.npy', full_test_df,user_input = True)
 
-    CompsML.test_tree('saved_forest.pickle', full_test_df, user_input = True)
+    gold_dict = CompsML.test_tree_frontend(rnf, full_test_df)
+
+    return gold_dict

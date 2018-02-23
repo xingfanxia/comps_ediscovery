@@ -161,6 +161,7 @@ class Node:
         '''
 
         if len(self.rows) == 0:
+            print('got an empty node')
             return self
         elif self.calc_gini_index() == 0:
             return self
@@ -388,7 +389,7 @@ class Node:
         except KeyError:
 #             print('I\'m a node and I have {} rows'.format(len(self.rows)))
             members = self.data.loc[self.rows][self.label_index].values
-            
+
 #             s = set(self.rows) - set(self.data.index)
 #             if (len(s) > 0):
 #                 print('the problem rows: {}'.format(s))

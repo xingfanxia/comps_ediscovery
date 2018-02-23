@@ -73,3 +73,22 @@ def test_tree(tree_datapath, test_dataframe, user_input = False):
     print("F1:" + str(stats[3]))
 
     return evalDict
+
+def test_tree_frontend(test_forest, test_dataframe):
+    predictions = test_forest.predict_parallel(test_dataframe)
+    stats = evalStats(predictions[1], test_dataframe, user_input = True)
+
+    evalDict = {}
+    evalDict["Recall"] = str(stats[0] * 100) + "%"
+    evalDict["Precision"] = str(stats[1] * 100) + "%"
+    evalDict["Accuracy"] = str(stats[2] * 100) + "%"
+    evalDict["F1"] = str(stats[3] * 100) + "%"
+
+    print("Recall:" + str(stats[0] * 100) + "%")
+    print("Precision:" + str(stats[1] * 100) + "%")
+    print("Accuracy:" + str(stats[2] * 100) + "%")
+    print("F1:" + str(stats[3]))
+
+    print("Gold Standard")
+
+    return evalDict
