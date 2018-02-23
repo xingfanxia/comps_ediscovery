@@ -72,7 +72,7 @@ def f1Eval(recall, precision):
 #Display Statistics of system
 #Input: predictOuput = forest.predict output, emails = df[pd.read_pickle(datapath)["Scenario"] == '401']
 #Output: Display of statistics
-def evalStats(predictOutput, emails, user_input):
+def evalStats(predictOutput, emails, user_input=False):
     stats = recallPrecisionRelevant(predictOutput, emails,user_input)
     fOne = f1Eval(stats[0], stats[1])
 #     print("Recall:" + str(stats[0] * 100) + "%")
