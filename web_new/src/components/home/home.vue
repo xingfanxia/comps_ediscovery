@@ -9,18 +9,15 @@
 
     <div class="content" id="download">
       <div class="columns">
-        <div class="column is-6-desktop is-offset-3-desktop is-10-tablet is-offset-1-tablet is-10-mobile is-offset-1-mobile">
-          <p>Example Query 1</p>
-          <p><i>Emails with recipient email address containing 'monika'</i></p>
-          <pre><code class="bash">/To:'Monika'</code></pre>
+        <div class="exquery column is-6-desktop is-offset-3-desktop is-10-tablet is-offset-1-tablet is-10-mobile is-offset-1-mobile">
+          <p><span>Getting Started</span></p>
+          <p><i>Filter by Subject and Message Contents &emsp;&emsp;</i></p>
+          <a class="button explore" href="/result?Subject=lunch&Message_Contents=lunch">Explore >></a>
+          <pre><code class="bash">/Subject:'lunch' /Message_Contents:'lunch' </code></pre>
 
-          <p>Example Query 2</p>
-          <p><i>Emails from 'david.allan@enron.com' with 'lunch' in message contents</i></p>
-          <pre><code class="bash">/From:'david.allan@enron.com' /Message_Contents:'lunch' </code></pre>
-
-          <p>Example Query 3</p>
-          <p><i>Emails from 'monika.causholli@enron.com' to 'david.allan@enron.com"</i></p>
-          <pre><code class="bash">/To:'david.allan@enron.com' /From:'monika.causholli@enron.com'</code></pre>
+          <p><i>Filter by Subject and Person &emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&emsp;&nbsp;</i></p>
+          <a class="button explore" href="/result?Subject=lunch&From=susan.scott%40enron.com">Explore >></a>
+          <pre><code class="bash">/Subject:'lunch' /From:'susan.scott@enron.com'</code></pre>
         </div>
       </div>
 
@@ -69,6 +66,26 @@ div#home-searchbar {
 #home-searchbar a.button {
   height: 3rem;
   width: 8rem;
+}
+
+.exquery span {
+  color: #0B5091;
+  font-size: 45px;
+  text-align: center;
+}
+
+.exquery p {
+    font-size: 20px;
+    display: inline-block;
+}
+
+.explore {
+    display: inline-block;
+    margin-top: 10px;
+    color: #fff;
+    background-color: #0B5091;
+    border-color: #0B5091;
+    border-radius: 4px;
 }
 
 div#download {
