@@ -37,7 +37,7 @@ try:
 except:
     rnf = None
 
-with open('./testingData/SortedDict.pickle', 'rb') as handle:
+with open('../data/parsed/pickles/SortedDict.pickle', 'rb') as handle:
     tfidf_dict = pickle.load(handle)
 
 topics = pd.read_pickle('../data/parsed/LSA_dataframes/pickled_LSA_termsFeb12.pickle')
@@ -93,6 +93,8 @@ def pred_data(identifier):
     if imp_data:
         data_array = []
         for key, val in imp_data[identifier].items():
+            if key == 'From' or key == 'To' or key == 'Date':
+                continue
             new_dict = dict()
             new_dict['topic'] = key
             new_dict['importance'] = val
@@ -236,8 +238,9 @@ def enron():
         saved_data = data
         saved_payload = payload
     else:
+        print('wrong place')
         data = saved_data
-    
+
     data = upload_sort(payload, tfidf_dict, data)
 
 
