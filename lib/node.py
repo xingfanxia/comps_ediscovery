@@ -34,19 +34,6 @@ class Node:
         self.proportions = {}
         self.parent_node = parent_node
 
-
-
-
-    def calc_shannon_entropy(self):
-        raw_val = 0
-        for label in self.labels:
-            members = self.data.loc[self.data[self.label_index] == label]
-            if len(members) <= 0: continue
-            filtered = [x for x in members.index.values if x in self.rows]
-            intermediate = len(filtered)/len(self.rows)
-            raw_val += -intermediate*np.log2(intermediate)
-        return raw_val
-
     def calc_gini_index(self):
         raw_val = 1
         members = self.data.loc[self.rows][self.label_index].values
@@ -54,13 +41,6 @@ class Node:
             filtered = members[members == label]
             raw_val -= (len(filtered)/len(self.rows))**2
         return raw_val
-
-
-    '''
-    calculate info gain from gini/entropy
-    '''
-    def cal_info_gain():
-        pass
 
     def find_break_points(self, df, feature):
         breaks = []
@@ -73,6 +53,9 @@ class Node:
         return breaks
 
 
+    '''
+    Splitting function for when the feature is a categorical variable
+    '''
     def split_cat(self, feature):
         best_gini = 2
         best_address = None
@@ -372,7 +355,6 @@ class Node:
         return (score1*num1 + score2*num2)/(num1 + num2)
 
     def __str__(self):
-#         if self.left and self.right:
         children = [(x.side, x.id) for x in (self.left, self.right)] if self.left and self.right else []
         return "[{ID}, {Gini}, {Size}, {Feature}, {BP}, {Children}]".format(ID=self.id,
                                                             Gini = self.calc_gini_index(),
@@ -380,27 +362,16 @@ class Node:
                                                             Feature=self.min_feature,
                                                             BP=self.min_break_point,
                                                            Children=children)
-#         else:
-#             "[{ID}, (Children=None)]".format(ID=self.id)
+
+
 
     def get_proportions(self, target_label):
         try:
             return self.proportions[target_label]
         except KeyError:
-#             print('I\'m a node and I have {} rows'.format(len(self.rows)))
             members = self.data.loc[self.rows][self.label_index].values
-
-#             s = set(self.rows) - set(self.data.index)
-#             if (len(s) > 0):
-#                 print('the problem rows: {}'.format(s))
-#                 print('data indices: {}'.format(sorted(self.data.index)))
-#                 print('I am a node with {} rows'.format(len(self.data.index)))
-#             else:
-#                 print('I am a node with {} rows'.format(len(self.data.index)))
-
             filtered = [x for x in members if x == target_label]
-    #         members = self.data.loc[self.data[self.label_index] == target_label]
-    #         filtered = [x for x in members.index.values if x in self.rows]
+
             raw_val = (len(filtered)/len(self.rows))
             self.proportions[target_label] = raw_val
             return raw_val

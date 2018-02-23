@@ -44,12 +44,12 @@ class RNF:
         self.label_col_num = 60
 
     '''
-    Randomly select features and emails from the train_data
+    Randomly select features and emails from the train_data.
+    Emails are selected with replacement, features without.
+    np.delete calls are to resolve interference from non-feature columns
     '''
-    #TODO: fix this so that the features selected are the actual features, not the indices of the features.
     def random_select(self, train_data):
         selected_rows = np.random.choice(self.train_data.index, self.n_max_input)
-#         print(selected_rows)
         selected_feature_indices = np.random.choice(self.train_data.shape[1] - 1, self.n_max_features, replace=False)
         selected_features = train_data.columns.values[[selected_feature_indices]]
         selected_features = np.delete(selected_features, np.where(selected_features == "Label"), axis=0)
@@ -57,37 +57,39 @@ class RNF:
         selected_features = np.delete(selected_features, np.where(selected_features == "ID"), axis=0)
         return (selected_rows, selected_features)
 
-        #selected_features = np.random.choice(self.train_data.shape[1] - 2, self.n_max_features, replace=False)
-        #return (selected_rows, selected_features)
 
     '''
-    pass randomly selected emails and features to each tree
+    Create and train trees for the forest.
+    Use fit_parallel for a parallelized and updated version
     '''
     def fit(self):
         if len(self.trees) != 0:
             raise AlreadyFitException('This forest has already been fit to the data')
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
-            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features, user_input=self.input_type))
+            self.trees.append(Tree(self.train_data, self.tree_depth,
+                                   0, selected[0], selected[1], self.cat_features,
+                                   user_input=self.input_type))
         count = 0
         for tree in self.trees:
             count += 1
-            print('fitting the {}th tree.'.format(count))
             tree = tree.fit()
 
 
 
 
     '''
-    A separate paralellized fit function for now
+    Parallelized version of fitting the model.
+    Create trees with selected features and rows, and fits each on up to NUM_CORES number of cores
     '''
     def fit_parallel(self):
-        # Tree creation
         if len(self.trees) != 0:
             raise AlreadyFitException('This forest has already been fit to the data')
         for i in range(self.n_trees):
             selected = self.random_select(self.train_data)
-            self.trees.append(Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features, user_input=self.input_type))
+            self.trees.append(Tree(self.train_data, self.tree_depth, 0,
+                                   selected[0], selected[1], self.cat_features,
+                                   user_input=self.input_type))
 
         # create N new processes, where N = number of trees
         pool = multiprocessing.Pool( NUM_CORES )
@@ -108,9 +110,6 @@ class RNF:
             self.trees[i] = r[i]
 
 
-
-
-
     '''
     calculate a proba from output of each tree's prediction
     should ouput two arrays: probas and classfication
@@ -118,6 +117,9 @@ class RNF:
     def some_majority_count_metric(self, score):
         return np.nanmean(score, axis=0)
 
+    '''
+    Use the trained model to predict a label for previously unseen data.
+    '''
     def predict(self, test_data, visualize=False):
         trees_outputs = [tree.predict(test_data, visualize) for tree in self.trees]
         scores = [ list() for i in range(len(test_data))]
@@ -130,10 +132,26 @@ class RNF:
         return probas, classes, ids
 
 
+    '''
+    Check that there are no predictions that have probabilities over 1
+    '''
+    def _check_prediction_integrity(self, probabilities):
+        num_exceeded = 0
+        for p in probabilities:
+            if p[0] > 1 or p[1] > 1:
+                num_exceeded += 1
+        return num_exceeded
 
+
+
+    '''
+    Use the trained model to predict a label for previously unseen data.
+    This parallelized version asks each tree to do their predictions separately
+    in their own cores, at up to NUM_CORES number of cores at a time.
+    '''
     def predict_parallel(self, test_data, visualize=False, importance=False):
         pool = multiprocessing.Pool( NUM_CORES )
-
+        # Asynchronous calls for the trees to do work
         results = []
         for i in range(len(self.trees)):
             results.append( pool.apply_async(self.trees[i].predict, (test_data, visualize, importance)) )
@@ -146,6 +164,7 @@ class RNF:
         pool.join()
 
         trees_outputs = r
+        # Aggregation of scores returned by each tree
         scores = [ list() for i in range(len(test_data))]
         for document_idx in range(len(test_data)):
             for tree in trees_outputs:
@@ -154,6 +173,7 @@ class RNF:
         classes = ['1' if proba[0] > proba[1] else '0'  for proba in probas]
         ids = trees_outputs[0][1]
 
+        # Calculation of feature importances, if desired
         if importance:
             #sum up all of the importances
             importances = [{} for doc in trees_outputs[0][2]]
@@ -171,6 +191,9 @@ class RNF:
             # print(importances)
             # print(ids)
             return probas, classes, ids, importances
+
+        if self._check_prediction_integrity(probas) > 0:
+            print("WARNING: Forest.predict_parallel(): {} of the {} predictions have probabilities above 1".format(self._check_prediction_integrity(probas), len(test_data)))
 
         return probas, classes, ids
 
@@ -210,68 +233,75 @@ class RNF:
                 importances[importance_dict][feature] = importances[importance_dict][feature] / len(self.trees)
         return probas, classes, importances
 
+    '''
+    Used in incremental learning
+    Randomly selects new data and features, creates the trees based on those, fits it, and returns it
+    '''
     def retrain_tree(self):
-        # assume that self.data contains the new data
-        # TODO: change as necessary
         selected = self.random_select(self.train_data)
-        tree = Tree(self.train_data, self.tree_depth, 0, selected[0], selected[1], self.cat_features, user_input=self.input_type)
+        tree = Tree(self.train_data, self.tree_depth,
+                    0, selected[0], selected[1],
+                    self.cat_features, user_input=self.input_type)
         tree.fit()
         return tree
 
+    '''
+    Used in incremental learning
+    When a tree is good enough to be kept, instead of being retrained, the leaf nodes are updated
+    This is done in a Tree member function
+    params:
+    tree - the Tree object that exists in self.trees to be updated
+    '''
     def update_leaves(self, tree):
-        # assume that self.data contains the new data
-        # TODO: change as necessary
         tree.data = self.train_data
         tree.update(self.train_data, self.random_select(self.train_data)[0])
 
 
     '''
+    Incremental learning functionality at the Forest level.
+    Calculates a threshold based on the trees' out-of-bag errors
+    Based on the threshold, decide which trees should be scrapped and replaced,
+    and which should be updated.
     params:
-    more_data - more training data to update the forest
+    more_data - df, additional training data to update the forest. This is being appended to the
+                existing train_data in the Forest.
     return:
     Null or we can say something like which trees are changed
     '''
     def update(self, more_data):
+        # Update the data that the Forest can train on
         self.train_data = self.train_data.append(more_data)
-        # self.train_data = self.train_data.append(more_data).reset_index(drop=True)
-
         self.n_max_input = self.train_data.shape[0]
-
         # use average as placeholder function
+
+        # Calculate the out-of-bag error threshold, a simple average for now
         thresh = 0
         for tree in self.trees:
             thresh += tree.calc_oob_error()
         thresh = thresh / len(self.trees)
         self.oob_threshold = thresh
 
-#         thresh *= 0.8
-#         thresh = 99999999999999999999999999999999
-
-        idx_trees_to_retrain = []
-
-
+        # Decide which trees are good enough to update, and which need to be replaced
+        idx_trees_to_retrain = [] # indexes into self.trees for those to be replaced
         for i in range(len(self.trees)):
             if (self.trees[i].oob_error < thresh):
-#                 build of list of indices of trees to rebuilt
                 idx_trees_to_retrain.append(i)
-#                 pass
             else:
                 self.update_leaves(self.trees[i])
-#                 pass
 
+        # To avoid errors from not having > 0 number of processes.
+        # If there are no trees to retrain, just quit, since all
+        # that need to be updated have been at this point.
+        # TODO: possibly replace this with a try-except
         if idx_trees_to_retrain == []:
             return
 
-#         print(len(idx_trees_to_retrain))
-        # Multi-processed rebuilding of trees
+        # Parallelized tree creation
         pool = multiprocessing.Pool( NUM_CORES )
         results = []
 
         for idx in idx_trees_to_retrain:
             results.append( pool.apply_async(self.retrain_tree) )
-
-#         pool.close()
-#         pool.join()
 
         retrained_trees = []
         for result in results:
@@ -279,25 +309,32 @@ class RNF:
 
         pool.close()
         pool.join()
-#         print('update: right after join')
 
+        # Place the returned trees into the slots previously marked for replacement
         for i in range(len(idx_trees_to_retrain)):
             self.trees[idx_trees_to_retrain[i]] = retrained_trees[i]
 
 
+    '''
+    Store the forest via pickling
+    '''
     def store_rnf(self, file_path):
         f = open(file_path, 'wb')
         pickle.dump(self, f)
         f.close()
 
+    '''
+    Load the pickle, initialize the variable
+    '''
     def load_rnf(self, file_path):
         f = open(file_path, 'rb')
         temp = pickle.load(f)
         f.close()
 
-#         reinitialize some variables
-        self.__init__(temp.train_data, temp.n_trees, temp.tree_depth, temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
-#         the part that matters: load the pre-trained then stored trees into the RNF object instance
+        # reinitialize some variables
+        self.__init__(temp.train_data, temp.n_trees, temp.tree_depth,
+                      temp.seed, temp.n_max_features, temp.n_max_input, temp.cat_features)
+        # the part that matters: load the pre-trained then stored trees into the RNF object instance
         self.trees = temp.trees
 
     '''
