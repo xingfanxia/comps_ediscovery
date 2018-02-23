@@ -288,18 +288,18 @@ def dbtest():
         test_df = df.loc[df['Relevant'] != '0']
         test_df = test_df.reset_index(drop=True)
         print (test_df.head())
-        # n_trees = 32
-        # tree_depth = 5
-        # random_seed = 42
-        # n_max_features = 11
-        # n_max_input = 300
-        # benchmark = None
-        n_trees = 5
-        tree_depth = 5
+        n_trees = 32
+        tree_depth = 10
         random_seed = 42
-        n_max_features = 3
+        n_max_features = 20
         n_max_input = 300
         benchmark = None
+        # n_trees = 5
+        # tree_depth = 5
+        # random_seed = 42
+        # n_max_features = 3
+        # n_max_input = 300
+        # benchmark = None
 
 
         try:
