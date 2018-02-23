@@ -36,7 +36,7 @@ export default {
   },
 
   created: function () {
-    var arr = ['ID', 'Date', 'From', 'To', 'Relevant', 'Subject']
+    var arr = ['Date', 'From', 'To', 'Subject', 'Relevant']
     this.fields = arr.concat(this.fields)
     this.perPage = 5
     let query = $.param(this.$route.query)

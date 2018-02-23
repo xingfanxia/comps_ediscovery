@@ -164,6 +164,7 @@ def reset():
         db.reset_relevant()
         db.reset_new_tag()
         saved_payload = None
+        imp_data = None
         rnf = None
         f = open('../saved_forest.pickle', 'wb')
         pickle.dump(rnf, f)

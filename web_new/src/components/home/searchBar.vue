@@ -49,7 +49,7 @@ export default {
         {text: 'From', value: '/From:\'\' ', tooltip: 'Filter by sender name or email'},
         {text: 'To', value: '/To:\'\' ', tooltip: 'Filter by recipient name or email'},
         {text: 'Subject', value: '/Subject:\'\' ', tooltip: 'Filter by keyword(s) in subject'},
-        {text: 'Message Contents', value: '/Message_Contents:\'\' ', tooltip: 'Filter by keyword(s) in message contents'},
+        {text: 'Message Contents', value: '/Message_Contents:\'\' ', tooltip: 'Filter by keyword(s) in \n message contents'},
         {text: 'ID', value: '/ID:\'\' ', tooltip: 'Filter by ID'}
       ]
     }
@@ -176,7 +176,7 @@ export default {
     padding: 5px 15px;
     position: absolute;
     z-index: 98;
-    width: 220px;
+    width: 235px;
     white-space: pre;
 }
 

@@ -63,9 +63,9 @@ export default {
             var alpha = response.data[key]
             console.log(alpha)
             if (alpha < 0) {
-              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) * 10 + ')')
+              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) * 7 + ')')
             } else {
-              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) * 10 + ')')
+              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) * 7 + ')')
             }
             $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
           }
