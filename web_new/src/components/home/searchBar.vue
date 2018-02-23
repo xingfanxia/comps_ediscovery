@@ -46,11 +46,11 @@ export default {
         }
       ],
       options: [
-        {text: 'From', value: '/From:\'\' ', tooltip: 'select from whom'},
-        {text: 'To', value: '/To:\'\' ', tooltip: 'select to whom'},
-        {text: 'Subject', value: '/Subject:\'\' ', tooltip: 'search for emails contain given keyword in subject'},
-        {text: 'Message Contents', value: '/Message_Contents:\'\' ', tooltip: 'search for emails contain given keyword in its content'},
-        {text: 'ID', value: '/ID:\'\' ', tooltip: 'search for emails with given ID'}
+        {text: 'From', value: '/From:\'\' ', tooltip: 'Filter by sender name or email'},
+        {text: 'To', value: '/To:\'\' ', tooltip: 'Filter by recipient name or email'},
+        {text: 'Subject', value: '/Subject:\'\' ', tooltip: 'Filter by keyword(s) in subject'},
+        {text: 'Message Contents', value: '/Message_Contents:\'\' ', tooltip: 'Filter by keyword(s) in message contents'},
+        {text: 'ID', value: '/ID:\'\' ', tooltip: 'Filter by ID'}
       ]
     }
   },

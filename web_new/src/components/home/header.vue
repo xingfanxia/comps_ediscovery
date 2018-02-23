@@ -7,7 +7,7 @@
     </div>
     <div class="navbar-end">
 
-      <a href="https://github.com" class="navbar-item">
+      <a href="https://github.com/xxf1995/comps_ediscovery" class="navbar-item">
         <span class="icon is-small"><i class="fa fa-github"></i></span>
       </a>
 
