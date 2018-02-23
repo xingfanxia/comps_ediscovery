@@ -12,6 +12,7 @@ import pickle
 import time
 import numpy
 import traceback
+
 '''
 Setup, loading files
 '''
@@ -22,6 +23,7 @@ root_dir = os.path.dirname(os.getcwd())
 sys.path.insert(0, root_dir)
 from lib.dblib import Database
 from lib import *
+import Scenario4Gold
 data = pd.read_pickle('../data/parsed/pickles/pickled_data_test.pickle')
 db = Database()
 
@@ -29,11 +31,14 @@ scenario = '401'
 saved_payload = None
 saved_data = None
 try:
-    f = open('../saved_forest.pickle', 'rb')
+    f = open('./testingData/saved_forest.pickle', 'rb')
     rnf = pickle.load(f)
     f.close()
 except:
     rnf = None
+
+with open('./testingData/SortedDict.pickle', 'rb') as handle:
+    tfidf_dict = pickle.load(handle)
 
 topics = pd.read_pickle('../data/parsed/LSA_dataframes/pickled_LSA_termsFeb12.pickle')
 topic_dict = {}
@@ -53,6 +58,18 @@ def addone(obj):
 def subone(obj):
     val = int(obj.group(1))
     return str(val-1)
+
+def upload_sort(search_dict, dict_tfidf, db_data):
+    if ("Message_Contents" in search_dict) and (imp_data == None):
+        for i in range(len(db_data)):
+            if dict_tfidf[db_data[i]["ID"]].get(search_dict["Message_Contents"]) == None:
+                db_data[i]["TF-IDF Value"] = 0
+            else:
+                db_data[i]["TF-IDF Value"] = dict_tfidf[db_data[i]["ID"]].get(search_dict["Message_Contents"])
+        db_data = sorted(db_data, key=lambda k: k['TF-IDF Value'], reverse = True)
+    else:
+        db_data = sorted(db_data, key=lambda k: k['Relevant'], reverse=True)
+    return db_data
 
 '''
 Model table data that gets populated by enron()
@@ -220,8 +237,9 @@ def enron():
         saved_payload = payload
     else:
         data = saved_data
+    
+    data = upload_sort(payload, tfidf_dict, data)
 
-    data = sorted(data, key=lambda k: k['Relevant'], reverse=True)
 
     final_len = dict_dump_copy['from'] + int(dict_dump_copy['per_page']) - 1
     if final_len > len(data):
@@ -334,16 +352,20 @@ def dbtest():
             saved_payload = None
                 # set_relevancy(self, id, scenario, score)
 
+            # eval_dict = Scenario4Gold.scenario_4_Gold(rnf)
+
             response = {
                 'status_code': 200,
-                'message': "SUCCESS!\nIncremental training finished without trouble!"
+                'message': "Success: Incremental Learning Completed!!"
             }
         except Exception as e:
             print(e)
+            traceback.print_exc()
             response = {
                 'status_code': 500,
                 'message': "ERROR!\nIncremental training failed!"
             }
+        # traceback.print_tb(e.__traceback__)
     else:
         update_df = df.loc[df['New_Tag'] == '1']
         test_df = df.loc[df['Relevant'] != '1']
@@ -376,9 +398,11 @@ def dbtest():
 
             saved_payload = None
 
+            # eval_dict = Scenario4Gold.scenario_4_Gold(rnf)
+
             response = {
                 'status_code': 200,
-                'message': "SUCCESS!\nIncremental training finished without trouble!"
+                'message': "Success: Incremental Learning Completed!!"
             }
         except Exception as e:
             print(e)
