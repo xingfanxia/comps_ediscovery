@@ -1,15 +1,14 @@
 <template>
   <div @click="onClick" id="overCon">
     <div class="row">
-      <div class="inline field col-lg-8" id="msgCon">
+      <div class="inline field col-lg-12 cell" id="msgCon">
         <label>Email Content:</label>
         <hr>
         <div class="code" v-html="spanMessage"></div>
-      </div>
-      <div class="col-lg-4 metaInfo inline field" id="msgCon">
-       <label>Topic Metadata:</label>
         <hr>
-        <mytable :apiUrl="apiUrl" :fields="fields"></mytable>
+        <label>Topic Metadata:</label>
+         <hr>
+         <mytable class='scrollTable' :apiUrl="apiUrl" :fields="fields" :row-class="onRowClass"></mytable>
       </div>
     </div>
   </div>
@@ -35,7 +34,8 @@ export default {
                                                    .replace(/'/g, '&#039;'),
       // topicMeta: '',
       apiUrl: 'http://127.0.0.1:5000/pred_meta/' + this.rowData['ID'],
-      fields: ['topic', 'importance']
+      fields: ['topic', 'importance', 'words'],
+      topicData: ''
     }
   },
 
@@ -64,9 +64,9 @@ export default {
             var alpha = response.data[key]
             console.log(alpha)
             if (alpha < 0) {
-              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) * 100 + ')')
+              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) * 10 + ')')
             } else {
-              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) * 100 + ')')
+              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) * 10 + ')')
             }
             $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
           }
@@ -90,6 +90,9 @@ export default {
     showTooltip (key) {
       console.log(key)
     },
+    onRowClass (dataItem, index){
+      return 'topic_' + dataItem['topic']
+    },
     hideTooltip () {
       console.log('yolo')
     }
@@ -105,6 +108,11 @@ export default {
   white-space: pre-wrap;      /* css-3 */
 }
 
+.cell{
+  overflow-y: auto;
+  display: table-cell;
+}
+
 #msgCon {
   border: 2px solid #ccc;
   display: block;
@@ -113,6 +121,10 @@ export default {
   height: 100%;
   /*text-transform: uppercase;*/
   /*color: #abb2c0;*/
+}
+
+.row{
+  display: table
 }
 
 hr {

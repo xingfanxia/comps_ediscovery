@@ -38,6 +38,7 @@ export default {
 
   data () {
     return {
+      lastCell : null
     }
   },
 
@@ -64,8 +65,11 @@ export default {
     },
     onCellClicked (data, field, event) {
       console.log('cellClicked: ', field.name)
+      if (this.lastCell !== data.ID){
+        this.$refs.vuetable.hideDetailRow(this.lastCell)
+      }
       this.$refs.vuetable.toggleDetailRow(data.ID)
-      this.$refs.vuetable.toggleDetailRow(this.lastCell)
+      this.lastCell = data.ID
     }
   }
 }

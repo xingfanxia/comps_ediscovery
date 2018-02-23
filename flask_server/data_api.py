@@ -79,6 +79,7 @@ def pred_data(identifier):
             new_dict = dict()
             new_dict['topic'] = key
             new_dict['importance'] = val
+            new_dict['words'] = topic_dict[int(key)]
             data_array.append(new_dict)
         response = dict()
         response['data'] = data_array
