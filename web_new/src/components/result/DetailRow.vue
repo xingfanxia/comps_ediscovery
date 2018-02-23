@@ -34,56 +34,39 @@ export default {
                                                    .replace(/"/g, '&quot;')
                                                    .replace(/'/g, '&#039;'),
       // topicMeta: '',
-      apiUrl: 'http://127.0.0.1:5000/topic_table',
-      fields: ['topic', 'terms']
+      apiUrl: 'http://127.0.0.1:5000/pred_meta/' + this.rowData['ID'],
+      fields: ['topic', 'importance']
     }
   },
 
   mounted: function () {
-    // this.topicMeta = 'some meta data'
-    axios.get('http://127.0.0.1:5000/topics')
+    axios.get('http://127.0.0.1:5000/span_data/' + this.rowData['ID'])
       .then(response => {
-        console.log(response)
-        this.topicMeta = response.data['0']
         for (var key in response.data) {
+          console.log(key)
           // check if the property/key is defined in the object itself, not in parent
           if (response.data.hasOwnProperty(key)) {
-            var word = key
-            var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
-            var topic = response.data[key][1]
-            var wordSpan = '<span class=topic_' + topic + ' title="topic   ' + topic + '">' + word + '</span>'
-            this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
-            console.log(this.spanMessage)
+              var word = key
+              var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
+              var topic = response.data[key][1]
+              var wordSpan = '<span class=topic_' + topic + ' title="topic ' + topic + '">' + word + '</span>'
+              this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
+              console.log(this.spanMessage)
+            }
           }
-        }
       })
-    // axios.get('http://127.0.0.1:5000/span_data/' + this.rowData['ID'])
-    //   .then(response => {
-    //     for (var key in response.data) {
-    //       console.log(key)
-    //       // check if the property/key is defined in the object itself, not in parent
-    //       if (response.data.hasOwnProperty(key)) {
-    //           var word = key
-    //           var wordRegex = new RegExp('\\b' + word + '\\b', 'gi')
-    //           var topic = response.data[key][1]
-    //           var wordSpan = '<span class=topic_' + topic + ' title="topic ' + topic + '">' + word + '</span>'
-    //           this.spanMessage = this.spanMessage.replace(wordRegex, wordSpan)
-    //         }
-    //       }
-    //   })
   },
-
   updated: function () {
-    axios.get('http://127.0.0.1:5000/pred_meta/' + this.rowData['ID'])
+    axios.get('http://127.0.0.1:5000/pred_meta_color/' + this.rowData['ID'])
       .then(response => {
         for (var key in response.data) {
           if (response.data.hasOwnProperty(key)) {
             var alpha = response.data[key]
             console.log(alpha)
             if (alpha < 0) {
-              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) * 10 + ')')
+              $('.topic_' + key).css('background-color', 'rgba(255, 0, 0, ' + Math.abs(alpha) * 100 + ')')
             } else {
-              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) * 10 + ')')
+              $('.topic_' + key).css('background-color', 'rgba(0, 255, 0, ' + Math.abs(alpha) * 100 + ')')
             }
             $('.topic_' + key).css('border-radius', '5px').css('padding', '1px')
           }
