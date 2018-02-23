@@ -17,7 +17,7 @@
         </div>
     </div>
     <div id="the-buttons" class="row center">
-      <button type="button" class="btn-sm queryButtons" v-for="option in options" @click="addField(option.value)" value="option.value">
+      <button type="button" id="tooltip" class="btn-sm queryButtons" v-for="option in options" @click="addField(option.value)" value="option.value" data-text="Click this button">
         {{ option.text }}
       </button>
 
@@ -146,4 +146,34 @@ export default {
     border-color: #0B5091;
 }
 
+#tooltip:hover:before{
+    border: solid;
+    border-color: #333 transparent;
+    border-width: 6px 6px 0 6px;
+    bottom: 20px;
+    content: "";
+    left: 50%;
+    position: absolute;
+    z-index: 99;
+}
+
+#tooltip:hover:after{
+    background: #333;
+    background: rgba(0,0,0,.8);
+    border-radius: 5px;
+    bottom: 26px;
+    color: #fff;
+    content: attr(data-text);
+    left: 20%;
+    padding: 5px 15px;
+    position: absolute;
+    z-index: 98;
+    width: 220px;
+    white-space: pre;
+}
+
+#tooltip{
+    display: inline;
+    position: relative;
+}
 </style>
