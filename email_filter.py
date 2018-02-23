@@ -1,14 +1,16 @@
 import numpy as np
 import pandas as pd
 import re
+
+from datetime import datetime
 from sklearn.feature_extraction import text
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.preprocessing import Normalizer
 
 
 '''
-Email filter class that will hold all of our regexes that we can apply to ALL emails. It is helpful 
-to have it as an objectbecause we can just add the regexes as instance variables and then iterate 
+Email filter class that will hold all of our regexes that we can apply to ALL emails. It is helpful
+to have it as an objectbecause we can just add the regexes as instance variables and then iterate
 over all of them using <object>.__dict__.items()
 '''
 class Email_filter:
@@ -22,8 +24,8 @@ class Email_filter:
         self.received = re.compile(r"^Received:(.*?)\([A-Z]{3}\)", re.DOTALL|re.MULTILINE)
 
 '''
-Method to actually filter the emails - creates an email filter object and loops through all of the 
-regexes it contains, running each of them on an email. If the email is a reply, it will first 
+Method to actually filter the emails - creates an email filter object and loops through all of the
+regexes it contains, running each of them on an email. If the email is a reply, it will first
 cut out all of the replies.
 '''
 def filter_email(s):
@@ -31,9 +33,9 @@ def filter_email(s):
         return("")
     e = Email_filter()
     ret = s
-    for variable_name, regex in e.__dict__.items():  
+    for variable_name, regex in e.__dict__.items():
         ret = re.sub(regex, "", ret)
-    
+
     return ret
 
 '''
@@ -48,8 +50,6 @@ def filter_reply(s):
 '''
 metadata parsing
 '''
-from datetime import datetime
-import re
 def parse_date(d):
     d = d.replace(',', '')
     redundancy_filter = d.split(' (')
@@ -71,16 +71,15 @@ def to_from_strip(s):
         return s.split(',')
     else:
         return([])
-    
+
 def parse_metadata(df):
     df['Date'] = df['Date'].apply(parse_date)
     df['To'] = df['To'].apply(to_from_strip)
     df['From'] = df['From'].apply(to_from_strip)
     df['X-To'] = df['X-To'].apply(x_strip)
     df['X-From'] = df['X-From'].apply(x_strip)
-    
     return(df)
-    
+
 def full_filter_email(df):
     df = df.replace(np.nan, '', regex=True)
     df.loc[df["Subject"].str.lower().str.startswith('re')]["Message-Contents"].apply(filter_reply)
