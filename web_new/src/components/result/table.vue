@@ -1,5 +1,6 @@
 <template>
   <div class="col-lg-12">
+    <scale-loader :loading="loading" :color="color" :size="size"></scale-loader>
     <vuetable ref="vuetable"
     :api-url="apiUrl"
     :fields="fields"
@@ -9,6 +10,7 @@
     track-by="ID"
     @vuetable:cell-clicked="onCellClicked"
     @vuetable:pagination-data="onPaginationData"
+    @vuetable:loaded="onLoaded"
     ></vuetable>
     <div class="vuetable-pagination ui basic segment grid">
       <vuetable-pagination-info ref="paginationInfo"
@@ -30,6 +32,7 @@ import VuetablePaginationInfo from 'vuetable-2/src/components/VuetablePagination
 import DetailRow from './DetailRow.vue'
 import CustomActions from './CustomActions'
 import Feedback from './Feedback.vue'
+import ScaleLoader from 'vue-spinner/src/ScaleLoader.vue'
 
 Vue.component('custom-actions', CustomActions)
 Vue.component('my-detail-row', DetailRow)
@@ -38,7 +41,10 @@ export default {
 
   data () {
     return {
-      lastCell : null
+      lastCell : null,
+      loading: true,
+      color: '#0B5091',
+      size: '20px'
     }
   },
 
@@ -46,7 +52,8 @@ export default {
     'vuetable': Vuetable,
     'vuetable-pagination': VuetablePagination,
     'vuetable-pagination-info': VuetablePaginationInfo,
-    'feedback': Feedback
+    'feedback': Feedback,
+    ScaleLoader
   },
 
   props: {
@@ -60,9 +67,11 @@ export default {
       this.$refs.pagination.setPaginationData(paginationData)
       this.$refs.paginationInfo.setPaginationData(paginationData)
     },
+
     onChangePage (page) {
       this.$refs.vuetable.changePage(page)
     },
+
     onCellClicked (data, field, event) {
       console.log('cellClicked: ', field.name)
       if (this.lastCell !== data.ID){
@@ -70,6 +79,10 @@ export default {
       }
       this.$refs.vuetable.toggleDetailRow(data.ID)
       this.lastCell = data.ID
+    },
+
+    onLoaded: function () {     
+        this.loading = false;
     }
   }
 }

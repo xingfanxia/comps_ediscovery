@@ -1,6 +1,7 @@
 // CustomActions.vue
 <template>
   <div class="custom-actions">
+    <scale-loader :loading="loading" :color="color" :size="size"></scale-loader>
     <button class="ui basic button" @click="feedback(rowData, 1);"><i class="check icon" v-bind:class="{ CActive: isCActive }"></i></button>
     <button class="ui basic button" @click="feedback(rowData, 0);"><i class="x icon" v-bind:class="{ XActive: isXActive }"></i></button>
   </div>
@@ -9,8 +10,13 @@
 <script>
 
 import axios from 'axios'
+import ScaleLoader from 'vue-spinner/src/ScaleLoader.vue'
 
 export default {
+  components: {
+    ScaleLoader
+  },
+
   props: {
     rowData: {
       type: Object,
@@ -24,7 +30,10 @@ export default {
   data () {
     return {
       isCActive: false,
-      isXActive: false
+      isXActive: false,
+      loading: false,
+      color: '#0B5091',
+      size: '20px'
     }
   },
 
@@ -38,12 +47,13 @@ export default {
       } else {
         relevant = flag
       }
-
+      vm.loading = true
       axios.post('http://127.0.0.1:5000/feedback', {
         'ID': rowData.ID,
         'Relevant': relevant
       })
         .then(function (response) {
+          vm.loading = false
           console.log(response.data['message'])
           if (relevant === 1) {
             vm.isXActive = false
@@ -58,6 +68,7 @@ export default {
           rowData.Relevant = relevant
         })
         .catch(function (error) {
+          vm.loading = false
           console.log(error)
         })
     },
