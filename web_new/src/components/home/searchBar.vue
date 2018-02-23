@@ -17,7 +17,7 @@
       <datepicker id="dater" v-model='time1' lang="en" range format="yyyy-MM-dd" :shortcuts="shortcuts"></datepicker>
       <button class="btn-sm queryButtons" v-on:click="getDate">Put Date</button>
       <p class="separator">||</p>
-      <button type="button" id="tooltip" class="btn-sm queryButtons" v-for="option in options" @click="addField(option.value)" value="option.value">
+      <button type="button" id="tooltip" class="btn-sm queryButtons" v-for="option in options" @click="addField(option.value)" value="option.value" data-text="Click this button">
         {{ option.text }}
       </button>
     </div>
