@@ -236,38 +236,28 @@ class Tree:
         return row[cur_node.min_feature] < cur_node.min_break_point
 
     '''
+    Helper function for update.
+    Clears rows and proportions, updates data for each node in the tree
     params:
-    more_data - more training data to update the tree
-    return:
-    Null or we can say something like which nodes are changed
+        updated_data - df, the new data that the tree is training on
     '''
-    def update(self, updated_data, new_rows):
-
-        nodes = [self.head]
-        node_count = 0
-        while (True):
-            temp = nodes
-            nodes = []
-            for node in temp:
-                # debugging: check how many nodes this sees
-                node_count += 1
-                
-                
-                node.data = updated_data
-                node.rows = []
-                node.proportions = {}
-                if node.left:
-                    nodes.append(node.left)
-                if node.right:
-                    nodes.append(node.right)
-            if nodes == []:
-                break
-                
-        # debugging: how many nodes go through the resetting process?
-#         print('tree.update: resetted {} nodes'.format(node_count))
-        # debugging: how does this compare to number of nodes that exist in the tree?
-#         print('tree.update: traverse returned {} nodes.'.format(len(self.traverse())))
-
+    def _reset_and_update_nodes(self, updated_data):
+        for node in self.traverse():
+            node.data = updated_data
+            # Clear how the node was initially defined
+            node.rows = []
+            # Clear proportions cache
+            node.proportions = {}
+    
+    '''
+    Helper function for increment
+    'Classifies' all rows in the updated_data through the tree
+    and places them in all of the nodes that they passed through.
+    This shoudl only be called after _reset_and_update_nodes()
+    params:
+        updated_data - df, new data that needs to be fall-ed
+    '''
+    def _fall_new_data_through_tree(self, updated_data, new_rows):
         # traverse each new data point through the tree, append row to each node
         for index, row in updated_data.loc[new_rows].iterrows():
             cur_node = self.head
@@ -288,11 +278,16 @@ class Tree:
                         cur_node = cur_node.right
             # don't forget about that one last leaf!
             cur_node.rows = np.append(cur_node.rows, row.name)
-
-
-        t = self.traverse()
-        num_rows = [len(r.rows) for r in t]
-        empty_nodes = [r for r in t if len(r.rows) == 0]
+    
+    '''
+    Helper function for update.
+    Removes references to any nodes that have no rows.
+    This should only be called after self._reset_and_update_nodes
+        and self._fall_new_data_through_tree
+    '''
+    def _delete_empty_row_nodes(self):
+        nodes = self.traverse()
+        empty_nodes = [node for node in nodes if len(node.rows) == 0]
         for e in empty_nodes:
             if e.parent_node:
                 parent = e.parent_node
@@ -301,127 +296,120 @@ class Tree:
                 elif parent.right == e:
                     parent.right = None
                 else:
-                    print('should not be here')      
+                    print('ERROR: Tree._delete_empty_row_nodes: This node has a parent, but its parent does not have a child')      
             else:
-                # the empty node is a head
-                print('this is a head')
-        
-        # after updating, look for empty nodes, and reshape tree accordingly.
-        nodes_to_traverse = [self.head]
-        done = False
-        while(not done):
-            temp = nodes_to_traverse
-            nodes_to_traverse = []
-            for i in range(len(temp)):
-                # if the current node has children, perform the rebalancing process 
-                cur = temp[i]
-                left = cur.left
-                right = cur.right
-                parent = cur.parent_node
-                if left and right:
-                    left_empty = False
-                    right_empty = False
-                    if (len(left.rows) == 0):
-                        left_empty = True
-                    else:
-                        nodes_to_traverse.append(left)
-
-                    if (len(right.rows) == 0):
-                        right_empty = True
-                    else:
-                        nodes_to_traverse.append(right)
-
-                    if left_empty and right_empty:
-                        # if both children are empty, become a leaf node
-                        print('both children are empty: this really shouldn\'t have happened')
-                        left = None
-                        right = None
-                    elif left_empty:
-#                         print('left empty only')
-                        # if only left child is empty, make self into right child
-                        if cur == self.head:
-#                             print('i need to become my right child, but I am also head')
-                            self.head = right
-                        elif parent.left == cur:
-#                             print('1')
-#                             print("parent's left becomes temp's right")
-                            parent.left = right
-                        else:
-#                             print('2')
-#                             print("parent's right becomes temp's left")
-                            parent.right = right
-#                         print('check: temp[i].parent_node.right == temp[i].right: {}'.format(temp[i].parent_node.right == temp[i].right))
-                        nodes_to_traverse.append(right)
-                        nodes_to_traverse.append(parent)
-                        nodes_to_traverse.append(parent.parent_node)
+                print('ERROR: Tree._delete_empty_row_nodes: The node to be deleted is a head. Are you sure this is what you want?')
     
-
-
-                    elif right_empty:
-#                         print('right empty only')
-                        # if only right child is empty, make self into left child
-                        if cur == self.head:
-#                             print('i need to become my left child, but I am also head')
-                            self.head = left
-                        elif parent.left == cur:
-                            parent.left = left
-                        else:
-                            parent.right = left
-                        nodes_to_traverse.append(left)
-                        nodes_to_traverse.append(parent)
-                        
-                    # debugging: checking what this condition would be, or if it ever happens
-                    else:
-                        pass
-#                         print('')
-                elif temp[i].left:
-#                     print('node has left child but no right')
-                    # this is to cover the case where a collapsed node needs to collapse again
-                    if len(temp[i].left.rows) == 0:
-                        temp[i] = temp[i].left
-                        nodes_to_traverse.append(temp[i])
-                elif temp[i].right:
-#                     print('node has right child but no left')
-                    # same but with the right side
-                    if len(temp[i].right.rows) == 0:
-                        temp[i] = temp[i].left
-                        nodes_to_traverse.append(temp[i])
-                else:
-#                     print('len(cur.rows) == 0?: {}'.format(len(cur.rows) == 0))
-#                     print('What is this one? check this one out too')
-                    # this node is a leaf, no need to look
+    '''
+    Helper function for self._adjust_tree_structure().
+    Checks that the rebalancing happened correctly
+    All nodes either have two children or is a leaf
+    '''
+    def _check_tree_structure(self):
+        nodes = self.traverse()
+        good_structure = True
+        for node in nodes:
+            parent = node.parent_node
+            left = node.left
+            right = node.right
+            if left and not right:
+                good_structure = False
+            elif not left and right:
+                good_structure = False
+        return good_structure
+                
+    
+    
+    '''
+    Helper function for update
+    Performs tree rebalancing by making self one of its children if the other child either
+    doesn't exist, or is empty.
+    '''
+    def _adjust_tree_structure(self):
+        if (self._check_for_empty_nodes()):
+            print('ERROR: Tree._adjust_tree_structure(): there is a 0-node after 0-node removals')
+            return
+        nodes_to_traverse = self.traverse()
+        while (True):
+            for node in nodes_to_traverse:
+                left = node.left
+                right = node.right
+                parent = node.parent_node
+                if left and right:
+                    # Node should only have both children if they are both valid
                     pass
+                elif left:
+                    # If node has only left child, turn itself into left
+                    if node == self.head:
+                        self.head = left
+                        left.parent_node = self.head
+                        left.parent_id = self.head.id
+                    elif parent.left == node:
+                        parent.left = left
+                        left.parent_node = parent
+                        left.parent_id = parent.id
+                    else:
+                        parent.right = left
+                        left.parent_node = parent
+                        left.parent_id = parent
+                elif right:
+                    # If node has only right child, turn itself into right
+                    if node == self.head:
+                        self.head = right
+                        right.parent_node = self.head
+                        right.parent_id = self.head.id
+                    elif parent.left == node:
+                        parent.left = right
+                        right.parent_node = parent
+                        right.parent_id = parent.id
+                    else:
+                        parent.right = right
+                        right.parent_node = parent
+                        right.parent_id = parent.id
+                else:
+                    # If node is a leaf, nothing needs to be changed.
+                    pass
+            if (self._check_tree_structure()):
+                break
+        if (not self._check_tree_structure()):
+            print("WARNING: Tree._adjust_tree_structure(): tree has single-child nodes after restructuring")
 
-            if len(nodes_to_traverse) == 0:
-                done = True
 
-        t = self.traverse()
-#         empty_nodes = [n for n in t if len(n.rows) == 0]
-#         print('there are {} empty nodes'.format(len(empty_nodes)))
-#         for e in empty_nodes:
-#             print('{}th empty node'.format(empty_nodes.index(e)))
-#             print('has left: {}'.format(e.left != None))
-#             print('has right: {}'.format(e.right != None))
-#             print('has parent: {}'.format(e.parent_node != None))
-#             print('is head: {}'.format(e == self.head))
-            
-#             print('parent has {} rows'.format(len(e.parent_node.rows)))
-#             if e.parent_node.left == e:
 
-#                 print('neighbor has {} rows'.format(len(e.parent_node.right.rows)))
-#             else:
-#                 print('neighbor has {} rows'.format(len(e.parent_node.left.rows)))
-            
-            
-            
-        num_rows = [len(r.rows) for r in t]
-        if 0 in num_rows:
-            print('Warning: after restructuring: there is a 0-row node')
-#             print('after restructuring, there are {} nodes in the tree'.format(len(t)))
-#             pass
-
+    '''
+    Helper function for update.
+    Returns:
+        True if there are no 0-row nodes in tree
+        False otherwise
+    '''
+    def _check_for_empty_nodes(self):
+        tree_nodes = self.traverse()
+        num_rows = [len(nodes.rows) for nodes in tree_nodes]
+        return 0 in num_rows
+    
+    
+    '''
+    params:
+    more_data - more training data to update the tree
+    return:
+    Null or we can say something like which nodes are changed
+    '''
+    def update(self, updated_data, new_rows):
+        self._reset_and_update_nodes(updated_data)
+        self._fall_new_data_through_tree(updated_data, new_rows)
+        self._delete_empty_row_nodes()
+        self._adjust_tree_structure()
+        if self._check_for_empty_nodes():
+            print("WARNING: Tree.update(): After restructuring the tree, there is still an empty node")
+        
+    '''
+    Utility function
+    Appends all nodes in the tree into a list
+    Returns:
+        All nodes in the tree as a list
+    '''
     def traverse(self):
-        '''Traverse down the tree and return all of the nodes in a list'''
+        
         nodes_list = [self.head]
         while True:
             initial_size = len(nodes_list)
@@ -449,7 +437,6 @@ class Tree:
         #complement of rows
         test_data = self.data.loc[~self.data.index.isin(self.rows)]
         complement = set(self.data.index.values.tolist()) - set(self.rows)
-        #predict each of those (TODO: update this once we have batch training)
         num_incorrect = 0
 
         ## batch version of calculating oob error
@@ -467,7 +454,6 @@ class Tree:
                 num_incorrect += 1 if r['Label'].values[0] == '1' else 0
 
         self.oob_error = num_incorrect / len(test_data)
-#         self.oob_error = num_incorrect / len(complement)
         return self.oob_error
 
     def store_tree(self, file_path):

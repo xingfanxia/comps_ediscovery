@@ -34,19 +34,6 @@ class Node:
         self.proportions = {}
         self.parent_node = parent_node
 
-
-
-
-    def calc_shannon_entropy(self):
-        raw_val = 0
-        for label in self.labels:
-            members = self.data.loc[self.data[self.label_index] == label]
-            if len(members) <= 0: continue
-            filtered = [x for x in members.index.values if x in self.rows]
-            intermediate = len(filtered)/len(self.rows)
-            raw_val += -intermediate*np.log2(intermediate)
-        return raw_val
-
     def calc_gini_index(self):
         raw_val = 1
         members = self.data.loc[self.rows][self.label_index].values
@@ -54,13 +41,6 @@ class Node:
             filtered = members[members == label]
             raw_val -= (len(filtered)/len(self.rows))**2
         return raw_val
-
-
-    '''
-    calculate info gain from gini/entropy
-    '''
-    def cal_info_gain():
-        pass
 
     def find_break_points(self, df, feature):
         breaks = []
@@ -73,6 +53,9 @@ class Node:
         return breaks
 
 
+    '''
+    Splitting function for when the feature is a categorical variable
+    '''
     def split_cat(self, feature):
         best_gini = 2
         best_address = None
@@ -371,7 +354,6 @@ class Node:
         return (score1*num1 + score2*num2)/(num1 + num2)
 
     def __str__(self):
-#         if self.left and self.right:
         children = [(x.side, x.id) for x in (self.left, self.right)] if self.left and self.right else []
         return "[{ID}, {Gini}, {Size}, {Feature}, {BP}, {Children}]".format(ID=self.id,
                                                             Gini = self.calc_gini_index(),
@@ -379,9 +361,9 @@ class Node:
                                                             Feature=self.min_feature,
                                                             BP=self.min_break_point,
                                                            Children=children)
-#         else:
-#             "[{ID}, (Children=None)]".format(ID=self.id)
 
+
+    
     def get_proportions(self, target_label):
         try:
             return self.proportions[target_label]
@@ -389,16 +371,6 @@ class Node:
             members = self.data.loc[self.rows][self.label_index].values
 
             filtered = [x for x in members if x == target_label]
-            
-#             if len(filtered) == 0:
-#                 print('this node has no rows')
-#                 if len(self.parent_node.rows) > 0:
-#                     print(len(self.parent_node.rows))
-#                 if self.left != None and self.right != None:
-#                     print('this is an empty non leaf node')
-#                 print('does it have a parent?: {}'.format(self.parent_node != None))
-#                 print('does it have left?: {}'.format(self.left != None))
-#                 print('does it have right?: {}'.format(self.right != None))
             
             raw_val = (len(filtered)/len(self.rows))
             self.proportions[target_label] = raw_val

@@ -172,11 +172,23 @@ def most_confident_increment(df, n_trees, tree_depth, random_seed, n_max_feature
         
         most_confident = sorted(zip(predictions[0], predictions[2]), key= lambda x: abs(x[0][1] - x[0][0]), reverse=True)[:100]
         most_confident_ids = [x[1] for x in most_confident]
-        print(most_confident_ids)
+#         print(most_confident_ids)
         incrementing_set = train_set[train_set['ID'].isin(most_confident_ids)]
         mc_rnf.update(incrementing_set)
         print(evalStats(mc_rnf.predict_parallel(test_set)[1], test_set))
     
+    
+def non_incremental(df, n_trees, tree_depth, random_seed, n_max_features, cat_features):
+    forest_100 = RNF(df[:100], n_trees, tree_depth, random_seed, n_max_features, 100, cat_features)
+    forest_200 = RNF(df[:200], n_trees, tree_depth, random_seed, n_max_features, 200, cat_features)
+    forest_300 = RNF(df[:300], n_trees, tree_depth, random_seed, n_max_features, 300, cat_features)
+    forest_400 = RNF(df[:400], n_trees, tree_depth, random_seed, n_max_features, 400, cat_features)
+    forest_500 = RNF(df[:500], n_trees, tree_depth, random_seed, n_max_features, 500, cat_features)
+    forest_600 = RNF(df[:600], n_trees, tree_depth, random_seed, n_max_features, 600, cat_features)
+    incremental_forests = [forest_100, forest_200, forest_300, forest_400, forest_500, forest_600]
+    for forest in incremental_forests:
+        forest.fit_parallel()
+        print(evalStats(forest.predict_parallel(df[-100:])[1], df[-100:]), end='\n')
 
         
     
