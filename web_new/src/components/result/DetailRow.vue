@@ -4,8 +4,7 @@
       <div class="inline field col-lg-12 cell" id="msgCon">
         <label>Email Content:</label>
         <hr>
-        <div class="code" v-html="spanMessage"></div>
-        <hr>
+        <div class="code col-lg-12 cell" v-html="spanMessage"></div>
         <label>Topic Metadata:</label>
          <hr>
          <mytable class='scrollTable' :apiUrl="apiUrl" :fields="fields" :row-class="onRowClass"></mytable>
@@ -108,23 +107,14 @@ export default {
   white-space: pre-wrap;      /* css-3 */
 }
 
-.cell{
-  overflow-y: auto;
-  display: table-cell;
-}
-
 #msgCon {
-  border: 2px solid #ccc;
+  border: 0px solid #ccc;
   display: block;
   font-size: 15px;
-  padding: 5px;
+  /* padding: 5px; */
   height: 100%;
   /*text-transform: uppercase;*/
   /*color: #abb2c0;*/
-}
-
-.row{
-  display: table
 }
 
 hr {
