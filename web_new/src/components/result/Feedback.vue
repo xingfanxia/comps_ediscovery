@@ -2,7 +2,7 @@
   <section id="feedback">
     <!-- <div id="greyscreen">
     </div> -->
-    <loading :active.sync="visible" :can-cancel="true"></loading>
+    <loading :active.sync="visible" :can-cancel="false"></loading>
     <div id="buttons">
       <button class="ui basic button" @click="learn()">Run Incremental Learning</button>
     </div>
@@ -14,6 +14,7 @@
 
 import axios from 'axios'
 import loading from 'vue-loading-overlay'
+import 'vue-loading-overlay/dist/vue-loading.min.css'
 
 export default {
   data() {
