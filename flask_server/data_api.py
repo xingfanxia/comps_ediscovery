@@ -95,13 +95,11 @@ def pred_data(identifier):
         for key, val in imp_data[identifier].items():
             if key == 'From' or key == 'To' or key == 'Date':
                 continue
-            feature_name, high_low = key.split("_")
-            if high_low == "high":
-                new_dict = dict()
-                new_dict['topic'] = feature_name
-                new_dict['importance'] = val
-                new_dict['words'] = topic_dict[int(feature_name)]
-                data_array.append(new_dict)
+            new_dict = dict()
+            new_dict['topic'] = key
+            new_dict['importance'] = val
+            new_dict['words'] = topic_dict[int(key)]
+            data_array.append(new_dict)
         response = dict()
         response['data'] = data_array
         return jsonify(response)
@@ -326,7 +324,7 @@ def dbtest():
                 exit(0)
             imp_data = dict()
             for i, identifier in enumerate(ids):
-                imp_data[identifier] = temp[i]
+                imp_data[identifier] = {key.split("_")[0]: value for key, value in temp[i].items() if key.split("_")[1]=="high"}
 
             # data = db.df_from_table('emails', scenario=scenario)
             # for i, email in enumerate(ids):
