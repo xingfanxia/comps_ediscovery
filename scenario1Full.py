@@ -63,11 +63,11 @@ Main function
 '''
 def discoverEnron(scenarioNum):
     #Train data cleaned
-    email_clean_train = cleanData("training.csv")
+    email_clean_train = cleanData("training_scenario_1.csv")
     print("Train Emails Cleaned")
 
     #Test data cleaned
-    email_clean_test = cleanData("test.csv")
+    email_clean_test = cleanData("test_scenario_1.csv")
     print("Test Emails Cleaned")
 
     #TFIDF Run for Train data
