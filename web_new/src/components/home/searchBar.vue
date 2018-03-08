@@ -97,9 +97,15 @@ export default {
     getDate: function () {
       var date1 = this.time1[0]
       var date2 = this.time1[1]
+      var day1 = date1.getDate()
+      var month1 = date1.getMonth() + 1
+      var year1 = date1.getFullYear()
+      var day2 = date2.getDate()
+      var month2 = date2.getMonth() + 1
+      var year2 = date2.getFullYear()
       console.log(date1)
       if (date1 !== undefined && date2 !== undefined) {
-        document.getElementById('searchBar').value += 'Date:/\'' + this.time1[0] + '-' + this.time1[1] + '\' '
+        document.getElementById('searchBar').value += 'Date:/\'' + month1 + '/' + day1 + '/' + year1 + '-' + month2 + '/' + day2 + '/' + year2 + '\' '
       }
     }
   }
