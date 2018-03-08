@@ -47,7 +47,7 @@ export default {
       } else {
         relevant = flag
       }
-      vm.loading = true
+      // vm.loading = true
       axios.post('http://127.0.0.1:5000/feedback', {
         'ID': rowData.ID,
         'Relevant': relevant
@@ -68,7 +68,7 @@ export default {
           rowData.Relevant = relevant
         })
         .catch(function (error) {
-          vm.loading = false
+          // vm.loading = false
           console.log(error)
         })
     },
