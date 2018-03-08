@@ -30,16 +30,17 @@ We process emails through TF-IDF and LSA and use the output to train our proprie
 * `scenario1Full.py`: Run a full scenario using this file.
 
 
-
-
+## Dependencies
+At Project Root:
+- Install Python libs: `pip3 install -r requirements.txt`
+- Install NPM Modules: `make web_dep`
 
 ## How to run
 ### Web:
-1. At project root `make web_dep`
-2. Then run `make web`
-3. `command+t` to make a new terminal tab and
+1. Then run `make web`
+2. `command+t` to make a new terminal tab and
 run `make -B web` in the new tab at project root and
-navigate to http://localhost:8080/
+3. Navigate to http://localhost:8080/
 
 ### Running Scenario 1 from TREC 2011:
 `python3 scenario1Full.py`
