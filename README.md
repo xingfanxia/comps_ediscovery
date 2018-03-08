@@ -32,7 +32,8 @@ We process emails through TF-IDF and LSA and use the output to train our proprie
 
 ## Dependencies
 At Project Root:
-- Install Python libs: `pip3 install -r requirements.txt`
+- Install Everything: `make all_dep`
+- Install Python libs: `make py_dep`
 - Install NPM Modules: `make web_dep`
 
 ## How to run

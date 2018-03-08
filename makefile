@@ -31,5 +31,12 @@ web:
 web_dep:
 	cd web_new && npm install
 	
+py_dep:
+	pip3 install -r requirements.txt
+
+all_dep:
+	cd web_new && npm install
+	pip3 install -r requirements.txt
+	
 api:
 	cd flask_server && python3 data_api.py
