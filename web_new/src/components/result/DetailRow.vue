@@ -19,7 +19,6 @@ import axios from 'axios'
 import Vuetable from 'vuetable-2/src/components/Vuetable'
 
 export default {
-
   components: {
     'mytable': Vuetable
   },

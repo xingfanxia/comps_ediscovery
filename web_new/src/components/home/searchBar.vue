@@ -4,7 +4,7 @@
         <div class='col-lg-11'>
             <p class="control is-expanded">
               <!-- <input class="input" type="text" v-model="inputText" v-on:keyup="checkEnter"> -->
-              <input type="text" class="input" id="searchBar" v-on:keyup.enter="checkEnter" v-model="inputText">
+              <input type="text" class="input" id="searchBar" v-on:keyup.enter="checkEnter(inputText)" v-model="inputText">
             </p>
         </div>
         <div class="col-lg-1">
@@ -83,21 +83,29 @@ export default {
       }
     },
 
-    checkEnter: function () {
-      console.log('this works')
-      $('#searchBar').keyup(function (event) {
-        if (event.keyCode === 13) {
-          $('#searchButton').click()
-        }
-      })
+    checkEnter: function (inputText) {
+      // console.log('this works')
+      // $('#searchBar').keyup(function (event) {
+      //   if (event.keyCode === 13) {
+      //     $('#searchButton').click()
+      //   }
+      // })
+      console.log('triggered')
+      window.open(this.formatSearchUrl(inputText), '_blank');
     },
 
     getDate: function () {
       var date1 = this.time1[0]
       var date2 = this.time1[1]
+      var day1 = date1.getDate()
+      var month1 = date1.getMonth() + 1
+      var year1 = date1.getFullYear()
+      var day2 = date2.getDate()
+      var month2 = date2.getMonth() + 1
+      var year2 = date2.getFullYear()
       console.log(date1)
       if (date1 !== undefined && date2 !== undefined) {
-        document.getElementById('searchBar').value += 'Date:/\'' + this.time1[0] + '-' + this.time1[1] + '\' '
+        document.getElementById('searchBar').value += 'Date:/\'' + month1 + '/' + day1 + '/' + year1 + '-' + month2 + '/' + day2 + '/' + year2 + '\' '
       }
     }
   }

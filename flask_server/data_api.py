@@ -326,7 +326,7 @@ def dbtest():
                 exit(0)
             imp_data = dict()
             for i, identifier in enumerate(ids):
-                imp_data[identifier] = temp[i]
+                imp_data[identifier] = {key.split("_")[0]: value for key, value in temp[i].items() if key.split("_")[1]=="high"}
 
             # data = db.df_from_table('emails', scenario=scenario)
             # for i, email in enumerate(ids):
