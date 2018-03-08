@@ -2,31 +2,42 @@
 # https://github.com/Damnever/pigar
 
 # flask_server/data_api.py: 4
-# web/views.py: 1,3
 Flask == 0.12.2
 
 # flask_server/data_api.py: 2
 Flask_Cors == 3.0.3
 
-# lib/eval.py: 2
+# lib/dblib.py: 7,8
+SQLAlchemy == 1.1.11
+
+# CompsLSA.py: 2
+# CompsML.py: 5
+# email_filter.py: 1
+# flask_server/data_api.py: 13
+# lib/evalMetrics.py: 2
 # lib/forest.py: 6
 # lib/node.py: 6
+# lib/queryMethods.py: 5
 # lib/tree.py: 7
 # lib/utils.py: 4
+# scenario1Full.py: 5
 numpy == 1.13.3
 
+# CompsML.py: 4
+# Scenario4Gold.py: 3
+# email_filter.py: 2
 # flask_server/data_api.py: 3
-# lib/eval.py: 3
+# lib/dblib.py: 4
+# lib/evalMetrics.py: 3
 # lib/forest.py: 7
 # lib/node.py: 7
+# lib/queryMethods.py: 4
 # lib/tree.py: 8
 # lib/utils.py: 5
-# web/views.py: 2
+# scenario1Full.py: 6
 pandas == 0.20.3
 
-# web_new/node_modules/node-gyp/gyp/setup.py: 7
-setuptools == 36.5.0
-
-# kimj4_exps/incremental.py: 11
-# lib/utils.py: 8
+# CompsLSA.py: 1
+# email_filter.py: 6,7,8
+# lib/utils.py: 9
 sklearn == 0.0
