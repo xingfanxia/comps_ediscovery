@@ -48,7 +48,7 @@ run `make -B web` in the new tab at project root and
 
 
 ## The Data
-We used a combination of Kaggle's dataset (https://www.kaggle.com/wcukierski/enron-email-dataset) and Trec's
+We used a combination of [Kaggle's dataset](https://www.kaggle.com/wcukierski/enron-email-dataset) and Trec's
 
 ## Authors
 Ju Yun Kim
