@@ -101,15 +101,39 @@
           <div class="col-lg-6 text-white showcase-img" style="background-image: url('img/size.png');"></div>
           <div class="col-lg-6 my-auto showcase-text">
             <h2>The Data</h2>
-            <p class="lead mb-0">Enron's emails from the Enron Scandal are public domain. We processed hundreds of thousands of emails requiring A LOT of processing power </p>
+            <p class="lead mb-0">After Enron collapsed, the Federal Energy Regulation Commission gathered a corpus of approximately 600,000 emails from the company. After some investigation, they released the dataset to the public. This dataset has become the gold standard for E-Discovery, since it contains real internal documents from a company. Real emails similar to the Enron email corpus are incredibly hard to come by due to privacy concerns. In addition to the actual dataset, we used labels for fictitious scenarios generated in 2011 by the Text Retrieval Conference (TREC) as a gold standard against which to compare ourselves.</p>
           </div>
         </div>
         <hr>
         <div class="row no-gutters">
-          <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('img/killing_mirage.png');"></div>
+          <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('img/homepage.png');"></div>
           <div class="col-lg-6 order-lg-1 my-auto showcase-text">
-            <h2>Sorry Stats Students</h2>
-            <p class="lead mb-0">Our algorithm required so many CPU cores and so much memory we crashed a couple of computers in the CMC. Thanks to Mike Tie for dealing with us.</p>
+            <h2>The Frontend</h2>
+            <p class="lead mb-0">Search and filter emails by sender, recipient, date, and subject. Walk through an example scenario we constructed for finding emails about lunch at Enron. Built with Vue.js and Bulma CSS.</p>
+          </div>
+        </div>
+        <hr>
+        <div class="row no-gutters">
+          <div class="col-lg-6 text-white showcase-img" style="background-image: url('img/workflow.png');"></div>
+          <div class="col-lg-6 my-auto showcase-text">
+            <h2>Machine Learning</h2>
+            <p class="lead mb-0">Broadly speaking, our pipeline consists of two steps: natural language processing and a random forest. We used Latent Semantic Analysis (LSA) to generate a number of topics based on the contents of the Enron emails. LSA also provides us with information about which topics are important to which emails. These topics, combined with metadata about the senders and recipients, provided us with our features to use in the random forest. Random forest is a popular machine learning algorithm that uses many decision trees to come to a classification decision while avoiding overfitting.</p>
+          </div>
+        </div>
+        <hr>
+        <div class="row no-gutters">
+          <div class="col-lg-6 order-lg-2 text-white showcase-img" style="background-image: url('img/titlespan.jpg');"></div>
+          <div class="col-lg-6 order-lg-1 my-auto showcase-text">
+            <h2>Visualizing the Machine Learning</h2>
+            <p class="lead mb-0">Explore how our machine learning algorithms decided on each email on the front end. The importance of each topic and the contents of each topic and readily displayed for every email.</p>
+          </div>
+        </div>
+        <hr>
+        <div class="row no-gutters">
+          <div class="col-lg-6 text-white showcase-img" style="background-image: url('img/results.png');"></div>
+          <div class="col-lg-6 my-auto showcase-text">
+            <h2>Our Results</h2>
+            <p class="lead mb-0">Our results were competitive with the results from the TREC conference. For a text-retrieval task such as this one, recall (the proportion of relevant documents that we successfully found) is the most important number. For the scenario we worked with primarily, our results were significantly better than the teams that participated in the conference. The team with the best recall score at the conference, 96%, had an overall F1 score of .17, compared to our F1 of .78. However, the teams at the conference performed better in two other scenarios, where our recall scores were more disappointing. With more time and parameter tuning, we believe that we can get results comparable to the industry standard across all three scenarios.</p>
           </div>
         </div>
       </div>
@@ -170,7 +194,7 @@
         <div class="row">
           <div class="col-xl-9 mx-auto">
             <h1 class="mb-4">Thank you to </h1>
-            <h3 class="mb-4">Our advisor Eric Alexander <br>Carleton College Computer Science Department <br> a variety of E-Discovery professionals <br>Our friends &amp; family. </h3>
+            <h3 class="mb-4">Our advisor Eric Alexander, <br>Carleton College Computer Science Department, <br> a variety of E-Discovery professionals, <br>and our friends &amp; family. </h3>
           </div>
         </div>
       </div>
